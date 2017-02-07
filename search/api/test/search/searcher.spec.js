@@ -93,7 +93,7 @@ describe('searcher', _ => {
                             "must": [
                                 {
                                 "query": {
-                                    "bool": {
+                                    "filtered": {
                                         "filter": {
                                             "bool": {
                                                 "should": [
