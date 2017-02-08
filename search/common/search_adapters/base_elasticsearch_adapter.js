@@ -1,4 +1,4 @@
-const CONFIG                        = require("../../config.json");
+const CONFIG                 = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 const AbstractSearchAdapter  = require("./abstract_search_adapter");
 
 /**

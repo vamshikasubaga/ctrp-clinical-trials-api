@@ -4,7 +4,7 @@ const ElasticSearch       = require("elasticsearch");
 
 const AbstractIndexTool   = require("./abstract_index_tool");
 const Logger              = require("../../../common/logger");
-const CONFIG              = require("../../config.json");
+const CONFIG              = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 
 class ElasticSearchLogger extends Logger {
   get DEFAULT_LOGGER_NAME() {
