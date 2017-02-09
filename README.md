@@ -1,5 +1,8 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b9f855009784107bcdbbd48f7566aab)](https://www.codacy.com/app/FNLCR/ctrp-clinical-trials-api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=CBIIT/ctrp-clinical-trials-api&amp;utm_campaign=Badge_Grade)
+
 # ctrp-clinical-trials-api
 Contains the Clinical Trial API. This is a version extracted initially from NCIP/clinical-trials-search to support micro-services and migrate to AWS.
+
 
 #### Setting Node Environment for search
 The configuration file used for Search by default is /search/config.json otherwise /search/config.${NODE_ENV}.json.
