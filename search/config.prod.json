@@ -1,4 +1,5 @@
 {
   "ES_HOST": "localhost",
-  "ES_PORT": "9200"
+  "ES_PORT": "9200",
+  "LOG_LEVEL": "WARN"
 }

@@ -13,3 +13,11 @@ Therefore commands npm run index (in index) and npm start (in api) use /search/c
 
 While commands 'NODE_ENV=prod npm run index' (in index) and 'NODE_ENV=prod npm start' (in api) use /search/config.prod.json.
 
+#### Config Settings
+
+  "ES_HOST": domain for elastic search [string]
+  "ES_PORT": port for elastic search [string]
+  "LOG_LEVEL": logging level for API requests [string or integer]
+        "LVL0"/0, "TRACE"/10, "DEBUG"/20, "INFO"/30, "WARN"/40, "ERROR"/50, "FATAL"/60
+
+

@@ -20,8 +20,9 @@ const searchPropsByType =
 //to filter against.
 const NESTED_SEARCH_PROPS_FILTER = ['sites'];
 
-let logger = new Logger({name: "searcher"});
-
+let logger = new Logger({name: "from http://" + CONFIG.ES_HOST + ":" + CONFIG.ES_PORT + " searcher"});
+logger.level(CONFIG.LOG_LEVEL);
+  
 class Searcher {
 
   constructor(adapter) {
