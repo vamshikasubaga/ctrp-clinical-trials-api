@@ -1,0 +1,13 @@
+#Files or directories to ignore
+.docker*
+.Docker*
+Docker*
+.git*
+.travis.yml
+temp*
+tmp*
+codeclimate*
+spec*
+.rspec*
+Gemfile.lock
+log/*
