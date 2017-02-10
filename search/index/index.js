@@ -61,6 +61,7 @@ class Indexer {
     ], (err, status) => {
       if (err) {
         this.logger.info("Errors encountered. Exiting.");
+        process.exit(1);
       } else {
         this.logger.info("Finished indexing.");
       }
