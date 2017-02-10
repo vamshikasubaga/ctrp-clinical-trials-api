@@ -21,7 +21,7 @@ before_install:
   - cat ./build_number.html
 before_script:
   - cd common && npm install
-  - cd ../search && npm install
+  - cd search && npm install
   - cd ../common && npm install
   - ls -alth
   - cd ../search/api && npm install
