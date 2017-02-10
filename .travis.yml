@@ -25,7 +25,7 @@ before_script:
   - cd common && npm install
   - ls -alth
   - cd ../api && npm install
-  - cd ./client && npm install
+  - cd ../client && npm install
   - cd ../index && npm install
 script:
   - cd search/api && npm test
