@@ -1,3 +1,4 @@
+const CONFIG              = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 const _                   = require("lodash");
 const Bodybuilder         = require("bodybuilder");
 const moment              = require("moment");
