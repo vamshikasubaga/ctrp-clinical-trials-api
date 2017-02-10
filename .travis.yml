@@ -27,6 +27,8 @@ before_script:
   - cd ../api && npm install
   - cd ../client && npm install
   - cd ../index && npm install
+  - pwd
+  - ls -lah
 script:
   - cd search/api && npm test
   # - pwd
