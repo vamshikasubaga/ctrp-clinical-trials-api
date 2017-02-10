@@ -30,7 +30,7 @@ before_script:
   - pwd
   - ls -lah
 script:
-  - cd search/api && npm test
+  - cd ../api && npm test
   # - pwd
   # - find ./
   # - istanbul cover test.js
