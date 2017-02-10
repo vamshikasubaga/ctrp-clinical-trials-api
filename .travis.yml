@@ -21,12 +21,12 @@ before_install:
   - cat ./build_number.html
 before_script:
   - cd common && npm install
-  - cd search && npm install
-  - cd ../common && npm install
+  - cd ../search && npm install
+  - cd common && npm install
   - ls -alth
-  - cd ../search/api && npm install
-  - cd ./searc/client && npm install
-  - cd ../search/index && npm install
+  - cd ../api && npm install
+  - cd ./client && npm install
+  - cd ../index && npm install
 script:
   - cd search/api && npm test
   # - pwd
