@@ -35,6 +35,7 @@ script:
   # - find ./
   # - istanbul cover test.js
   #Build Docker image
+  - cd ../..
   - echo "DOCKER_USERNAME= $DOCKER_USERNAME"
   - docker build -t $DOCKER_IMAGE:$DATE -t $DOCKER_IMAGE:latest .
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
