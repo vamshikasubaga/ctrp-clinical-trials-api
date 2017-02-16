@@ -22,10 +22,10 @@ class BaseElasticsearchAdapter extends AbstractSearchAdapter {
 
         if (Array.isArray(CONFIG.ES_HOST)) {
             CONFIG.ES_HOST.forEach(host => {
-                hosts.push(`${host}:${CONFIG.ES_PORT}`)
+                hosts.push(`${host}`)
             });
         } else {
-            hosts.push(`${CONFIG.ES_HOST}:${CONFIG.ES_PORT}`);
+            hosts.push(`${CONFIG.ES_HOST}`);
         } 
 
         return hosts;

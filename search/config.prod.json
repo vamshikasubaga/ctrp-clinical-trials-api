@@ -1,5 +1,6 @@
 {
   "ES_HOST": "localhost",
-  "ES_PORT": "9200",
-  "LOG_LEVEL": "WARN"
+  "LOG_LEVEL": "WARN",
+  "REGION": "us-east-1",
+  "NUM_DAYS": 10
 }

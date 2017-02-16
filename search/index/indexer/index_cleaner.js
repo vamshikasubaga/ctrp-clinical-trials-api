@@ -5,6 +5,8 @@ const ElasticSearch       = require("elasticsearch");
 const AbstractIndexTool   = require("./abstract_index_tool");
 const Logger              = require("../../../common/logger");
 
+const CONFIG              = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
+
 class ElasticSearchLogger extends Logger {
   get DEFAULT_LOGGER_NAME() {
     return "elasticsearch";
@@ -58,8 +60,7 @@ class IndexCleaner extends AbstractIndexTool {
 
     this.client.indices.getSettings({
         index: (aliasName + '*'),
-        name: 'index.creation_date', //Only get creation date field
-        flatSettings: true
+        name: 'index.creation_date' //Only get creation date field
     }, (err, response, status) => {
       if(err) { 
           this.logger.error(err);
@@ -71,7 +72,7 @@ class IndexCleaner extends AbstractIndexTool {
           let cutoffTime = currTime - daysToKeep;         
           
           _.forEach(response, (value, key) => {
-              let index_date = this._toDays(value.settings["index.creation_date"]);
+              let index_date = this._toDays(value.settings.index.creation_date);
               if (index_date < cutoffTime) {
                 indices.push(key);
               }
@@ -176,7 +177,7 @@ if (require.main === module) {
   //TODO: Make parameters
   trialsAlias = 'cancer-clinical-trials';
   termsAlias = 'cancer-terms';
-  numDays = 10;
+  numDays = CONFIG.NUM_DAYS;
 
   const ElasticsearchAdapter = require('../../common/search_adapters/elasticsearch_adapter');
 

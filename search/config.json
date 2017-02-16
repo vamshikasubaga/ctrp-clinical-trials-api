@@ -1,5 +1,6 @@
 {
-  "ES_HOST": "localhost",
-  "ES_PORT": "9200",
-  "LOG_LEVEL": "INFO"
+  "ES_HOST": "http://localhost:9200",
+  "LOG_LEVEL": "INFO",
+  "REGION": "us-east-1",
+  "NUM_DAYS": 10
 }

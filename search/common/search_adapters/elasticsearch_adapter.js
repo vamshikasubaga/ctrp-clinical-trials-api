@@ -1,7 +1,9 @@
+const AwsEsConnector                = require('http-aws-es');
 const ElasticSearch                 = require("elasticsearch");
 const Logger                        = require("../../../common/logger");
 const BaseElasticsearchAdapter      = require("./base_elasticsearch_adapter");
 
+const CONFIG                 = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 
 /**
  * A logger to be used by ElasticSearch 
@@ -34,7 +36,13 @@ class ElasticsearchAdapter extends BaseElasticsearchAdapter {
 
         this.client = new ElasticSearch.Client({
             host: hosts,
-            log: SearchLogger
+            log: SearchLogger,
+            connectionClass: AwsEsConnector,
+            amazonES: {
+                region: CONFIG.REGION,
+                accessKey: process.env.AWS_ACCESS_KEY_ID,
+                secretKey: process.env.AWS_SECRET_ACCESS_KEY
+            }
         });
     }
 }
