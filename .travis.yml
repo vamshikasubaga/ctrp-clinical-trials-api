@@ -11,7 +11,7 @@ before_install:
   #Set up Docker exports
   - export AUTHOR=`git --no-pager show -s --format='%an <%ae>'`
   - export DATE=`TZ=America/New_York date "+%m-%d-%y-%H%M"`
-  - export DOCKER_IMAGE="ctrp/nci-match-admin-tool-ui"
+  - export DOCKER_IMAGE="ctrp/clinical-trials-api"
   - echo "TravisBuild=$TRAVIS_BUILD_NUMBER" > build_number.html &&
         echo "Commit=$TRAVIS_COMMIT" >> build_number.html       &&
         echo "TravisBuildID=$TRAVIS_BUILD_ID" >> build_number.html    &&
