@@ -1,5 +1,7 @@
 {
   "ES_HOST": "https://search-cancer-terms-v3wzi33i5bn7so77hvlql36ybi.us-east-1.es.amazonaws.com",
   "ES_PORT": "9200",
-  "LOG_LEVEL": "DEBUG"
+  "LOG_LEVEL": "DEBUG",
+  "NUM_DAYS": 10,
+  "REGION": "us-east-1"
 }
