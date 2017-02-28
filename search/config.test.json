@@ -3,5 +3,8 @@
   "ES_PORT": "9200",
   "LOG_LEVEL": "DEBUG",
   "NUM_DAYS": 10,
-  "REGION": "us-east-1"
+  "REGION": "us-east-1",
+  "AWS_ACCESS_KEY_ID": "$AWS_ACCESS_KEY_ID",
+  "AWS_SECRET_ACCESS_KEY": "$AWS_SECRET_ACCESS_KEY",
+  "NODE_ENV": "test"
 }
