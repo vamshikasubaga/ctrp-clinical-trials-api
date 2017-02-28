@@ -1,10 +1,6 @@
 {
   "ES_HOST": "https://search-cancer-terms-v3wzi33i5bn7so77hvlql36ybi.us-east-1.es.amazonaws.com",
-  "ES_PORT": "9200",
   "LOG_LEVEL": "DEBUG",
   "NUM_DAYS": 10,
-  "REGION": "us-east-1",
-  "AWS_ACCESS_KEY_ID": "$AWS_ACCESS_KEY_ID",
-  "AWS_SECRET_ACCESS_KEY": "$AWS_SECRET_ACCESS_KEY",
-  "NODE_ENV": "test"
+  "REGION": "us-east-1"
 }
