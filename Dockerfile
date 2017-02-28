@@ -19,15 +19,15 @@ RUN cd search/index && npm install
 # Bundle app source
 #COPY . /usr/src/app
 
-echo "#######################"
-echo "#######################"
-echo "#######################"
-echo "NODE_ENV=${NODE_ENV} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-echo "#######################"
-echo "#######################"
-echo "#######################"
-echo "#######################"
-echo "#######################"
+RUN echo "#######################"
+RUN echo "#######################"
+RUN echo "#######################"
+RUN echo "NODE_ENV=${NODE_ENV} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
+RUN echo "#######################"
+RUN echo "#######################"
+RUN echo "#######################"
+RUN echo "#######################"
+RUN echo "#######################"
 
 EXPOSE 3000
 CMD cd /usr/src/clinical-trials-api/search/api && NODE_ENV=${NODE_ENV} AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} npm start
