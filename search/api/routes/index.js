@@ -172,7 +172,10 @@ router.get('/version', (req, res, next) => {
       require('git-rev').short(function (str) {
         gitHash = str;
         if (!gitHash) {
-          throw new Error("git_hash field missing from ../git_hash.json");
+          // catch error and log a warning
+          logger.warning(
+            "git_hash field missing from ../git_hash.json"
+          );
         }
       });
   } catch(err) {

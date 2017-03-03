@@ -68,6 +68,6 @@ app.use(function(err, req, res, next) {
 });
 
 const port = process.env.PORT || '3000';
-logger.info(`SSSSSSSSSSSSSSSSSSSSSSSSStarted API server at http://localhost:${port}/`);
+logger.info(`Started API server at http://localhost:${port}/`);
 
 module.exports = app;
