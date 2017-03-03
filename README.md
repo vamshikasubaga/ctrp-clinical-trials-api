@@ -17,8 +17,9 @@ While commands 'NODE_ENV=prod npm run index' (in index) and 'NODE_ENV=prod npm s
 
 #### Config Settings
 
- - "ES_HOST": domain for elastic search [string]
- - "ES_PORT": port for elastic search [string]
+ - "ES_HOST": URL for elastic search [string]
+ - "REGION": for AWS e.g "us-east-1",
+ - "NUM_DAYS": number of days for indices to live e.g 10
  - "LOG_LEVEL": logging level for API requests [string or integer]
    - "LVL0"/0, "TRACE"/10, "DEBUG"/20, "INFO"/30, "WARN"/40, "ERROR"/50, "FATAL"/60
 
