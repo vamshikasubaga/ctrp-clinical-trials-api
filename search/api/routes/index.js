@@ -157,6 +157,8 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/version', (req, res, next) => {
+  var gitHash;
+
   const _sendVersionResponse = (gitHash) => {
     res.json({
       "version": package.version,
@@ -166,24 +168,6 @@ router.get('/version', (req, res, next) => {
       "authors": package.authors
     });
   };
-
-  var gitHash;
-  try {
-      require('git-rev').short(function (str) {
-        gitHash = str;
-        if (!gitHash) {
-          // catch error and log a warning
-          logger.warning(
-            "git_hash field missing from ../git_hash.json"
-          );
-        }
-      });
-  } catch(err) {
-    // catch error and log a warning
-    logger.warning(err,
-      "Missing ../git_hash.json file, attempting to use git-rev library to look up git hash..."
-    );
-  }
 
   if (gitHash) {
     _sendVersionResponse(gitHash)
