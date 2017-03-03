@@ -47,7 +47,7 @@ after_success:
   #Deploy to AWS IntTest
   - docker run -it --rm -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
     -e AWS_DEFAULT_REGION=us-east-1 silintl/ecs-deploy
-    --cluster CTRP-IntTest-Backend --service-name CTRP-clinical-trials-api-INTTEST
+    --cluster CTRP-IntTest-Backend --service-name CTRP-ctrp_clinical_trials_api-INTTEST
     -i $DOCKER_IMAGE:$DATE
  
   #Trigger Travis bdd tests
