@@ -161,16 +161,20 @@ router.get('/version', (req, res, next) => {
     res.json({
       "version": package.version,
       "git-hash": gitHash,
-      "git-repository": package.repository.url
+      "git-repository": package.repository.url,
+      "environment": process.env.NODE_ENV,
+      "authors": package.authors
     });
   };
 
   var gitHash;
   try {
-    gitHash = require("../git_hash.json").git_hash;
-    if (!gitHash) {
-      throw new Error("git_hash field missing from ../git_hash.json");
-    }
+      require('git-rev').short(function (str) {
+        gitHash = str;
+        if (!gitHash) {
+          throw new Error("git_hash field missing from ../git_hash.json");
+        }
+      });
   } catch(err) {
     // catch error and log a warning
     logger.warning(err,
