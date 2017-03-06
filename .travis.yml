@@ -20,6 +20,7 @@ before_install:
         echo "Docker=$DOCKER_IMAGE:$DATE" >> build_number.html
   - cat ./build_number.html
 before_script:
+  - npm install codacy-coverage
   - cd common && npm install
   - cd ../search && npm install
   - cd common && npm install
