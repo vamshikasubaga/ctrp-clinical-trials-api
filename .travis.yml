@@ -20,6 +20,7 @@ before_install:
         echo "Docker=$DOCKER_IMAGE:$DATE" >> build_number.html
   - cat ./build_number.html
 before_script:
+  - npm install codacy-coverage
   - cd common && npm install
   - cd ../search && npm install
   - cd common && npm install
@@ -42,6 +43,7 @@ script:
 after_success:
   - ls -alth
   # - codeclimate-test-reporter < lcov.info
+  # - cat lcov.info | codacy-coverage
   - docker images
   - docker push $DOCKER_IMAGE # Pushes both date and latest
   #Deploy to AWS IntTest
