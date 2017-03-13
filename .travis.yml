@@ -53,10 +53,8 @@ after_success:
     -i $DOCKER_IMAGE:$DATE
  
   #Trigger Travis bdd tests
-  # - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json" 
-  #   -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN" 
-  #   -d "{\"request\":{\"message\":\"Triggered by nci-match-patient-api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=nci-match-patient-api;TRIGGER_VER=$DATE;CUC_TAG=@patients;AUTHOR=$AUTHOR\"]}}}}" 
-  #   https://api.travis-ci.org/repo/CBIIT%2Fnci-uMatch-bddtests/requestsafter_script:
+  - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  -d "{\"request\":{\"message\":\"Triggered by ctrp-clinical-trials-api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=ctrp-clinical-trials-api;TRIGGER_VER=$DATE;CUC_TAG=@ctrp_trials;AUTHOR=$AUTHOR\"]}}}}"    https://api.travis-ci.org/repo/CBIIT%2Fctrp-bddtests/requests
+  
 # - codeclimate-test-reporter < test/coverage/report-lcov/lcov.info
 notifications:
   slack: clinicalbiomed:W5L3wQ69vtL1XJCo8uT3oQgY
