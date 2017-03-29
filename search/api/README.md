@@ -73,7 +73,7 @@ curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/clinical-trials' \
 The `terms` endpoint is intended for typeaheads and other use cases where it is necessary to search for available terms which can later be used to filter clinical trial results. Terms are matched partially by supplying a string to the `term` field and may be filtered by clinical trial type using the `term_type` field. Results are sorted by a combination of string relevancy and popularity.
 
 Example:
-[terms?term=pancreatic%20n](https://clinicaltrialsapi.cancer.gov/v1/terms?term=pancreatic%20n)
+[terms?term=pancreatic%20n](terms?term=pancreatic%20n)
 
 ## Fetching Daily Updates
 
@@ -93,4 +93,4 @@ Example: [clinical-trials?current_trial_status_date_gte=2016-08-25](clinical-tri
 
 ## Issues
 
-Please file any questions or issues at the [clinical-trials-search repository](https://github.com/NCIP/clinical-trials-search/issues).
+Please file any questions or issues at the [clinical-trials-search repository](https://github.com/CBIIT/ctrp-clinical-trials-api/issues).

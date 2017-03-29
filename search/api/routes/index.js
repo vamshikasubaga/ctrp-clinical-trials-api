@@ -23,7 +23,7 @@ const respondInvalidQuery = (res) => {
 }
 
 /* get a clinical trial by nci or nct id */
-router.get('/clinical-trial/:id', (req, res, next) => {
+router.get('/v1/clinical-trial/:id', (req, res, next) => {
   let id = req.params.id;
   searcher.getTrialById(id, (err, trial) => {
     // TODO: add better error handling
@@ -92,18 +92,18 @@ const queryClinicalTrialsAndSendResponse = (q, res, next) => {
 }
 
 /* get clinical trials that match supplied search criteria */
-router.get('/clinical-trials', (req, res, next) => {
+router.get('/v1/clinical-trials', (req, res, next) => {
   let q = req.query;
   queryClinicalTrialsAndSendResponse(q, res, next);
 });
 
-router.post('/clinical-trials', (req, res, next) => {
+router.post('/v1/clinical-trials', (req, res, next) => {
   let q = req.body;
   queryClinicalTrialsAndSendResponse(q, res, next);
 });
 
 /* get key terms that can be used to search through clinical trials */
-router.get('/terms', (req, res, next) => {
+router.get('/v1/terms', (req, res, next) => {
   let q = _.pick(req.query, ["term", "term_type", "size", "from", "codes"]);
 
   searcher.searchTerms(q, (err, terms) => {
@@ -115,7 +115,7 @@ router.get('/terms', (req, res, next) => {
   });
 });
 
-router.post('/terms', (req, res, next) => {
+router.post('/v1/terms', (req, res, next) => {
   let q = _.pick(req.body, ["term", "term_type", "size", "from", "codes"]);
 
   searcher.searchTerms(q, (err, terms) => {
@@ -128,7 +128,7 @@ router.post('/terms', (req, res, next) => {
 });
 
 /* get a term by its key */
-router.get('/term/:key', (req, res, next) => {
+router.get('/v1/term/:key', (req, res, next) => {
   let key = req.params.key;
   searcher.getTermByKey(key, (err, term) => {
     // TODO: add better error handling
@@ -140,7 +140,7 @@ router.get('/term/:key', (req, res, next) => {
 });
 
 
-router.get('/clinical-trial.json', (req, res, next) => {
+router.get('/v1/clinical-trial.json', (req, res, next) => {
   let clinicalTrialJson = Utils.omitPrivateKeys(trialMapping);
   let excludeKeys = [
     "analyzer", "index",
@@ -151,12 +151,12 @@ router.get('/clinical-trial.json', (req, res, next) => {
   res.json(clinicalTrialJson["trial"]["properties"]);
 });
 
-router.get('/', (req, res, next) => {
+router.get('/v1/', (req, res, next) => {
   let title = "NCI Clinical Trials API";
   res.render('index', { md, title });
 });
 
-router.get('/version', (req, res, next) => {
+router.get('/v1/version', (req, res, next) => {
   var gitHash;
 
   const _sendVersionResponse = (gitHash) => {
