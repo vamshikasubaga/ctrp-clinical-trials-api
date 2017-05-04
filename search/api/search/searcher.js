@@ -425,7 +425,9 @@ class Searcher {
       if (!(lon) || isNaN(parseFloat(lon))) {
         err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`
       }
-
+      if (!(dist) || isNaN(parseFloat(dist)) || dist === 0) {
+        dist = 0.000000001;
+      }
       //TODO: add in validation of values for distance
 
       if (err != "") {
@@ -621,6 +623,10 @@ class Searcher {
     return [
       "_diseases",
       "_locations",
+      "_postal_codes",
+      "_countries",
+      "_cities",
+      "_statesOrProvinces",
       "sites.org_name",
       "sites.org_family",
       "_treatments"

@@ -15,6 +15,10 @@ class TermLoader {
     return [
       "_diseases",
       "_locations",
+      "_postal_codes",
+      "_countries",
+      "_cities",
+      "_states_or_provinces",
       "sites.org_name",
       "sites.org_family",
       "_treatments",

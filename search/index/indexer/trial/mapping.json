@@ -28,6 +28,26 @@
         "analyzer": "keyword_ci",
         "include_in_all": false
       },
+      "_postal_codes": {
+        "type": "string",
+        "analyzer": "keyword_ci",
+        "include_in_all": false
+      },
+      "_countries": {
+        "type": "string",
+        "analyzer": "keyword_ci",
+        "include_in_all": false
+      },
+      "_cities": {
+        "type": "string",
+        "analyzer": "keyword_ci",
+        "include_in_all": false
+      },
+      "_states_or_provinces": {
+        "type": "string",
+        "analyzer": "keyword_ci",
+        "include_in_all": false
+      },
       "_treatments": {
         "type": "string",
         "analyzer": "keyword_ci",
