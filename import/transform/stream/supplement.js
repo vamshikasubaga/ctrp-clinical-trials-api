@@ -275,61 +275,6 @@ class SupplementStream extends Transform {
     trial._locations = Object.keys(locations);
   }
 
-  _createPostalCodes(trial) {
-    if (!trial.sites) {return; }
-    let postalCodes = {};
-    trial.sites.forEach((site) => {
-      let postalCode = _.compact([
-          site.org_postal_code
-      ]).join(", ");
-      if (postalCode) {
-        postalCodes[postalCode] = 1;
-      }
-    });
-    trial._postal_codes = Object.keys(postalCodes);
-  }
-
-  _createCountries(trial) {
-    if (!trial.sites) {return; }
-    let countries = {};
-    trial.sites.forEach((site) => {
-      let country = _.compact([
-          site.org_country
-      ]).join(", ");
-      if (country) {
-        countries[country] = 1;
-      }
-    });
-    trial._countries = Object.keys(countries);
-  }
-  _createCities(trial) {
-    if (!trial.sites) {return; }
-    let cities = {};
-    trial.sites.forEach((site) => {
-      let city = _.compact([
-          site.org_city
-      ]).join(", ");
-      if (city) {
-        cities[city] = 1;
-      }
-    });
-    trial._cities = Object.keys(cities);
-  }
-
-  _createStatesOrProvinces(trial) {
-    if (!trial.sites) {return; }
-    let statesOrProvinces = {};
-    trial.sites.forEach((site) => {
-      let stateOrProvince = _.compact([
-          site.org_state_or_province
-      ]).join(", ");
-      if (stateOrProvince) {
-        statesOrProvinces[stateOrProvince] = 1;
-      }
-    });
-    trial._states_or_provinces = Object.keys(statesOrProvinces);
-  }
-
   _createTreatments(trial) {
     // TODO: add tree members (similar to disease)
     if (!trial.arms) { return; }
@@ -489,10 +434,6 @@ class SupplementStream extends Transform {
       this._createAgeInYears(trial);
       this._addThesaurusTerms(trial);
       this._createLocations(trial);
-      this._createPostalCodes(trial);
-      this._createCountries(trial);
-      this._createCities(trial);
-      this._createStatesOrProvinces(trial);
       this._createTreatments(trial);
       this._createDiseases(trial);
 
