@@ -25,7 +25,7 @@ class SearcherMockAdapter extends AbstractSearchAdapter {
     }
 }
 
-describe('searcher', _ => {
+describe('Searcher', _ => {
 
     it('Should Build a NCT ID Query', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
@@ -116,6 +116,86 @@ describe('searcher', _ => {
             }
         });
 
+    });
+
+    // new unit tests
+
+    it('Should Build a Term Query with term', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term=repub");
+        let query = searcher._searchTermsQuery(q);
+
+        console.log(JSON.stringify(query.query.function_score));
+
+        expect(query.query.function_score.query.bool.should).to.not.eql({
+            match: {
+                "term": "repu"
+            }
+        });
+    });
+
+    it('Should Build a Term Query with term_type', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term_type=sites.org_city");
+        let query = searcher._searchTermsQuery(q);
+
+        expect(query.query.function_score.query).to.eql({
+            bool: {
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                term: {
+                                    "term_type": "sites.org_city"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        });
+    });
+
+    it('Should Build a Term Query with term and term_type', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term=repub&term_type=sites.org_country");
+        let query = searcher._searchTermsQuery(q);
+
+        expect(query.query.function_score.query).to.eql({
+            bool: {
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                term: {
+                                    "term_type": "sites.org_country"
+                                }
+                            }
+                        ]
+                    }
+                },
+                must: [
+                    {
+                        match: {
+                            "term_suggest": "repub"
+                        }
+                    },
+                    {
+                        match: {
+                            "term_suggest": {
+                                "query": "repub",
+                                "type": "phrase"
+                            }
+                        }
+                    }
+                ],
+                should: {
+                    match: {
+                        "term": "repub"
+                    }
+                }
+            }
+        });
     });
 
 });
