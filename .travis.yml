@@ -11,7 +11,7 @@ before_install:
   #Set up Docker exports
   - export AUTHOR=`git --no-pager show -s --format='%an <%ae>'`
   - export DATE=`TZ=America/New_York date "+%m-%d-%y-%H%M"`
-  - export DOCKER_IMAGE="ctrp/clinical-trials-api"
+  - export DOCKER_IMAGE="fnlcr/clinical-trials-api"
   - echo "TravisBuild=$TRAVIS_BUILD_NUMBER" > build_number.html &&
         echo "Commit=$TRAVIS_COMMIT" >> build_number.html       &&
         echo "TravisBuildID=$TRAVIS_BUILD_ID" >> build_number.html    &&
@@ -50,7 +50,7 @@ after_success:
   - docker run -it --rm -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
     -e AWS_DEFAULT_REGION=us-east-1 silintl/ecs-deploy
     --cluster CTRP-IntTest-Backend --service-name CTRP-ctrp_clinical_trials_api-INTTEST
-    -i $DOCKER_IMAGE:$DATE
+    -i $DOCKER_IMAGE:$DATE --timeout 540 --max-definitions 25
  
   #Trigger Travis bdd tests
   - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  -d "{\"request\":{\"message\":\"Triggered by ctrp-clinical-trials-api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=ctrp-clinical-trials-api;TRIGGER_VER=$DATE;CUC_TAG=@CTRP_TRIALS;AUTHOR=$AUTHOR\"]}}}}"    https://api.travis-ci.org/repo/CBIIT%2Fctrp-bddtests/requests
