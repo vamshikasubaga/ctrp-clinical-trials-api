@@ -696,7 +696,7 @@ class Searcher {
     let size = q.size || TERM_RESULT_SIZE_DEFAULT;
     size = size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : size;
     let sort = q.sort || TERM_SORT_DEFAULT;
-    console.log(sort);
+    // TODO: Grab the sort form URI
     let from = q.from ? q.from : 0;
 
     // finalize the query
@@ -706,7 +706,6 @@ class Searcher {
       "from": from
     };
      //logger.info(query);
-      // query["sort"] = { "term": { "order": "asc" }};
 
       // right place to change term to order alphabetically
       if (sort == "term") {
@@ -723,25 +722,9 @@ class Searcher {
           }
         }
       }
-     // query["sort"] = [
-     //     {
-     //       "term": {
-     //         "order": "asc"
-     //       }
-     //     },
-     //     {
-     //       "_score": {
-     //         "order": "desc"
-     //       }
-     //     }
-     // ];
-
 
       // query is the intermediate object.
-      console.log(JSON.stringify(query));
       // q is to get the actual values
-      console.log('***');
-      console.log(JSON.stringify(q));
     return query;
   }
 
