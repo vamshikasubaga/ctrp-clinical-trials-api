@@ -47,8 +47,7 @@ after_success:
   - docker images
   - docker push $DOCKER_IMAGE # Pushes both date and latest
   #Deploy to AWS IntTest
-  - docker run -it --rm -e "NODE_ENV=$NODE_ENV"
-    -e AWS_DEFAULT_REGION=us-east-1 silintl/ecs-deploy
+  - docker run -it --rm -e "NODE_ENV=$NODE_ENV" silintl/ecs-deploy
     --cluster CTRP-IntTest-Backend --service-name CTRP-ctrp_clinical_trials_api-INTTEST
     -i $DOCKER_IMAGE:$DATE --timeout 540 --max-definitions 25
  
