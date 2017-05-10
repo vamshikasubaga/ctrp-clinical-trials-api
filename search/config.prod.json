@@ -1,5 +1,5 @@
 {
-  "ES_HOST": "localhost",
+  "ES_HOST": "https://search-ctrp-trials-xmg3nm4w7f5sqcn4sgkzysyiee.us-east-1.es.amazonaws.com",
   "LOG_LEVEL": "WARN",
   "REGION": "us-east-1",
   "NUM_DAYS": 10
