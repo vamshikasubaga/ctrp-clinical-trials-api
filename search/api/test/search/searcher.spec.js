@@ -196,4 +196,26 @@ describe('Searcher', _ => {
         });
     });
 
+    it('Should Build a Term Query with term_type', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term_type=sites.org_postal_code");
+        let query = searcher._searchTermsQuery(q);
+
+        expect(query.query.function_score.query).to.not.eql({
+        bool: {
+            filter: {
+                bool: {
+                    should: [
+                        {
+                            term: {
+                                "term_type": "sites.org_city"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    });
+});
+
 });
