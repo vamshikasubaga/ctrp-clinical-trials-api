@@ -122,14 +122,12 @@ describe('Searcher', _ => {
 
     it('Should Build a Term Query with term', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
-        let q = querystring.parse("term=repub");
+        let q = querystring.parse("term=dal");
         let query = searcher._searchTermsQuery(q);
 
-        console.log(JSON.stringify(query.query.function_score));
-
-        expect(query.query.function_score.query.bool.should).to.not.eql({
+        expect(query.query.function_score.query.bool.should).to.eql({
             match: {
-                "term": "repu"
+                "term": "dal"
             }
         });
     });
@@ -158,7 +156,7 @@ describe('Searcher', _ => {
 
     it('Should Build a Term Query with term and term_type', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
-        let q = querystring.parse("term=repub&term_type=sites.org_country");
+        let q = querystring.parse("term=dal&term_type=sites.org_city");
         let query = searcher._searchTermsQuery(q);
 
         expect(query.query.function_score.query).to.eql({
@@ -168,7 +166,7 @@ describe('Searcher', _ => {
                         should: [
                             {
                                 term: {
-                                    "term_type": "sites.org_country"
+                                    "term_type": "sites.org_city"
                                 }
                             }
                         ]
@@ -177,13 +175,13 @@ describe('Searcher', _ => {
                 must: [
                     {
                         match: {
-                            "term_suggest": "repub"
+                            "term_suggest": "dal"
                         }
                     },
                     {
                         match: {
                             "term_suggest": {
-                                "query": "repub",
+                                "query": "dal",
                                 "type": "phrase"
                             }
                         }
@@ -191,7 +189,7 @@ describe('Searcher', _ => {
                 ],
                 should: {
                     match: {
-                        "term": "repub"
+                        "term": "dal"
                     }
                 }
             }
