@@ -25,7 +25,7 @@ class SearcherMockAdapter extends AbstractSearchAdapter {
     }
 }
 
-describe('searcher', _ => {
+describe('Searcher', _ => {
 
     it('Should Build a NCT ID Query', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
@@ -116,6 +116,84 @@ describe('searcher', _ => {
             }
         });
 
+    });
+
+    // new unit tests
+
+    it('Should Build a Term Query with term', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term=dal");
+        let query = searcher._searchTermsQuery(q);
+
+        expect(query.query.function_score.query.bool.should).to.eql({
+            match: {
+                "term": "dal"
+            }
+        });
+    });
+
+    it('Should Build a Term Query with term_type', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term_type=sites.org_city");
+        let query = searcher._searchTermsQuery(q);
+
+        expect(query.query.function_score.query).to.eql({
+            bool: {
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                term: {
+                                    "term_type": "sites.org_city"
+                                }
+                            }
+                        ]
+                    }
+                }
+            }
+        });
+    });
+
+    it('Should Build a Term Query with term and term_type', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term=dal&term_type=sites.org_city");
+        let query = searcher._searchTermsQuery(q);
+
+        expect(query.query.function_score.query).to.eql({
+            bool: {
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                term: {
+                                    "term_type": "sites.org_city"
+                                }
+                            }
+                        ]
+                    }
+                },
+                must: [
+                    {
+                        match: {
+                            "term_suggest": "dal"
+                        }
+                    },
+                    {
+                        match: {
+                            "term_suggest": {
+                                "query": "dal",
+                                "type": "phrase"
+                            }
+                        }
+                    }
+                ],
+                should: {
+                    match: {
+                        "term": "dal"
+                    }
+                }
+            }
+        });
     });
 
 });

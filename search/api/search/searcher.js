@@ -14,6 +14,7 @@ const TRIAL_RESULT_SIZE_MAX = 50;
 const TRIAL_RESULT_SIZE_DEFAULT = 10;
 const TERM_RESULT_SIZE_MAX = 100;
 const TERM_RESULT_SIZE_DEFAULT = 5;
+const TERM_SORT_DEFAULT = "_score";
 const searchPropsByType =
   Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
 
@@ -425,7 +426,9 @@ class Searcher {
       if (!(lon) || isNaN(parseFloat(lon))) {
         err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`
       }
-
+      if (!(dist) || isNaN(parseFloat(dist)) || dist === 0) {
+        dist = 0.000000001;
+      }
       //TODO: add in validation of values for distance
 
       if (err != "") {
@@ -578,7 +581,6 @@ class Searcher {
     this._addSizeFromParams(body, q);
     this._addIncludeExclude(body, q);
     this._addFullTextQuery(body, q);
-
     this._addSortOrder(body, q);
 
     query = body.build();
@@ -621,6 +623,10 @@ class Searcher {
     return [
       "_diseases",
       "_locations",
+      "sites.org_postal_code",
+      "sites.org_country",
+      "sites.org_city",
+      "sites.org_state_or_province",
       "sites.org_name",
       "sites.org_family",
       "_treatments"
@@ -689,6 +695,8 @@ class Searcher {
     // set the size, from
     let size = q.size || TERM_RESULT_SIZE_DEFAULT;
     size = size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : size;
+    let sort = q.sort || TERM_SORT_DEFAULT;
+    // TODO: Grab the sort form URI
     let from = q.from ? q.from : 0;
 
     // finalize the query
@@ -697,8 +705,26 @@ class Searcher {
       "size": size,
       "from": from
     };
-
      //logger.info(query);
+
+      // right place to change term to order alphabetically
+      if (sort == "term") {
+        query["sort"] = {
+          "term": {
+            "order": "asc"
+          }
+        }
+      }
+      else {
+        query["sort"] = {
+          "_score": {
+            "order": "desc"
+          }
+        }
+      }
+
+      // query is the intermediate object.
+      // q is to get the actual values
     return query;
   }
 
@@ -719,6 +745,7 @@ class Searcher {
         terms: _.map(res.hits.hits, (hit) => {
           let source = hit._source;
           source.score = hit._score;
+          source.sort = hit.sort;
           return source;
         })
       }

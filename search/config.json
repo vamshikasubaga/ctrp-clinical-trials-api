@@ -1,5 +1,5 @@
 {
-  "ES_HOST": "https://search-ctrp-hxql7brvbagogzojuv6jepssve.us-east-1.es.amazonaws.com",
+  "ES_HOST": "http://localhost:9200",
   "LOG_LEVEL": "INFO",
   "REGION": "us-east-1",
   "NUM_DAYS": 10
