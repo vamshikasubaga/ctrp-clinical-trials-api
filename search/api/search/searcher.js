@@ -696,7 +696,6 @@ class Searcher {
     let size = q.size || TERM_RESULT_SIZE_DEFAULT;
     size = size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : size;
     let sort = q.sort || TERM_SORT_DEFAULT;
-    // TODO: Grab the sort form URI
     let from = q.from ? q.from : 0;
 
     // finalize the query
@@ -722,7 +721,6 @@ class Searcher {
           }
         }
       }
-
       // query is the intermediate object.
       // q is to get the actual values
     return query;
@@ -745,7 +743,6 @@ class Searcher {
         terms: _.map(res.hits.hits, (hit) => {
           let source = hit._source;
           source.score = hit._score;
-          source.sort = hit.sort;
           return source;
         })
       }
