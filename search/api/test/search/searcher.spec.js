@@ -202,20 +202,33 @@ describe('Searcher', _ => {
         let query = searcher._searchTermsQuery(q);
 
         expect(query.query.function_score.query).to.not.eql({
-        bool: {
-            filter: {
-                bool: {
-                    should: [
-                        {
-                            term: {
-                                "term_type": "sites.org_city"
+            bool: {
+                filter: {
+                    bool: {
+                        should: [
+                            {
+                                term: {
+                                    "term_type": "sites.org_city"
+                                }
                             }
-                        }
-                    ]
+                        ]
+                    }
                 }
             }
-        }
+        });
     });
-});
+
+    it('Should Build a Term Key Query', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let query = searcher._searchTermByKey("touro_infirmary");
+
+        expect(query).to.eql({
+            query: {
+                match: {
+                    "term_key": "touro_infirmary"
+                }
+            }
+        });
+    });
 
 });
