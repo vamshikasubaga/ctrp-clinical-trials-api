@@ -692,7 +692,7 @@ class Searcher {
     }];
     functionQuery.boost_mode = "multiply";
 
-    // set the size, from
+    // set the size, from and sort
     let size = q.size || TERM_RESULT_SIZE_DEFAULT;
     size = size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : size;
     let sort = q.sort || TERM_SORT_DEFAULT;
