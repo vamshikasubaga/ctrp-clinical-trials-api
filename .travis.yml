@@ -44,6 +44,7 @@ after_success:
   - ls -alth
   # - codeclimate-test-reporter < lcov.info
   # - cat lcov.info | codacy-coverage
+  - ls -l test/coverage/report-lcov/lcov.info
   - docker images
   - docker push $DOCKER_IMAGE # Pushes both date and latest
   #Deploy to AWS IntTest
