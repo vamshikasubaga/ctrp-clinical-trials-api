@@ -32,6 +32,7 @@ before_script:
   - ls -lah
 script:
   - cd ../api && npm test
+  - cat coverage/lcov.info | ./node_modules/.bin/codacy-coverage # Regular codacy-coverage command
   # - pwd
   # - find ./
   # - istanbul cover test.js
@@ -43,7 +44,6 @@ script:
 after_success:
   - ls -alth
   # - codeclimate-test-reporter < lcov.info
-  # - cat lcov.info | codacy-coverage
   - ls -l test/coverage/report-lcov/lcov.info
   - docker images
   - docker push $DOCKER_IMAGE # Pushes both date and latest
@@ -52,10 +52,10 @@ after_success:
     -e AWS_DEFAULT_REGION=us-east-1 silintl/ecs-deploy
     --cluster CTRP-IntTest-Backend --service-name CTRP-ctrp_clinical_trials_api-INTTEST
     -i $DOCKER_IMAGE:$DATE --timeout 540 --max-definitions 25
- 
+
   #Trigger Travis bdd tests
   - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  -d "{\"request\":{\"message\":\"Triggered by ctrp-clinical-trials-api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=ctrp-clinical-trials-api;TRIGGER_VER=$DATE;CUC_TAG=@CTRP_TRIALS;AUTHOR=$AUTHOR\"]}}}}"    https://api.travis-ci.org/repo/CBIIT%2Fctrp-bddtests/requests
-  
+
 # - codeclimate-test-reporter < test/coverage/report-lcov/lcov.info
 notifications:
   slack: clinicalbiomed:W5L3wQ69vtL1XJCo8uT3oQgY
