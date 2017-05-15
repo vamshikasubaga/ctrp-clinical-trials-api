@@ -32,7 +32,7 @@ before_script:
   - ls -lah
 script:
   - cd ../api && npm test
-  - cat test/coverage/report-lcov/lcov.info | ./node_modules/.bin/codacy-coverage # Regular codacy-coverage command
+  - ls -l ./node_modules/.bin/codacy-coverage
   # - pwd
   # - find ./
   # - istanbul cover test.js
@@ -44,6 +44,7 @@ script:
 after_success:
   - ls -alth
   # - codeclimate-test-reporter < lcov.info
+  # - cat lcov.info | ./node_modules/.bin/codacy-coverage
   - ls -l test/coverage/report-lcov/lcov.info
   - docker images
   - docker push $DOCKER_IMAGE # Pushes both date and latest
