@@ -13,7 +13,6 @@ RUN cd search && npm install
 RUN cd common && npm install
 RUN ls -alht
 RUN cd search/api && npm install
-RUN cd search/client && npm install
 RUN cd search/index && npm install
 
 # Bundle app source

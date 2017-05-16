@@ -39,8 +39,7 @@ class AliasSwapper extends AbstractIndexTool {
    * @param {any} callback
    */
   swapAlias(actions, callback) {
-    this.logger.info(
-      `Swapping aliases.`);      
+    this.logger.info("Swapping aliases.");
     this.client.indices.updateAliases({
         body: {
             actions: actions
@@ -65,7 +64,7 @@ class AliasSwapper extends AbstractIndexTool {
 
 
     let swapper = new AliasSwapper(adapter);
-    swapper.logger.info(`Starting alias swapping.`);
+    swapper.logger.info("Starting alias swapping.");
 
     //Find out who is using aliases
 

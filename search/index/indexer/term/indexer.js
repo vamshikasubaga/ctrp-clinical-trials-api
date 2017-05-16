@@ -81,13 +81,13 @@ class TermIndexer extends AbstractIndexer {
       let count = termObj["count"];
       // let count_normalized = count / maxTermCount;
       // TODO: approximation, should figure out more exact normalization...
-      let count_normalized = Math.log(count / maxTermCount + 1) / Math.log(2);
+      let countNormalized = Math.log(count / maxTermCount + 1) / Math.log(2);
       let doc = {
         "term_key": termKey,
         "term": term,
         "term_type": termType,
         "count": count,
-        "count_normalized": count_normalized
+        "count_normalized": countNormalized
       };
       if (termType === "_diseases") {
         doc.codes = termObj["codes"];

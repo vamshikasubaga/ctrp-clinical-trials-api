@@ -20,7 +20,7 @@ class TestableElasticsearchAdapter extends BaseElasticsearchAdapter {
 
         this.client = new ElasticSearch.Client({
             host: hosts,
-            log: 'error'
+            log: "error"
         });
     }
 }

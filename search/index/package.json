@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "index": "node index.js | ../../common/node_modules/bunyan/bin/bunyan",    
+    "index": "node index.js | node ../../common/node_modules/bunyan/bin/bunyan",
     "test": "node ./node_modules/mocha/bin/mocha  --compilers js:babel-core/register -c --reporter nyan ./test/**/*.spec.js"
   },
   "author": "Michael Balint <michael.balint@pif.gov> (https://presidentialinnovationfellows.gov/)",

@@ -72,8 +72,8 @@ class IndexCleaner extends AbstractIndexTool {
           let cutoffTime = currTime - daysToKeep;         
           
           _.forEach(response, (value, key) => {
-              let index_date = this._toDays(value.settings.index.creation_date);
-              if (index_date < cutoffTime) {
+              let indexDate = this._toDays(value.settings.index.creation_date);
+              if (indexDate < cutoffTime) {
                 indices.push(key);
               }
           });
@@ -175,17 +175,17 @@ class IndexCleaner extends AbstractIndexTool {
 //This will index all trials taking our default input.
 if (require.main === module) {
   //TODO: Make parameters
-  trialsAlias = 'cancer-clinical-trials';
-  termsAlias = 'cancer-terms';
-  numDays = CONFIG.NUM_DAYS;
+  let trialsAlias = 'cancer-clinical-trials';
+  let termsAlias = 'cancer-terms';
+  let numDays = CONFIG.NUM_DAYS;
 
   const ElasticsearchAdapter = require('../../common/search_adapters/elasticsearch_adapter');
 
   IndexCleaner.init(ElasticsearchAdapter, trialsAlias, termsAlias, numDays, (err)=> {
       if (err) {
-          console.log("Errors Occurred: " + err);
+        cleaner.logger.info("Errors Occurred: " + err);
       } else {
-          console.log("Cleaning Completed.");
+        cleaner.logger.info("Cleaning Completed.");
       }
   });
 }

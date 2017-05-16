@@ -8,8 +8,7 @@ const IndexOptimizer        = require("./indexer/index_optimizer");
 const Logger                = require("../../common/logger");
 const elasticsearchAdapter  = require("../common/search_adapters/elasticsearch_adapter");
 
-const TRIALS_FILEPATH = path.join(__dirname,
-  '../../data/trials.out.03.cleansed');
+const TRIALS_FILEPATH = path.join(__dirname, "../../data/trials.out.03.cleansed");
 
 const DAYS_TO_KEEP = 7;
 

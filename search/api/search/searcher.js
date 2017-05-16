@@ -280,14 +280,14 @@ class Searcher {
         let boolMustContents = new Bodybuilder();
 
         this._addFieldFilters(nestedBodyQuery, paramsForNesting);
-        body.query("nested", nestedfield, 'avg', nestedBodyQuery.build());
+        body.query("nested", nestedfield, "avg", nestedBodyQuery.build());
 
         //Now that we have added the keys, we need to remove the params
         //from the original request params so we don't add duplicate
         //filters.
         _.keys(paramsForNesting).forEach((paramToRemove) => {
           delete q[paramToRemove];
-        })
+        });
       }
 
     })
@@ -314,6 +314,77 @@ class Searcher {
     });
   }
 
+  /**
+   * Adds a full-text match filter to the body.  The difference between a text matching filter
+   * and query is that a query feeds into the document score, and a filter is just that, a filter,
+   * and it has nothing to do with ranking & sorting.
+   *
+   */
+  _addFullTextFieldFilters(body, q) {
+    const _addFulltextFieldFilter = (body, field, filter) => {
+      let query = new Bodybuilder();
+
+      if (filter instanceof Array) {
+        let orBody = new Bodybuilder();
+        filter.forEach((filterElement) => {
+          logger.info(filterElement);
+          //Note for the actual query the field name must contain a . before _fulltext
+          query.orQuery("match", field + "._fulltext", filterElement, { type: 'phrase' });
+        });
+      } else {
+        //Note for the actual query the field name must contain a . before _fulltext
+        query.query("match", field + "._fulltext", filter, { type: 'phrase' });
+      }
+
+      body.filter("bool", "and", query.build("v2"));
+    }
+
+    let possibleFulltextProps = searchPropsByType["fulltext"];
+    possibleFulltextProps.forEach((field) => {
+      if (q[field + "_fulltext"]) {
+        _addFulltextFieldFilter(body, field, q[field + "_fulltext"]);
+      }
+    });
+  }
+
+  /**
+   * Adds filters for searching trial IDs (of which there are many)
+   *
+   * @param {any} body
+   * @param {any} q
+   * @returns
+   *
+   * @memberOf Searcher
+   */
+  _addTrialIDsFilter(body, q) {
+
+    const _addTrialIDFilter = (body, searchstr) => {
+      let query = new Bodybuilder();
+
+      //Add an or for each of the ID fields, querying the _trialid sub-field that is setup as an edge ngram for
+      //supporting "begins with" (on word boundary) type queries.
+      ["ccr_id", "ctep_id", "dcp_id", "nci_id", "nct_id", "other_ids.value", "protocol_id"].forEach((idField) => {
+        query.orQuery("match", idField + "._trialid", searchstr, { type: "phrase" });
+      })
+
+      body.orQuery("bool", "or", query.build("v2"));
+    }
+
+
+    if (!q["_trialids"]) {
+      return;
+    }
+
+    let searchStrings = (q["_trialids"] instanceof Array) ? q["_trialids"] : [ q["_trialids"] ];
+    let trialIdFilterBody = new Bodybuilder();
+
+    searchStrings.forEach((filterElement) => {
+      _addTrialIDFilter(trialIdFilterBody, filterElement);
+    });
+
+    body.filter("bool", "and", trialIdFilterBody.build('v2'));
+  }
+
   _addDateRangeFilters(body, q) {
     const _addRangeFilter = (field, lteRange, gteRange) => {
       let ranges = {};
@@ -337,9 +408,9 @@ class Searcher {
       _addRangeForRangeType("gte", gteRange);
 
       body.filter("range", field, ranges);
-    }
+    };
 
-    let possibleRangeProps = searchPropsByType["date"]
+    let possibleRangeProps = searchPropsByType["date"];
     possibleRangeProps.forEach((field) => {
       let lteRange = q[field + "_lte"];
       let gteRange = q[field + "_gte"];
@@ -403,9 +474,9 @@ class Searcher {
       _addRangeForRangeType("gte", gteRange);
 
       body.filter("range", field, ranges);
-    }
+    };
 
-    let possibleRangeProps = searchPropsByType["float"]
+    let possibleRangeProps = searchPropsByType["float"];
     possibleRangeProps.forEach((field) => {
       let lteRange = q[field + "_lte"];
       let gteRange = q[field + "_gte"];
@@ -418,16 +489,16 @@ class Searcher {
   _addGeoDistanceFilters(body, q) {
 
     //We need to put lat/long/distance into a single filter
-    const _addGeoDistanceFilter = (field, lat, lon, dist) => {
+    const _addGeoDistanceFilter = (field, latitude, longitude, distance) => {
       let err = "";
-      if (!(lat) || isNaN(parseFloat(lat))) {
+      if (!(latitude) || isNaN(parseFloat(latitude))) {
         err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. \n`
       }
-      if (!(lon) || isNaN(parseFloat(lon))) {
+      if (!(longitude) || isNaN(parseFloat(longitude))) {
         err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`
       }
-      if (!(dist) || isNaN(parseFloat(dist)) || dist === 0) {
-        dist = 0.000000001;
+      if (!(distance) || isNaN(parseFloat(distance)) || distance === 0) {
+        distance = 0.000000001;
       }
       //TODO: add in validation of values for distance
 
@@ -437,8 +508,8 @@ class Searcher {
       }
 
       //add in filter.
-      body.filter("geodistance", field, dist, { lat: lat, lon: lon})
-    }
+      body.filter("geodistance", field, distance, { lat: latitude, lon: longitude})
+    };
 
     //iterate over geo_point fields.
     //make sure that we have lat/lon/and dist for each (maybe dist is optional)
@@ -525,6 +596,8 @@ class Searcher {
     this._addFloatRangeFilters(body, q);
     this._addGeoDistanceFilters(body, q);
     this._addBooleanFilters(body, q);
+    this._addFullTextFieldFilters(body, q);
+    this._addTrialIDsFilter(body, q);
   }
 
   /**
@@ -585,7 +658,7 @@ class Searcher {
 
     query = body.build();
 
-    // logger.info(query);
+    logger.info(query);
     return query;
   }
 
@@ -614,6 +687,329 @@ class Searcher {
       return callback(null, formattedRes);
     });
   }
+
+  /**
+   * Handles "coded" aggregations like _drugs, where there is a Name/Code pair that
+   * should be returned.
+   *
+   * @param {any} q
+   * @returns
+   *
+   * @memberOf Searcher
+   */
+  _getCodedAggregation(q) {
+      let path = q["agg_field"];
+
+
+      //This is an aggregate for grouping the code with the term.  This is the inner most
+      //part of the aggregate and basically is returning the name and the code for this
+      //specific drug.
+      let groupAgg = {};
+      groupAgg[path] = {
+        "terms": {
+          "field" : path + ".name._raw"
+        }
+      };
+      groupAgg[path]["aggs"] = {};
+      groupAgg[path]["aggs"][path + ".code"] = {
+        "terms": {
+          "field": path + ".code"
+        }
+      }
+
+      //This is adding a filter for type ahead if a user supplied the agg_term param
+      let innerAgg = {};
+      if (q["agg_term"]) {
+
+
+        innerAgg[path + "_filtered"] = {
+          "filter": {
+            "query": {
+              "match": {}
+            }
+          }
+        };
+        innerAgg[path + "_filtered"]["filter"]["query"]["match"][path + ".name._auto"] = q["agg_term"];
+        innerAgg[path + "_filtered"]["aggs"] = groupAgg;
+      } else {
+        innerAgg = groupAgg;
+      }
+
+      //This is adding the nested part of the query.  This ensures that we are getting
+      //(and filtering) on the correct pairs of name/code pairs.
+      let nested = {};
+      nested[path + "_nested"] = {
+        "nested": {
+          "path": path
+        }
+      };
+      nested[path + "_nested"]["aggs"] = innerAgg;
+
+      return nested;
+  }
+
+  /**
+   * Get a filtered aggregate, which is an aggregate request where the
+   * _agg_term parameter has been specified.
+   *
+   * @param {any} q The params of the request.
+   * @param {any} size The number of aggregates to return
+   * @returns
+   *
+   * @memberOf Searcher
+   */
+  _getFilteredAggregate(q, size) {
+    //They are doing autocomplete, so we need handle multiple layers.
+    //body.aggregations()
+
+    //This is doing a type ahead search.  So you must filter the
+    //aggregates first based on the agg_term, then aggregate what is left.
+
+    let field = q["agg_field"];
+    let tmpAgg = {};
+
+    //The first bit of this aggregation is to filter the aggregates against the supplied
+    //search text.  This says to filter out the objects based on the _auto "sub field"
+    // of the field name supplied in agg_field.  Use the agg_term as the text to match.
+    //The resulting aggregation will be returned as an object called whatever was supplied
+    //in agg_term appended with "_filtered" indicating the agg results were filtered.
+    tmpAgg[field + "_filtered"] = {
+      "filter": {
+        "query": {
+          "match": {}
+        }
+      }
+    };
+    //Use a phrase match to make sure we match all the words, instead of displaying
+    //partial matches.
+    tmpAgg[field + "_filtered"]["filter"]["query"]["match"][field + "._auto"] = {
+      "type": "phrase",
+      "query": q["agg_term"]
+    };
+
+    //We need to nest the actual values for the aggregation.  We will call the resulting
+    //object "suggestion".  This will use a terms aggregation to aggregate the values
+    //in the _raw "sub field."  The _raw sub field should be the unmodified field.
+    tmpAgg[field + "_filtered"]["aggs"] = {};
+    tmpAgg[field + "_filtered"]["aggs"][field] = {"terms": {
+      "field": field + "._raw",
+      "size": size
+    }};
+
+    //First off, it is important to make sure that if the field contains a ".", then
+    //it is most likely a nested field.  We would need to add a nested aggregation.
+    let lastIdx = field.lastIndexOf(".");
+
+    if (lastIdx != -1) {
+      //This is a nested field, and since a field cannot contain a ".", then
+      //the last period must split the path from the field name.
+      let path = field.substr(0, lastIdx);
+
+      let nested = {};
+      nested[field + "_nested"] = { "nested": { "path": path}};
+      nested[field + "_nested"]["aggs"] = tmpAgg;
+
+      return nested;
+    } else {
+      return tmpAgg;
+    }
+  }
+
+  /**
+   * Adds an aggregation to the que query
+   *
+   * @param {any} body NOTE: Body is not a BodyBuilder because we need updated BB for that to work.
+   * @param {any} q
+   *
+   * @memberOf Searcher
+   */
+  _addAggregation(body, q, size) {
+
+    //TODO: NEED TO ADD SIZE to aggregate fields.  This will allow us to control the
+    //number of terms to be returned.
+
+    //So, our version of BodyBuilder does not support complex aggregations,
+    //and really needs to be updated.  So we are just going to build up the aggregation
+    //from scratch.
+    let aggregation = {};
+
+    //Intervions are special.  Actually, any coded field is special,
+    //but this is the only implementation so far, but this can easily
+    //be extended to _diseases.
+    if (q["agg_field"].match(/^_interventions\./)) {
+      //TODO: handle _interventions.drugs differently? (How doe we handle synonyms?)
+      aggregation = this._getCodedAggregation(q);
+    } else {
+
+      if (q["agg_term"]) {
+
+        aggregation = this._getFilteredAggregate(q);
+
+      } else {
+        // This is a simple aggregate.  Which is just, go get "counts" of
+        // the instances of a single field across records.  NOTE: this
+        // is not always the count of the trials associated with that aggregation.
+
+        // Use this for things like country, or phase & type of trial filtering.
+
+        //Use the raw so that we do not get analyzed text back.
+        //Note, for some fields, possibly organizations, inconsistencies
+        //in casing in the field could result in 2 separate entries.
+        //(e.g. University of Maryland and university of maryland)
+        //This case can be delt with, but it is much more complicated
+        //aggregation.
+
+        let tmpAgg = {}
+        tmpAgg[q["agg_field"]] = {"terms": {
+          "field": q["agg_field"] + "._raw",
+          "size": size
+        }};
+
+        aggregation = tmpAgg;
+
+        //TODO: there is a way to get the number of trials this item appears in,
+        //throught the reverse_nested aggregation -- however this needs more testing
+        //to ensure it is correct, especially for deeply nested objects
+      }
+    }
+
+    // Read the JSON into an object.
+    body["aggs"] = aggregation;
+
+  }
+
+  _aggTrialsQuery(q) {
+    var query;
+    let body = new Bodybuilder();
+
+    //Set the ES size parameter to 0 so that we get back no trial results and
+    //only the aggregations.  This is not related to our "size" parameter
+    body.size(0);
+
+    //NOTE: Aggregations does not support paging.  ES 5.2.0 added support for crude paging (partitioning)
+    //however, if you want aggregates for autosuggest or other types of post-search filters, this should
+    //not need paging.  (Set the max size to say, 50)
+    //Make sure that if you want a comprehensive list regardless of the query, that the aggregate-able
+    //field is also indexed as part of the terms endpoint.
+
+    this._addNestedFilters(body, q);
+    this._addFieldFilters(body, q);
+    this._addFullTextQuery(body, q);
+
+
+    // Turn the query into JSON
+    query = body.build();
+
+    q.size = q.size ? q.size : TERM_RESULT_SIZE_DEFAULT;
+    let size = q.size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : q.size;
+
+    // add the aggregation
+    this._addAggregation(query, q, size);
+
+    //logger.info(query);
+    //console.log(query);
+    return query;
+  }
+
+  /**
+   * Cleans up the bucket structure, more so for coded aggregations where the
+   * nested buckets for codes and synonyms need to be extracted.
+   *
+   * @param {any} field The field aggregated on
+   * @param {any} bucket A bucket from the ES results.
+   * @returns
+   *
+   * @memberOf Searcher
+   */
+  _extractAggBucket(field, bucket) {
+    if (field.match(/^_interventions\./)) {
+      return bucket.map((item) => {
+        let codes = [];
+
+        //TODO: This should exist, so determine what to do if it does not.
+        if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
+          //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
+          codes = item[field + ".code"].buckets.map((code_bucket) => code_bucket.key);
+        }
+
+        //TODO: Extract synonyms when they are added.
+
+        return {
+          key: item.key,
+          count: item.doc_count,
+          codes: codes
+        }
+      });
+    } else {
+      return bucket.map((item) => {
+        return {
+          key: item.key,
+          count: item.doc_count //This number is != number of trials that have this field.
+        }
+      });
+    }
+
+  }
+
+  /**
+   * Extracts the aggregation from the ES results
+   *
+   * @param {any} field The field to pull out
+   * @param {any} res The results
+   * @returns
+   *
+   * @memberOf Searcher
+   */
+  _extractAggregations(field, res) {
+
+      let bucket = [];
+
+      //If we had to nest, we need to skip over this layer and move
+      //to the next aggregate level down.
+      if (res.aggregations[field + "_nested"]) {
+        if (res.aggregations[field + "_nested"][field + "_filtered"]) {
+          bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field + "_filtered"][field].buckets);
+        } else {
+          bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field].buckets);
+        }
+      } else if (res.aggregations[field + "_filtered"]) {
+
+        bucket = this._extractAggBucket(field, res.aggregations[field + "_filtered"][field].buckets);
+      } else {        //untested.
+        bucket = this._extractAggBucket(field, res.aggregations[field].buckets);
+      }
+
+      return {
+        total: 0, //TODO: Get count from agg bucket
+        terms: bucket
+      }
+
+  }
+
+  aggTrials(q, callback) {
+    logger.info("Trial aggregate", q);
+
+    //We should call count, or search with size 0.
+    this.client.search({
+      index: 'cancer-clinical-trials',
+      type: 'trial',
+      body: this._aggTrialsQuery(q)
+    }, (err, res) => {
+      if(err) {
+        logger.error(err);
+        return callback(err);
+      }
+
+      //Get the field name
+      let field = q["agg_field"];
+
+      let formattedRes = this._extractAggregations(field, res);
+
+      return callback(null, formattedRes);
+    });
+  }
+
+
 
   /***********************************************************************
                                    TERMS
@@ -693,34 +1089,34 @@ class Searcher {
     functionQuery.boost_mode = "multiply";
 
     // set the size, from and sort
-    let size = q.size || TERM_RESULT_SIZE_DEFAULT;
-    size = size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : size;
+    let resultSize = q.size || TERM_RESULT_SIZE_DEFAULT;
+    resultSize = resultSize > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : resultSize;
     let sort = q.sort || TERM_SORT_DEFAULT;
     let from = q.from ? q.from : 0;
 
     // finalize the query
     let query = {
       "query": { "function_score": functionQuery },
-      "size": size,
+      "size": resultSize,
       "from": from
     };
-     //logger.info(query);
+    logger.info(query);
 
-      // right place to change term to order alphabetically
-      if (sort == "term") {
-        query["sort"] = {
-          "term": {
-            "order": "asc"
-          }
+    // right place to change term to order alphabetically
+    if (sort == "term") {
+      query["sort"] = {
+        "term": {
+          "order": "asc"
         }
       }
-      else {
-        query["sort"] = {
-          "_score": {
-            "order": "desc"
-          }
+    }
+    else {
+      query["sort"] = {
+        "_score": {
+          "order": "desc"
         }
       }
+    }
       // query is the intermediate object.
       // q is to get the actual values
     return query;
@@ -745,7 +1141,7 @@ class Searcher {
           source.score = hit._score;
           return source;
         })
-      }
+      };
       return callback(null, formattedRes);
     });
   }

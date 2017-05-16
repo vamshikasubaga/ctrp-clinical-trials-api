@@ -2,6 +2,7 @@ const _                   = require("lodash");
 const moment              = require("moment");
 const Transform           = require("stream").Transform;
 const Logger              = require("../../../common/logger");
+const async               = require("async");
 
 let logger = new Logger({ name: "supplement-stream" });
 
@@ -12,6 +13,15 @@ let logger = new Logger({ name: "supplement-stream" });
  * @extends {Transform}
  */
 class SupplementStream extends Transform {
+
+  constructor(thesaurus, neoplasmCore, diseaseBlacklist, thesaurusLookup) {
+    super({ objectMode: true });
+
+    this._createThesaurusLookups(thesaurus);
+    this._createNeoplasmCoreLookup(neoplasmCore);
+    this._createDiseaseBlacklistLookup(diseaseBlacklist);
+    this.thesaurusLookup = thesaurusLookup;
+  }
 
   _createThesaurusLookups(thesaurus) {
     let thesaurusById = {};
@@ -49,15 +59,18 @@ class SupplementStream extends Transform {
     this.diseaseBlacklistById = diseaseBlacklistById;
   }
 
-  constructor(thesaurus, neoplasmCore, diseaseBlacklist) {
-    super({ objectMode: true });
-
-    this._createThesaurusLookups(thesaurus);
-    this._createNeoplasmCoreLookup(neoplasmCore);
-    this._createDiseaseBlacklistLookup(diseaseBlacklist);
-  }
-
-  _addThesaurusTerms(trial) {
+  /**
+   * Enriches diseases using flat thesaurus file.
+   * TODO: update to use LexEVS
+   *
+   * @param {any} trial
+   * @param {any} done
+   * @returns
+   *
+   * @memberOf SupplementStream
+   */
+  _addTrialDiseases(trial, done){
+    logger.info(`Supplementing diseases for trial with nci_id (${trial.nci_id}).`);
     if (trial.diseases) {
       trial.diseases.forEach((disease) => {
         let diseaseId = disease.nci_thesaurus_concept_id;
@@ -72,17 +85,121 @@ class SupplementStream extends Transform {
       });
     }
 
-    if (trial.arms) {
-      trial.arms.forEach((arm) => {
-        arm.interventions.forEach((intervention) => {
-          // TODO: retrieve by id (likely have to modify data warehouse)
-          if (this.thesaurusByName[intervention.intervention_name]) {
-            intervention.synonyms =
-              this.thesaurusByName[intervention.intervention_name].synonyms.split("|");
-          }
-        });
+    return done(null); //Complete without errors
+  }
+
+  /**
+   * Enrich Interventions with NCI Thesaurus information.  For interventions
+   * this is primarily synonomy.
+   *
+   * @param {any} intervention The intervention to enrich.
+   * @param {any} done A completion callback when enriching is done
+   * @returns
+   *
+   * @memberOf SupplementStream
+   */
+  _processInterInArm(intervention, done) {
+
+    //NOTE: It is important that all conditional paths finally call
+    //the interCB callback, BUT, make sure that there is no path where
+    //this.thesaurusLookup.getTerm would be called AND an interCB call
+    //outside of the callback to getTerm.
+
+    let lookingUpDrug = false;
+
+    if (!intervention.intervention_code) {
+      logger.error(`Intervention encountered without code. (${intervention.intervention_name}).`);
+      return done(null);
+    } else {
+
+      //Get the term from LexEVS in order to add synonyms
+      this.thesaurusLookup.getTerm(intervention.intervention_code, function (err, term) {
+        if (err) {
+          logger.error(`Intervention Term Fetch Failed for term (${intervention.intervention_code}).`);
+          return done(null);  //Quietly Move on as
+        }
+
+        //Initialize the synonyms
+        intervention.synonyms = [];
+
+        //Push the preferred name into synonyms, but ensure they are unique.
+        if (term.preferredName && (! _.some(intervention.synonyms, (name) => name.toLowerCase() == term.preferredName.toLowerCase()))) {
+          intervention.synonyms.push(term.preferredName);
+        }
+
+        //Push the display name into drug_names, but ensure they are unique.
+        if (term.displayName && (! _.some(intervention.synonyms, (name) => name.toLowerCase() == term.displayName.toLowerCase()))) {
+          intervention.synonyms.push(term.displayName);
+        }
+
+        if (
+          intervention.intervention_type == "Drug" ||
+          intervention.intervention_type == "Biological/Vaccine" ||
+          intervention.intervention_type == "Dietary Supplement"
+        ) {
+          //We have a drug so, do something with it.  Pull out all Display Name, Brand Name,
+          //foreign brand name, and preferred names with a source of NCI.
+          //We will replace the synonyms
+          let synonyms = term.filterSynonyms("NCI", ["BR", "FB", "PT", "DN"]);
+
+          //Push the synonyms into drug_names, but ensure they are unique.
+          synonyms.forEach((syn) => {
+            if (! _.some(intervention.synonyms, (name) => name.toLowerCase() == syn.text.toLowerCase())) {
+              intervention.synonyms.push(syn.text);
+            }
+          });
+        }
+
+        //We are looking up the drug,
+        return done(null);
       });
     }
+  }
+
+  /**
+   * Enrich interventions with terminology.
+   *
+   * @param {any} trial The trial to enrich.
+   * @param {any} done A completion callback when interventions have been processed.
+   * @returns
+   *
+   * @memberOf SupplementStream
+   */
+  _addTrialInterventions(trial, done){
+    if (trial.arms) {
+      //Iterate over each arm & interventions.
+      async.eachSeries(
+        trial.arms,
+        (arm, armDone) => {
+          async.eachSeries(
+            arm.interventions,
+            this._processInterInArm.bind(this),
+            armDone
+          );
+        },
+        //this._processArm.bind(this),
+        done
+      )
+    } else {
+      return done(null);
+    }
+  }
+
+  /**
+   * Add thesaurus information to trial.  Specifically Diseases and Interventions.
+   *
+   * @param {any} trial The trial to enrich
+   * @param {any} done Completion callback to be called when all elements have been enriched
+   *
+   * @memberOf SupplementStream
+   */
+  _addThesaurusTerms(trial, done) {
+    async.waterfall([
+      (next) => { this._addTrialDiseases(trial, next); },
+      (next) => { this._addTrialInterventions(trial, next); }
+    ], (err,res) => {
+      done(err);
+    });
   }
 
   _getDisplayNameFromThesaurus(disease) {
@@ -185,7 +302,7 @@ class SupplementStream extends Transform {
       "basic_science": 5,
       "health_services_research": 6,
       "other": 7
-    }
+    };
 
     trial.primary_purpose._primary_purpose_code_sort_order =
       sortHash[trial.primary_purpose.primary_purpose_code.toLowerCase()];
@@ -273,6 +390,118 @@ class SupplementStream extends Transform {
       }
     });
     trial._locations = Object.keys(locations);
+  }
+
+  /**
+   * This adds interventions for searching & suggesting purposes.
+   *
+   * @param {any} trial The trial to supplement
+   *
+   * @memberOf SupplementStream
+   */
+  _createSearchInterventions(trial) {
+    //Initialize the search interventions
+    trial["_interventions"] = {
+      drugs: [],
+      nondrugs: []
+    }
+
+    //TODO: For both drugs and non-drugs:
+    // 1. Ensure a intervention is only added once to the list.  Multiple arms
+    //    may include the same intervention.
+    // 2. Break out synonyms into a useful list and make sure that the Prefered name is included.
+
+    //Add Drugs
+    this._createDrugInterventions(trial);
+    //Add Non-Drugs
+    this._createNonDrugInterventions(trial);
+  }
+
+  /**
+   * Add _interventions_drug field for supporting autosuggest functions for interventions
+   * that are not "drugs". (Drug; Bological/Vaccine; Dietary Supplement)
+   *
+   * NOTE: the _treatments field predates the splitting of drugs and other treatments,
+   * removing it would be a breaking change to the API
+   *
+   * @param {any} trial The trial to supplement
+   *
+   * @memberOf SupplementStream
+   */
+  _createDrugInterventions(trial) {
+
+    if (!trial.arms) { return; }
+
+    let drugs = [];
+
+    trial.arms.forEach((arm) => {
+      //Get only "drug" types
+      _.filter(arm.interventions, (intr) =>
+          intr.intervention_type == "Drug" ||
+          intr.intervention_type == "Biological/Vaccine" ||
+          intr.intervention_type == "Dietary Supplement"
+        )
+        //Iterate over those "drugs"
+        .forEach((intr) => {
+          //Iterate over the synonyms
+          //TODO: Push synonym names & type into a subcollection of drug for searching.
+          if (intr.synonyms) {
+            intr.synonyms.forEach((syn) => {
+              if (!_.some(drugs, (drug) => drug.code == intr.intervention_code && drug.name == syn)) {
+                drugs.push({
+                  name: syn,
+                  code: intr.intervention_code,
+                  type: intr.intervention_type
+                });
+              }
+            })
+          } else {
+            logger.warning(`Intervention: ${intr.intervention_name} (${intr.intervention_code}) missing synonyms.`)
+          }
+        })
+    });
+
+    trial._interventions.drugs = drugs;
+  }
+
+  /**
+   * Add _interventions_nondrug field for supporting autosuggest functions for interventions
+   * that are not "drugs". (Drug; Bological/Vaccine; Dietary Supplement)
+   *
+   * NOTE: the _treatments field predates the splitting of drugs and other treatments,
+   * removing it would be a breaking change to the API
+   *
+   * @param {any} trial
+   *
+   * @memberOf SupplementStream
+
+   *
+   */
+  _createNonDrugInterventions(trial) {
+
+    if (!trial.arms) { return; }
+
+    let nondrugs = [];
+
+    trial.arms.forEach((arm) => {
+      //Get only "non-drug" types
+      _.filter(arm.interventions, (intr) =>
+          intr.intervention_type != "Drug" &&
+          intr.intervention_type != "Biological/Vaccine" &&
+          intr.intervention_type != "Dietary Supplement"
+        )
+        //Iterate over those "non-drugs"
+        .forEach((intr) => {
+
+          nondrugs.push({
+            name: intr.intervention_name,
+            code: intr.intervention_code,
+            type: intr.intervention_type
+          });
+        })
+    });
+
+    trial._interventions.nondrugs = nondrugs;
   }
 
   _createTreatments(trial) {
@@ -432,15 +661,25 @@ class SupplementStream extends Transform {
       this._addPhaseSortOrder(trial);
       this._createActiveSitesCount(trial);
       this._createAgeInYears(trial);
-      this._addThesaurusTerms(trial);
       this._createLocations(trial);
-      this._createTreatments(trial);
-      this._createDiseases(trial);
+      //The next step needs to take in a callback since it needs to contact LexEVS
+      //and contacting a remote service is an asynchronous function
+      this._addThesaurusTerms(trial, (err) => {
+        if (err) {
+          logger.error(err);
+          return next();
+        }
+        this._createTreatments(trial);
+        this._createSearchInterventions(trial);
+        this._createDiseases(trial);
 
-      this.push(trial);
+        this.push(trial);
+        logger.info(`Completed Transforming trial with nci_id (${trial.nci_id}).`);
+        return next();
+      });
+    } else {
+      return next(); // Skip this record.
     }
-
-    next();
   }
 
 }

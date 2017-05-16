@@ -34,20 +34,20 @@ class ElasticsearchAdapter extends BaseElasticsearchAdapter {
 
         let hosts = this.getHostsFromConfig();
         let inLocal = CONFIG.ES_HOST.indexOf("localhost") > -1;
-        let db_config = {
+        let dbConfig = {
           host: hosts,
           log: SearchLogger
         };
 
         if (!inLocal) {
-          db_config.connectionClass = AwsEsConnector;
-          db_config.amazonES = {
+          dbConfig.connectionClass = AwsEsConnector;
+          dbConfig.amazonES = {
             region: CONFIG.REGION,
             accessKey: process.env.AWS_ACCESS_KEY_ID,
             secretKey: process.env.AWS_SECRET_ACCESS_KEY
           };
         }
-        this.client = new ElasticSearch.Client(db_config);
+        this.client = new ElasticSearch.Client(dbConfig);
     }
 }
 
