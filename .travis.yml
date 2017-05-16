@@ -32,6 +32,9 @@ before_script:
   - ls -lah
 script:
   - cd ../api && mkdir coverage && npm run build-test
+  - pwd
+  - ls
+  - ls ../api
   - cat coverage/lcov.info | ./node_modules/.bin/codacy-coverage
   # - pwd
   # - find .
