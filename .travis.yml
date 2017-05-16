@@ -57,7 +57,7 @@ after_success:
     -i $DOCKER_IMAGE:$DATE --timeout 540 --max-definitions 25
 
   #Trigger Travis bdd tests
-  - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  -d "{\"request\":{\"message\":\"Triggered by ctrp-clinical-trials-api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=ctrp-clinical-trials-api;TRIGGER_VER=$DATE;CUC_TAG=@CTRP_TRIALS;AUTHOR=$AUTHOR\"]}}}}"    https://api.travis-ci.org/repo/CBIIT%2Fctrp-bddtests/requests
+  - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  -d "{\"request\":{\"message\":\"Triggered by ctrp-clinical-trials-api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=ctrp-clinical-trials-api;TRIGGER_VER=$DATE;CUC_TAG=@CTRP_CT_API;AUTHOR=$AUTHOR\"]}}}}"    https://api.travis-ci.org/repo/CBIIT%2Fctrp-bddtests/requests
 
 # - codeclimate-test-reporter < test/coverage/report-lcov/lcov.info
 notifications:
