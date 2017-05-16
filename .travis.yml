@@ -33,7 +33,6 @@ script:
   - cd ../api && mkdir coverage && npm run build-test
   - pwd
   - ls
-  - ls -l api/coverage
   - ls -l ./node_modules/.bin/codacy-coverage
   - ls -l  coverage/lcov.info
   - cat coverage/lcov.info
