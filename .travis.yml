@@ -34,12 +34,12 @@ script:
   - cd ../api && mkdir coverage && npm run build-test
   - pwd
   - ls
-  - ls ../api
-  - cat coverage/lcov.info
+  - ls -l ./node_modules/.bin/codacy-coverage
+  - ls -l  coverage/lcov.info
   # - cat coverage/lcov.info | ./node_modules/.bin/codacy-coverage
   # - pwd
   # - find .
-  - cat node_modules/cli-width/coverage/lcov.info
+  - ls -l node_modules/cli-width/coverage/lcov.info
 
   # - istanbul cover test.js
   #Build Docker image
@@ -50,7 +50,7 @@ script:
 after_success:
   - ls -alth
   # - codeclimate-test-reporter < lcov.info
-  - cat node_modules/cli-width/coverage/lcov.info | node_modules/.bin/codacy-coverage
+  # - cat node_modules/cli-width/coverage/lcov.info | node_modules/.bin/codacy-coverage
   - ls -l test/coverage/report-lcov/lcov.info
   - docker images
   - docker push $DOCKER_IMAGE # Pushes both date and latest
