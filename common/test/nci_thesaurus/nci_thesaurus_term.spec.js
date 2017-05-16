@@ -5,7 +5,7 @@ describe('nci thesaurus term', _ => {
 
     it('Should Deserialize a Drug', () => {
         let objData = require("./data/C1647_drug.json");
-        let actualTerm = NCIThesaurusTerm.DeserializeFromLexEVS(objData);
+        let actualTerm = NCIThesaurusTerm.deserializeFromLexEVS(objData);
         let expectedTerm = require("./data/C1647_drug_expected");
 
         //Deep because you need to test each synonyms members too

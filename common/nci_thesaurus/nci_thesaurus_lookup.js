@@ -55,7 +55,7 @@ class NCIThesaurusLookup {
             return done(err);
           }
 
-          let term = NCIThesaurusTerm.DeserializeFromLexEVS(rawObj);
+          let term = NCIThesaurusTerm.deserializeFromLexEVS(rawObj);
 
           //Store the term in the cache and "return" the term.
           this.termCache[entityID] = term;

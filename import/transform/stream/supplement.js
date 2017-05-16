@@ -140,7 +140,7 @@ class SupplementStream extends Transform {
           //We have a drug so, do something with it.  Pull out all Display Name, Brand Name,
           //foreign brand name, and preferred names with a source of NCI.
           //We will replace the synonyms
-          let synonyms = term.filterSynonyms('NCI', ['BR', 'FB', 'PT', 'DN']);
+          let synonyms = term.filterSynonyms("NCI", ["BR", "FB", "PT", "DN"]);
 
           //Push the synonyms into drug_names, but ensure they are unique.
           synonyms.forEach((syn) => {
@@ -302,7 +302,7 @@ class SupplementStream extends Transform {
       "basic_science": 5,
       "health_services_research": 6,
       "other": 7
-    }
+    };
 
     trial.primary_purpose._primary_purpose_code_sort_order =
       sortHash[trial.primary_purpose.primary_purpose_code.toLowerCase()];

@@ -280,14 +280,14 @@ class Searcher {
         let boolMustContents = new Bodybuilder();
 
         this._addFieldFilters(nestedBodyQuery, paramsForNesting);
-        body.query("nested", nestedfield, 'avg', nestedBodyQuery.build());
+        body.query("nested", nestedfield, "avg", nestedBodyQuery.build());
 
         //Now that we have added the keys, we need to remove the params
         //from the original request params so we don't add duplicate
         //filters.
         _.keys(paramsForNesting).forEach((paramToRemove) => {
           delete q[paramToRemove];
-        })
+        });
       }
 
     })
@@ -336,7 +336,7 @@ class Searcher {
         query.query("match", field + "._fulltext", filter, { type: 'phrase' });
       }
 
-      body.filter("bool", "and", query.build('v2'));
+      body.filter("bool", "and", query.build("v2"));
     }
 
     let possibleFulltextProps = searchPropsByType["fulltext"];
@@ -363,16 +363,17 @@ class Searcher {
 
       //Add an or for each of the ID fields, querying the _trialid sub-field that is setup as an edge ngram for
       //supporting "begins with" (on word boundary) type queries.
-      ['ccr_id', 'ctep_id', 'dcp_id', 'nci_id', 'nct_id', 'other_ids.value', 'protocol_id'].forEach((idField) => {
-        query.orQuery("match", idField + '._trialid', searchstr, { type: 'phrase' });
+      ["ccr_id", "ctep_id", "dcp_id", "nci_id", "nct_id", "other_ids.value", "protocol_id"].forEach((idField) => {
+        query.orQuery("match", idField + "._trialid", searchstr, { type: "phrase" });
       })
 
-      body.orQuery("bool", "or", query.build('v2'));
+      body.orQuery("bool", "or", query.build("v2"));
     }
 
 
-    if (!q["_trialids"])
+    if (!q["_trialids"]) {
       return;
+    }
 
     let searchStrings = (q["_trialids"] instanceof Array) ? q["_trialids"] : [ q["_trialids"] ];
     let trialIdFilterBody = new Bodybuilder();
@@ -407,9 +408,9 @@ class Searcher {
       _addRangeForRangeType("gte", gteRange);
 
       body.filter("range", field, ranges);
-    }
+    };
 
-    let possibleRangeProps = searchPropsByType["date"]
+    let possibleRangeProps = searchPropsByType["date"];
     possibleRangeProps.forEach((field) => {
       let lteRange = q[field + "_lte"];
       let gteRange = q[field + "_gte"];
@@ -473,9 +474,9 @@ class Searcher {
       _addRangeForRangeType("gte", gteRange);
 
       body.filter("range", field, ranges);
-    }
+    };
 
-    let possibleRangeProps = searchPropsByType["float"]
+    let possibleRangeProps = searchPropsByType["float"];
     possibleRangeProps.forEach((field) => {
       let lteRange = q[field + "_lte"];
       let gteRange = q[field + "_gte"];
@@ -488,16 +489,16 @@ class Searcher {
   _addGeoDistanceFilters(body, q) {
 
     //We need to put lat/long/distance into a single filter
-    const _addGeoDistanceFilter = (field, lat, lon, dist) => {
+    const _addGeoDistanceFilter = (field, latitude, longitude, distance) => {
       let err = "";
-      if (!(lat) || isNaN(parseFloat(lat))) {
+      if (!(latitude) || isNaN(parseFloat(latitude))) {
         err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. \n`
       }
-      if (!(lon) || isNaN(parseFloat(lon))) {
+      if (!(longitude) || isNaN(parseFloat(longitude))) {
         err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`
       }
-      if (!(dist) || isNaN(parseFloat(dist)) || dist === 0) {
-        dist = 0.000000001;
+      if (!(distance) || isNaN(parseFloat(distance)) || distance === 0) {
+        distance = 0.000000001;
       }
       //TODO: add in validation of values for distance
 
@@ -507,8 +508,8 @@ class Searcher {
       }
 
       //add in filter.
-      body.filter("geodistance", field, dist, { lat: lat, lon: lon})
-    }
+      body.filter("geodistance", field, distance, { lat: latitude, lon: longitude})
+    };
 
     //iterate over geo_point fields.
     //make sure that we have lat/lon/and dist for each (maybe dist is optional)
@@ -1088,15 +1089,15 @@ class Searcher {
     functionQuery.boost_mode = "multiply";
 
     // set the size, from and sort
-    let size = q.size || TERM_RESULT_SIZE_DEFAULT;
-    size = size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : size;
+    let resultSize = q.size || TERM_RESULT_SIZE_DEFAULT;
+    resultSize = resultSize > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : resultSize;
     let sort = q.sort || TERM_SORT_DEFAULT;
     let from = q.from ? q.from : 0;
 
     // finalize the query
     let query = {
       "query": { "function_score": functionQuery },
-      "size": size,
+      "size": resultSize,
       "from": from
     };
     logger.info(query);
@@ -1140,7 +1141,7 @@ class Searcher {
           source.score = hit._score;
           return source;
         })
-      }
+      };
       return callback(null, formattedRes);
     });
   }

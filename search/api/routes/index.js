@@ -9,15 +9,11 @@ const Utils               = require("../../../common/utils");
 const trialMapping        = require("../../index/indexer/trial/mapping.json");
 const package             = require("../package.json");
 
-let logger = new Logger({name: "api-router"});
+let logger                = new Logger({name: "api-router"});
+let searcher              = new Searcher(searcherAdapter);
 
-let searcher = new Searcher(searcherAdapter);
-
-const router = express.Router();
-
-const searchPropsByType =
-  Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
-
+const router              = express.Router();
+const searchPropsByType   = Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
 const respondInvalidQuery = (res) => {
   return res.status(400).send("Invalid query.");
 }

@@ -13,9 +13,9 @@ module.exports = class Logger {
     this.info = bun.info.bind(bun);
     this.level = bun.level.bind(bun);
     this.debug = bun.debug.bind(bun);
-    this.trace = (method, requestUrl, body, responseBody, responseStatus) => {
+    this.trace = (methodType, requestUrl, body, responseBody, responseStatus) => {
       bun.trace({
-        method: method,
+        method: methodType,
         requestUrl: requestUrl,
         body: body,
         responseBody: responseBody,

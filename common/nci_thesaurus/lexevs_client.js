@@ -40,12 +40,12 @@ class LexEVSClient extends AbstractLexEVSClient {
           return done(new Error(`Invalid Response code (${res.statusCode}) from LexEVS for entity ${entityID}`), null);
         }
 
-        let content = '';
+        let content = "";
 
         //Read from stream
         res.on('data', (chunk) => content += chunk);
         //... until done, then process the content.
-        res.on('end', () => {
+        res.on("end", () => {
             
             let rawObj = null;
             

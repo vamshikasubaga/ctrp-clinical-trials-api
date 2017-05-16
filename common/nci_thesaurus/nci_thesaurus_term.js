@@ -36,19 +36,19 @@ class NCIThesaurusTerm {
    * 
    * @memberOf NCIThesaurusTerm
    */
-  filterSynonyms(source, type) {
+  filterSynonyms(termSource, type) {
 
     let filtered = this.synonyms;
 
-    if (source != null) {
-      if (Array.isArray(source)) {
-        if (source.length >= 1) {
+    if (termSource != null) {
+      if (Array.isArray(termSource)) {
+        if (termSource.length >= 1) {
           filtered = _.filter(filtered, (syn) => {
-            return _.includes(source, syn.source); 
+            return _.includes(termSource, syn.source);
           });
         }
       } else {
-        filtered = _.filter(filtered, { source: source });
+        filtered = _.filter(filtered, { source: termSource });
       }
     }
 
@@ -74,7 +74,7 @@ class NCIThesaurusTerm {
    * 
    * @memberOf NCIThesaurusTerm
    */
-  static DeserializeFromLexEVS(lexEVSObj) {
+  static deserializeFromLexEVS(lexEVSObj) {
     //Until I find out otherwise, I will start assuming that these paths exist.
     let namedEntity = lexEVSObj.EntityDescriptionMsg.entityDescription.namedEntity;
 
@@ -159,7 +159,7 @@ class NCIThesaurusTerm {
           let synonymText = NCIThesaurusTerm._extractValue(prop);
 
           let synonymType = "";
-          let source = "";
+          let sourceProperty = "";
           let sourceCode = "";
 
           //Loop through each property qualifier extracting above values
@@ -175,14 +175,14 @@ class NCIThesaurusTerm {
                 sourceCode = qualVal;
                 break;
               case "property-source":
-                source = qualVal;
+                sourceProperty = qualVal;
                 break;
             }
           }); 
 
           return {
             text: synonymText,
-            source: source,
+            source: sourceProperty,
             type: synonymType,
             sourceCode: sourceCode
           };

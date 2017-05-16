@@ -52,7 +52,7 @@ class AbstractIndexTool {
       if(err) { this.logger.error(err); }
       else {          
         _.forEach(response, function(item, key) {
-          if (_.has(item, ['aliases', aliasName])) {
+          if (_.has(item, ["aliases", aliasName])) {
             indices.push(key);
           }
         });
