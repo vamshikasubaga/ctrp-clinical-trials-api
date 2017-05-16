@@ -36,6 +36,7 @@ script:
   # - pwd
   # - find .
   - cat node_modules/cli-width/coverage/lcov.info
+  
   # - istanbul cover test.js
   #Build Docker image
   - cd ../..
@@ -45,7 +46,7 @@ script:
 after_success:
   - ls -alth
   # - codeclimate-test-reporter < lcov.info
-  # - cat lcov.info | ./node_modules/.bin/codacy-coverage
+  - cat node_modules/cli-width/coverage/lcov.info | ./node_modules/.bin/codacy-coverage
   - ls -l test/coverage/report-lcov/lcov.info
   - docker images
   - docker push $DOCKER_IMAGE # Pushes both date and latest
