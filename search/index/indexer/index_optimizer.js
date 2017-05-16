@@ -44,8 +44,9 @@ class IndexOptimizer extends AbstractIndexTool {
       `Optimizing Index (${indexName})`);      
     this.client.indices.forcemerge({
         maxNumSegments: 1,
+        waitForMerge: true,
         index: indexName,
-        requestTimeout: 90000
+        requestTimeout: 150000
     }, (err, response, status) => {
       if(err) { this.logger.error(err); }
       return callback(err, response);

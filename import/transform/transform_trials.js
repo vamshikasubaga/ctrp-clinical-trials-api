@@ -7,6 +7,9 @@ const JSONStream          = require("JSONStream");
 
 const TermLoader          = require("../../common/term_loader");
 const Logger              = require("../../common/logger");
+const NCIThesaurusLookup  = require("../../common/nci_thesaurus/nci_thesaurus_lookup");
+const LexEVSClient        = require("../../common/nci_thesaurus/lexevs_client");
+
 
 const CleanseStream       = require("./stream/cleanse.js");
 const CsvStream           = require("./stream/csv.js");
@@ -32,6 +35,8 @@ class TrialsTransformer {
 
   constructor() {
     this.terms = {};
+    let client = new LexEVSClient();
+    this.thesaurusLookup = new NCIThesaurusLookup(client);
   }
 
   _removeSpecialChars(callback) {
@@ -130,7 +135,7 @@ class TrialsTransformer {
     logger.info("Transforming trials...");
     let rs = fs.createReadStream(path.join(__dirname, TRIALS_FILEPATH + SPECIAL_CHARS_REMOVED_EXT));
     let ls = byline.createStream();
-    let ts = new SupplementStream(this.thesaurus, this.neoplasmCore, this.diseaseBlacklist);
+    let ts = new SupplementStream(this.thesaurus, this.neoplasmCore, this.diseaseBlacklist, this.thesaurusLookup);
     let gs = new GeoCodingStream();
     let jw = JSONStream.stringify();
     let ws = fs.createWriteStream(TRIALS_FILEPATH + SUPPLEMENTED_EXT);

@@ -51,6 +51,13 @@ class Utils {
           props[mappingTree["type"]] = [];
         }
         props[mappingTree["type"]].push(pathArr.join("."));
+        //Add special "fulltext" variant to support fulltext field querying
+        if (mappingTree["fields"] && mappingTree["fields"]["_fulltext"]) {
+          if (!props["fulltext"]) {
+            props["fulltext"] = [];
+          }
+          props["fulltext"].push(pathArr.join("."));
+        }
       } else {
         Object.keys(mappingTree).forEach((key) => {
           _recurseMappingTree(mappingTree[key], pathArr.concat(key));
