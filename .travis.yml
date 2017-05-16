@@ -35,7 +35,8 @@ script:
   - pwd
   - ls
   - ls ../api
-  - cat coverage/lcov.info | ./node_modules/.bin/codacy-coverage
+  - cat coverage/lcov.info
+  # - cat coverage/lcov.info | ./node_modules/.bin/codacy-coverage
   # - pwd
   # - find .
   - cat node_modules/cli-width/coverage/lcov.info
