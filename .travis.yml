@@ -32,9 +32,9 @@ before_script:
   - ls -lah
 script:
   - cd ../api && npm test
-  - ls -l ./node_modules/.bin/codacy-coverage
+  #  - ls -l ./node_modules/.bin/codacy-coverage
   # - pwd
-  # - find ./
+  - find .
   # - istanbul cover test.js
   #Build Docker image
   - cd ../..
