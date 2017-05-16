@@ -35,6 +35,7 @@ script:
   - ls
   - ls -l ./node_modules/.bin/codacy-coverage
   - ls -l  coverage/lcov.info
+  - ls -lR test
   - cat coverage/lcov.info
   - cat coverage/lcov.info | ./node_modules/.bin/codacy-coverage
   # - pwd
