@@ -35,7 +35,7 @@ script:
   #  - ls -l ./node_modules/.bin/codacy-coverage
   # - pwd
   # - find .
-  - cat /node_modules/cli-width/coverage/lcov.info
+  - cat node_modules/cli-width/coverage/lcov.info
   # - istanbul cover test.js
   #Build Docker image
   - cd ../..
