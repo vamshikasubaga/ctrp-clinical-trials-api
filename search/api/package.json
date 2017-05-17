@@ -9,9 +9,8 @@
   },
   "scripts": {
     "start": "node ./bin/www | ../../common/node_modules/bunyan/bin/bunyan",
-    "test": "node ./node_modules/mocha/bin/mocha --compilers js:babel-core/register ./test/**/*.spec.js",
-    "build-test": "node ./node_modules/mocha/bin/mocha -R mocha-lcov-reporter > coverage/coverage.lcov  --compilers js:babel-core/register ./test/**/*.spec.js --reporter nyan"
-
+    "test": "node ./node_modules/nyc/bin/nyc ./node_modules/mocha/bin/mocha --compilers js:babel-core/register ./test/**/*.spec.js",
+    "build-report": "node ./node_modules/nyc/bin/nyc report --reporter=text-lcov > coverage/coverage.lcov"
   },
   "dependencies": {
     "body-parser": "1.13.2",
@@ -30,7 +29,9 @@
     "moment": "2.13.0",
     "serve-favicon": "2.3.0",
     "codacy-coverage":"*",
-    "mocha-lcov-reporter":"*"
+    "mocha-lcov-reporter":"*",
+    "istanbul":"*",
+    "nyc":"*"
   },
   "devDependencies": {
     "babel-cli": "6.5.1",
