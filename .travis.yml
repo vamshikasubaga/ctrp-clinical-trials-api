@@ -31,7 +31,7 @@ before_script:
   - ls -lah
 script:
 #  - cd ../api && mkdir coverage && npm run build-test
-  - npm test
+  - npm run build-test
   - pwd
   - ls
   - ls -l ./node_modules/.bin/codacy-coverage
