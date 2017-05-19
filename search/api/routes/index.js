@@ -220,7 +220,7 @@ router.post('/v1/trial-aggregates', (req, res, next) => {
 
 /* get key terms that can be used to search through clinical trials */
 router.get('/v1/terms', (req, res, next) => {
-  let q = _.pick(req.query, ["term", "term_type", "size", "from", "sort", "codes"]);
+  let q = _.pick(req.query, ["term", "term_type", "size", "from", "sort", "codes", "current_trial_statuses"]);
 
   searcher.searchTerms(q, (err, terms) => {
     // TODO: add better error handling

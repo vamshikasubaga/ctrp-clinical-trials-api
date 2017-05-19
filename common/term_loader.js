@@ -72,7 +72,8 @@ class TermLoader {
           term: maxTerm["term"],
           terms: termObj["terms"],
           count: termObj["count"],
-          codes: termObj["codes"]
+          codes: termObj["codes"],
+          current_trial_statuses: termObj["current_trial_statuses"]
         };
       });
     });
@@ -165,11 +166,17 @@ class TermLoader {
       if (typeof this.terms[termType][termKey] === "undefined") {
         this.terms[termType][termKey] = {
           count: 0,
-          terms: {}
+          terms: {},
+          current_trial_statuses: {}
         };
       }
       this.terms[termType][termKey]["count"] +=
         terms[termKey]["count"];
+
+      if (trial.current_trial_status) {
+        this.terms[termType][termKey]["current_trial_statuses"][trial.current_trial_status]
+          = (this.terms[termType][termKey]["current_trial_statuses"][trial.current_trial_status] || 0) + 1 ;
+      }
 
       Object.keys(terms[termKey]["terms"]).forEach((term) => {
         if (typeof this.terms[termType][termKey]["terms"][term] === "undefined") {
@@ -209,12 +216,19 @@ class TermLoader {
         diseases[diseaseKey] = {
           count: 1,
           terms: {},
-          codes: []
+          codes: [],
+          current_trial_statuses: {}
         };
       }
       diseases[diseaseKey]["codes"] = _.uniq(
         diseases[diseaseKey]["codes"].concat(disease.codes)
       );
+
+      if (trial.current_trial_status) {
+        diseases[diseaseKey]["current_trial_statuses"][trial.current_trial_status]
+          = (diseases[diseaseKey]["current_trial_statuses"][trial.current_trial_status] || 0) + 1 ;
+      }
+
       if (typeof diseases[diseaseKey]["terms"][disease.term] === "undefined") {
         diseases[diseaseKey]["terms"][disease.term] = 1;
       } else {
@@ -230,12 +244,19 @@ class TermLoader {
         this.terms[termType][diseaseKey] = {
           count: 0,
           terms: {},
-          codes: []
+          codes: [],
+          current_trial_statuses: {}
         };
       }
       this.terms[termType][diseaseKey]["codes"] = _.uniq(
         this.terms[termType][diseaseKey]["codes"].concat(diseases[diseaseKey]["codes"])
       );
+
+      if (trial.current_trial_status) {
+        this.terms[termType][diseaseKey]["current_trial_statuses"][trial.current_trial_status]
+          = (this.terms[termType][diseaseKey]["current_trial_statuses"][trial.current_trial_status] || 0) + 1 ;
+      }
+
       this.terms[termType][diseaseKey]["count"] +=
         diseases[diseaseKey]["count"];
 
