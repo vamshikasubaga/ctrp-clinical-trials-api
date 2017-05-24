@@ -119,7 +119,33 @@ describe('Searcher', _ => {
     });
 
     // new unit tests
+    // Unit testing for TERM_TYPE_DEFAULTS
+    it('Should Be an Array', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        expect(searcher.TERM_TYPE_DEFAULTS).to.be.a('array');
+    });
 
+    it('Should Build an Array with 9 Elements', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        expect(searcher.TERM_TYPE_DEFAULTS.length).to.eql(9);
+    });
+
+    it('Should Be an Array with 9 Elements', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        expect(searcher.TERM_TYPE_DEFAULTS).to.eql(["_diseases", "_locations", "sites.org_postal_code", "sites.org_country", "sites.org_city", "sites.org_state_or_province", "sites.org_name", "sites.org_family", "_treatments"]);
+    });
+
+    it('Should Be an Array Containing sites.org_postal_code Which Put in the 2nd Position', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        expect(searcher.TERM_TYPE_DEFAULTS[2]).to.eql('sites.org_postal_code');
+    });
+
+    it('Should Be an Array Containing sites.org_city Which Put in the 4th Position', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        expect(searcher.TERM_TYPE_DEFAULTS[4]).to.eql('sites.org_city');
+    });
+
+    // Unit testing for _searchTermQuery
     it('Should Build a Term Query with term', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
         let q = querystring.parse("term=dal");
@@ -201,14 +227,14 @@ describe('Searcher', _ => {
         let q = querystring.parse("term_type=sites.org_postal_code");
         let query = searcher._searchTermsQuery(q);
 
-        expect(query.query.function_score.query).to.not.eql({
+        expect(query.query.function_score.query).to.eql({
             bool: {
                 filter: {
                     bool: {
                         should: [
                             {
                                 term: {
-                                    "term_type": "sites.org_city"
+                                    "term_type": "sites.org_postal_code"
                                 }
                             }
                         ]
@@ -218,6 +244,7 @@ describe('Searcher', _ => {
         });
     });
 
+    // Unit testing for _searchTermByKey
     it('Should Build a Term Key Query', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
         let query = searcher._searchTermByKey("touro_infirmary");
