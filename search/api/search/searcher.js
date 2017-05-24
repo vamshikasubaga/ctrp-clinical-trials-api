@@ -6,7 +6,7 @@ const moment              = require("moment");
 const Logger              = require("../../../common/logger");
 const Utils               = require("../../../common/utils");
 const trialMapping        = require("../../index/indexer/trial/mapping.json");
-
+const VIEWABLE_STATUSES   = CONFIG.VIEWABLE_STATUSES;
 
 const transformStringToKey = Utils.transformStringToKey;
 const DATE_FORMAT = "YYYY-MM-DD";
@@ -15,8 +15,7 @@ const TRIAL_RESULT_SIZE_DEFAULT = 10;
 const TERM_RESULT_SIZE_MAX = 100;
 const TERM_RESULT_SIZE_DEFAULT = 5;
 const TERM_SORT_DEFAULT = "_score";
-const searchPropsByType =
-  Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
+const searchPropsByType = Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
 
 //This is a white list of nested fields that we will use a NestedFilter
 //to filter against.
@@ -530,7 +529,7 @@ class Searcher {
     const _addBooleanFilter = (field, filter) => {
       const _stringToBool = (string) => {
         return string === "true" || string === "1";
-      }
+      };
       if(filter instanceof Array) {
         let orBody = new Bodybuilder();
         filter.forEach((filterEl) => {
@@ -1064,6 +1063,26 @@ class Searcher {
         body.filter("bool", "and", orBody.build());
       } else {
         body.filter("term", "current_trial_statuses", q.current_trial_statuses);
+      }
+    }
+
+    if (q.viewable) {
+      if(q.viewable.toUpperCase() === "TRUE") {
+        let orBody = new Bodybuilder();
+        VIEWABLE_STATUSES.forEach((current_trial_status) => {
+          orBody.orFilter("term", "current_trial_statuses", current_trial_status);
+        });
+        body.filter("bool", "and", orBody.build());
+      } else if (q.viewable.toUpperCase() === "FALSE"){
+        let norBody = new Bodybuilder();
+        VIEWABLE_STATUSES.forEach((current_trial_status) => {
+          norBody.notFilter("term", "current_trial_statuses", current_trial_status);
+        });
+        body.filter("bool", "and", norBody.build());
+      } else {
+        let noBody = new Bodybuilder();
+        noBody.filter("term", "current_trial_statuses", "current_trial_status");
+        body.filter("bool", "and", noBody.build());
       }
     }
 

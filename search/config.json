@@ -2,5 +2,29 @@
   "ES_HOST": "http://localhost:9200",
   "LOG_LEVEL": "INFO",
   "REGION": "us-east-1",
-  "NUM_DAYS": 10
+  "NUM_DAYS": 10,
+  "VIEWABLE_STATUSES":[
+    "Active", "Approved", "Enrolling by Invitation", "In Review",
+    "Temporarily Closed to Accrual", "Temporarily Closed to Accrual and Intervention"
+  ],
+  "SEARCH_TERMS": [
+    "_diseases",
+    "_locations",
+    "sites.org_postal_code",
+    "sites.org_country",
+    "sites.org_city",
+    "sites.org_state_or_province",
+    "sites.org_name",
+    "sites.org_family",
+    "_treatments",
+    "anatomic_sites",
+    "arms.interventions.intervention_type",
+    "current_trial_status",
+    "phase.phase",
+    "study_protocol_type",
+    "brief_title",
+    "brief_summary",
+    "official_title",
+    "arms.interventions.synonyms"
+  ]
 }

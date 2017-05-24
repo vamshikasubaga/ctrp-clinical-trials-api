@@ -1,7 +1,7 @@
 {
   "name": "api",
   "version": "0.0.2",
-  "authors": "Michael Balint <michael.balint@pif.gov> (https://presidentialinnovationfellows.gov/)",
+  "authors": "Peter Kigonya <peter.kigonya@nih.gov> and Michael Balint <michael.balint@pif.gov> (https://presidentialinnovationfellows.gov/)",
   "private": true,
   "repository" : {
     "type" : "git",

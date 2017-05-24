@@ -16,7 +16,7 @@ const router              = express.Router();
 const searchPropsByType   = Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
 const respondInvalidQuery = (res) => {
   return res.status(400).send("Invalid query.");
-}
+};
 
 /* get a clinical trial by nci or nct id */
 router.get('/v1/clinical-trial/:id', (req, res, next) => {
@@ -68,7 +68,7 @@ const _getInvalidTrialQueryParams = (queryParams) => {
     }
     return true;
   });
-}
+};
 
 const queryClinicalTrialsAndSendResponse = (q, res, next) => {
   let queryParams = Object.keys(q);
@@ -91,106 +91,7 @@ const queryClinicalTrialsAndSendResponse = (q, res, next) => {
     // TODO: format trials
     res.json(trials);
   });
-}
-
-/**
- * This is a modification of getInvalidTrialQueryParams.
- * It is almost like
- */
-const _getInvalidAggQueryParams = (queryParams) => {
-  //We allow the same things as TrialQuery except for:
-  // - Include/Exclude -- we will not return trial records, so it is not needed
-  // - from -- we do not need a pager for the aggs, well, not yet.
-  // We have added additional params:
-  //  - agg_type -- one, and only one field to aggregate by.  We will use size and sort
-  //    to handle the number requested and the sort order.
-  //  - agg_term -- the optional text to be used to preface the term.
-  let without = _.without(queryParams,
-    "agg_field", "agg_term", "size", "sort", "_all", "_fulltext", "_trialids");
-  return without.filter((queryParam) => {
-    if (_.includes(searchPropsByType["string"], queryParam)) {
-      return false;
-    } else if (queryParam.endsWith("_fulltext")) {
-      //This allows to handle _fulltext querying against specific fields.
-      let paramWithoutOp = queryParam.substring(0, queryParam.lastIndexOf("_"));
-      if ( _.includes(searchPropsByType["fulltext"], paramWithoutOp) ) {
-        return false;
-      }
-    } else if (queryParam.endsWith("_gte") || queryParam.endsWith("_lte")) {
-      let paramWithoutOp = queryParam.substring(0, queryParam.length - 4);
-      if (
-        _.includes(searchPropsByType["date"], paramWithoutOp) ||
-        _.includes(searchPropsByType["long"], paramWithoutOp) ||
-        _.includes(searchPropsByType["float"], paramWithoutOp)
-      ) {
-        return false;
-      }
-    } else if (
-      queryParam.endsWith("_lon") ||
-      queryParam.endsWith("_lat") ||
-      queryParam.endsWith("_dist")
-    ) {
-      //Special endings for geo distance filtering.
-      let paramWithoutOp = queryParam.substring(0, queryParam.lastIndexOf("_"));
-      if ( _.includes(searchPropsByType["geo_point"], paramWithoutOp) ) {
-        return false;
-      }
-    }
-    return true;
-  });
-}
-
-/**
- * Function for handling aggregation endpoint, which is kind
- * of like a search, with some additional processing.
- */
-const aggClinicalTrialsAndSendResponse = (q, res, next) => {
-  let queryParams = Object.keys(q);
-  // validate query params...
-
-  // First, we require agg_type to be a valid aggregate-able field.
-  // At the very least it must have a ._raw "sub-field."
-  if (!q["agg_field"]) {
-    let error = {
-      "Error": "agg_field parameter required."
-    };
-    logger.error(error);
-    return res.status(400).send(error);
-  } else {
-    //TODO: check to see if the field is a special know field,
-    //or if it has a _raw sub-field.
-
-    //TODO: ensure that only one field has been selected.  OR, make
-    // sure that if agg_term is used then there are not multiple
-    // aggregation fields
-  }
-
-  // Now see if it is a valid aggregate field for autosuggest
-  // filtering.
-  if (q["agg_term"]) {
-    //TODO: check to see if the agg_field has a _auto sub-field.
-  }
-
-  let invalidParams = _getInvalidAggQueryParams(queryParams);
-  if (invalidParams.length > 0) {
-    let error = {
-      "Error": "Invalid query params.",
-      "Invalid Params": invalidParams
-    };
-    logger.error(error);
-    return res.status(400).send(error);
-  }
-
-
-  searcher.aggTrials(q, (err, agg_res) => {
-    // TODO: add better error handling
-    if(err) {
-      return res.sendStatus(500);
-    }
-    // TODO: format trials
-    res.json(agg_res);
-  });
-}
+};
 
 /* get clinical trials that match supplied search criteria */
 router.get('/v1/clinical-trials', (req, res, next) => {
@@ -203,24 +104,9 @@ router.post('/v1/clinical-trials', (req, res, next) => {
   queryClinicalTrialsAndSendResponse(q, res, next);
 });
 
-
-/* get aggregates for a field that match supplied
-   search criteria
-*/
-router.get('/v1/trial-aggregates', (req, res, next) => {
-  let q = req.query;
-  aggClinicalTrialsAndSendResponse(q, res, next);
-});
-
-router.post('/v1/trial-aggregates', (req, res, next) => {
-  let q = req.body;
-  aggClinicalTrialsAndSendResponse(q, res, next);
-});
-
-
 /* get key terms that can be used to search through clinical trials */
 router.get('/v1/terms', (req, res, next) => {
-  let q = _.pick(req.query, ["term", "term_type", "size", "from", "sort", "codes", "current_trial_statuses"]);
+  let q = _.pick(req.query, ["term", "term_type", "size", "from", "sort", "codes", "current_trial_statuses", "viewable"]);
 
   searcher.searchTerms(q, (err, terms) => {
     // TODO: add better error handling
@@ -232,7 +118,7 @@ router.get('/v1/terms', (req, res, next) => {
 });
 
 router.post('/v1/terms', (req, res, next) => {
-  let q = _.pick(req.body, ["term", "term_type", "size", "from", "sort", "codes"]);
+  let q = _.pick(req.body, ["term", "term_type", "size", "from", "sort", "codes", "current_trial_statuses", "viewable"]);
 
   searcher.searchTerms(q, (err, terms) => {
     // TODO: add better error handling
@@ -262,7 +148,7 @@ router.get('/v1/clinical-trial.json', (req, res, next) => {
     "analyzer", "index",
     "format", "include_in_root",
     "include_in_all"
-  ]
+  ];
   clinicalTrialJson = Utils.omitDeepKeys(clinicalTrialJson, excludeKeys);
   res.json(clinicalTrialJson["trial"]["properties"]);
 });
@@ -280,7 +166,8 @@ router.get('/v1/version', (req, res, next) => {
       "version": package.version,
       "git-hash": gitHash,
       "git-repository": package.repository.url,
-      "environment": process.env.NODE_ENV
+      "environment": process.env.NODE_ENV,
+      "authors": package.authors
     });
   };
 

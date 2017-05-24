@@ -1,3 +1,4 @@
+const CONFIG              = require("../search/config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 const _                   = require("lodash");
 const JSONStream          = require("JSONStream");
 const Utils               = require("./utils");
@@ -12,22 +13,7 @@ class TermLoader {
   }
 
   static get VALID_TERM_TYPES() {
-    return [
-      "_diseases",
-      "_locations",
-      "sites.org_postal_code",
-      "sites.org_country",
-      "sites.org_city",
-      "sites.org_state_or_province",
-      "sites.org_name",
-      "sites.org_family",
-      "_treatments",
-      "anatomic_sites",
-      "arms.interventions.intervention_type",
-      "current_trial_status",
-      "phase.phase",
-      "study_protocol_type"
-    ]
+    return CONFIG.SEARCH_TERMS
   }
 
   constructor() {
@@ -70,9 +56,9 @@ class TermLoader {
         });
         this["terms"][termTypeKey][termKey] = {
           term: maxTerm["term"],
-          terms: termObj["terms"],
-          count: termObj["count"],
-          codes: termObj["codes"],
+          terms:                  termObj["terms"],
+          count:                  termObj["count"],
+          codes:                  termObj["codes"],
           current_trial_statuses: termObj["current_trial_statuses"]
         };
       });
