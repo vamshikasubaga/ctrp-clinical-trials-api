@@ -1,6 +1,0 @@
-{
-  "ES_HOST": "http://localhost:9200",
-  "LOG_LEVEL": "INFO",
-  "REGION": "us-east-1",
-  "NUM_DAYS": 10
-}

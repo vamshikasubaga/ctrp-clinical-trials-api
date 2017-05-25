@@ -35,10 +35,6 @@
       },
       "count_normalized": {
         "type": "double"
-      },
-      "current_trial_statuses": {
-        "type": "string",
-        "index": "not_analyzed"
       }
     }
   }

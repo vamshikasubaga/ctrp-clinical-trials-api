@@ -1,6 +1,0 @@
-{
-  "ES_HOST": "https://search-ctrp-hxql7brvbagogzojuv6jepssve.us-east-1.es.amazonaws.com",
-  "LOG_LEVEL": "DEBUG",
-  "NUM_DAYS": 10,
-  "REGION": "us-east-1"
-}

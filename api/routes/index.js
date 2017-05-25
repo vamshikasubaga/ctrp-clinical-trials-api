@@ -4,9 +4,9 @@ const md                  = require("marked");
 const git                 = require("git-rev");
 const searcherAdapter     = require("../../common/search_adapters/elasticsearch_adapter");
 const Searcher            = require("../search/searcher");
-const Logger              = require('../../../common/logger');
-const Utils               = require("../../../common/utils");
-const trialMapping        = require("../../index/indexer/trial/mapping.json");
+const Logger              = require('../../common/logger');
+const Utils               = require("../../common/utils");
+const trialMapping        = require("../indexer/trial/mapping.json");
 const package             = require("../package.json");
 
 let logger                = new Logger({name: "api-router"});

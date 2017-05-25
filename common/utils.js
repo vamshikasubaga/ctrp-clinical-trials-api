@@ -1,5 +1,5 @@
-const _                           = require("lodash");
-const latinize                    = require("latinize");
+const _                   = require("lodash");
+const latinize            = require("latinize");
 
 class Utils {
 

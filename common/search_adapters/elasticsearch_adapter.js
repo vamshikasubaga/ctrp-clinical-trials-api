@@ -1,6 +1,6 @@
 const AwsEsConnector                = require('http-aws-es');
 const ElasticSearch                 = require("elasticsearch");
-const Logger                        = require("../../../common/logger");
+const Logger                        = require("../../common/logger");
 const BaseElasticsearchAdapter      = require("./base_elasticsearch_adapter");
 
 const CONFIG                 = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");

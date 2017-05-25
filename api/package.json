@@ -1,14 +1,14 @@
 {
   "name": "api",
   "version": "0.0.2",
-  "authors": "Peter Kigonya <peter.kigonya@nih.gov> and Michael Balint <michael.balint@pif.gov> (https://presidentialinnovationfellows.gov/)",
+  "authors": "Michael Balint <michael.balint@pif.gov> (https://presidentialinnovationfellows.gov/)",
   "private": true,
   "repository" : {
     "type" : "git",
     "url" : "https://github.com/CBIIT/ctrp-clinical-trials-api.git"
   },
   "scripts": {
-    "start": "node ./bin/www | ../../common/node_modules/bunyan/bin/bunyan",
+    "start": "node ./bin/www | ../common/node_modules/bunyan/bin/bunyan",
     "test": "node ./node_modules/nyc/bin/nyc ./node_modules/mocha/bin/mocha --compilers js:babel-core/register ./test/**/*.spec.js",
     "build-report": "node ./node_modules/nyc/bin/nyc report --reporter=text-lcov > coverage/coverage.lcov"
   },

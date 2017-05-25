@@ -22,11 +22,8 @@ before_install:
 before_script:
   # - npm install codacy-coverage
   - cd common && npm install
-  - cd ../search && npm install
-  - cd common && npm install
   - ls -alth
   - cd ../api && npm install
-  - cd ../index && npm install
   - pwd
   - ls -lah
 script:

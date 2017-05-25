@@ -3,9 +3,9 @@ const _                   = require("lodash");
 const Bodybuilder         = require("bodybuilder");
 const moment              = require("moment");
 
-const Logger              = require("../../../common/logger");
-const Utils               = require("../../../common/utils");
-const trialMapping        = require("../../index/indexer/trial/mapping.json");
+const Logger              = require("../../common/logger");
+const Utils               = require("../../common/utils");
+const trialMapping        = require("../indexer/trial/mapping.json");
 const VIEWABLE_STATUSES   = CONFIG.VIEWABLE_STATUSES;
 
 const transformStringToKey = Utils.transformStringToKey;
