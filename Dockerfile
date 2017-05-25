@@ -9,14 +9,12 @@ COPY . /usr/src/clinical-trials-api
 RUN cd /usr/src/clinical-trials-api/common && npm install
 RUN ls -alht
 
-RUN cd search && npm install
 RUN cd common && npm install
 RUN ls -alht
-RUN cd search/api && npm install
-RUN cd search/index && npm install
+RUN cd api && npm install
 
 # Bundle app source
 #COPY . /usr/src/app
 
 EXPOSE 3000
-CMD cd /usr/src/clinical-trials-api/search/api && npm start
+CMD cd /usr/src/clinical-trials-api/api && npm start
