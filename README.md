@@ -6,6 +6,7 @@
 Contains the Clinical Trial API. This is a version extracted initially from NCIP/clinical-trials-search to support micro-services and migrate to AWS.
 
 
+
 #### Setting Node Environment for search
 The configuration file used for Search by default is /search/config.json otherwise /search/config.${NODE_ENV}.json.
 
