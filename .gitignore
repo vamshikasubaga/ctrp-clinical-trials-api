@@ -1,0 +1,6 @@
+# Ignore all logfiles and tempfiles.
+  .idea/
+  .nyc_output/
+  common/node_modules/
+  api/node_modules/
+  api/coverage/
