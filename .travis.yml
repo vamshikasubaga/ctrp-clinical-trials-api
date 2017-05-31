@@ -11,7 +11,7 @@ before_install:
   #Set up Docker exports
   - export AUTHOR=`git --no-pager show -s --format='%an <%ae>'`
   - export DATE=`TZ=America/New_York date "+%m-%d-%y-%H%M"`
-  - export DOCKER_IMAGE="fnlcr/clinical-trials-api"
+  - export DOCKER_IMAGE="fnlcr/ctrp-clinical-trials-api"
   - echo "TravisBuild=$TRAVIS_BUILD_NUMBER" > build_number.html &&
         echo "Commit=$TRAVIS_COMMIT" >> build_number.html       &&
         echo "TravisBuildID=$TRAVIS_BUILD_ID" >> build_number.html    &&
@@ -62,7 +62,7 @@ after_success:
     -i $DOCKER_IMAGE:$DATE --timeout 540 --max-definitions 25
 
   #Trigger Travis bdd tests
-  - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  -d "{\"request\":{\"message\":\"Triggered by ctrp-clinical-trials-api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=ctrp-clinical-trials-api;TRIGGER_VER=$DATE;CUC_TAG=@CTRP_CT_API;AUTHOR=$AUTHOR\"]}}}}"    https://api.travis-ci.org/repo/CBIIT%2Fclinical_trials_api_bdd_tests/requests
+  - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  -d "{\"request\":{\"message\":\"Triggered by ctrp_clinical_trials_api $TRAVIS_COMMIT\", \"branch\":\"master\", \"config\":{\"env\":{\"matrix\":[\"TRIGGER_REPO=ctrp_clinical_trials_api;TRIGGER_VER=$DATE;CUC_TAG=@CTRP_CT_API;AUTHOR=$AUTHOR\"]}}}}"    https://api.travis-ci.org/repo/CBIIT%2Fclinical_trials_api_bdd_tests/requests
 
 # - codeclimate-test-reporter < test/coverage/report-lcov/lcov.info
 notifications:
