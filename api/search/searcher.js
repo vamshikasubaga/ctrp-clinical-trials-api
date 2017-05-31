@@ -1015,17 +1015,7 @@ class Searcher {
    ***********************************************************************/
 
   get TERM_TYPE_DEFAULTS() {
-    return [
-      "_diseases",
-      "_locations",
-      "sites.org_postal_code",
-      "sites.org_country",
-      "sites.org_city",
-      "sites.org_state_or_province",
-      "sites.org_name",
-      "sites.org_family",
-      "_treatments"
-    ];
+    return CONFIG.SEARCH_TERMS;
   }
 
   _searchTermsQuery(q) {
@@ -1065,6 +1055,49 @@ class Searcher {
         body.filter("term", "current_trial_statuses", q.current_trial_statuses);
       }
     }
+
+    if (q.org_country) {
+      body.filter("term", "org_country", q.org_country);
+    }
+
+    if (q.org_state_or_province) {
+      body.filter("term", "org_state_or_province", q.org_state_or_province);
+    }
+
+    if (q.org_city) {
+      body.filter("term", "org_city", q.org_city);
+    }
+
+    if (q.org_name) {
+      body.filter("term", "org_name", q.org_name);
+    }
+
+
+    if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
+
+      if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || q.org_coordinates_dist === 0) {
+        q.org_coordinates_dist = 0.000000001;
+      } else {
+        q.org_coordinates_dist = parseFloat(q.org_coordinates_dist);
+      }
+
+      //add in filter.
+      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, { lat: q.org_coordinates_lat, lon: q.org_coordinates_lon})
+/*
+       body.sort([{
+       "org_coordinates": {
+       "location": {
+       "lat": q["org_coordinates_lat"],
+       "lon": q["org_coordinates_lon"]
+       },
+       "order": "asc",
+       "unit": "mi",
+       "distance_type": "plane"
+       }
+       }]);*/
+
+    }
+
 
     if (q.viewable) {
       if(q.viewable.toUpperCase() === "TRUE") {

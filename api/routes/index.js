@@ -1,3 +1,4 @@
+const CONFIG              = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 const _                   = require("lodash");
 const express             = require("express");
 const md                  = require("marked");
@@ -106,7 +107,7 @@ router.post('/v1/clinical-trials', (req, res, next) => {
 
 /* get key terms that can be used to search through clinical trials */
 router.get('/v1/terms', (req, res, next) => {
-  let q = _.pick(req.query, ["term", "term_type", "size", "from", "sort", "codes", "current_trial_statuses", "viewable"]);
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
 
   searcher.searchTerms(q, (err, terms) => {
     // TODO: add better error handling
@@ -118,7 +119,7 @@ router.get('/v1/terms', (req, res, next) => {
 });
 
 router.post('/v1/terms', (req, res, next) => {
-  let q = _.pick(req.body, ["term", "term_type", "size", "from", "sort", "codes", "current_trial_statuses", "viewable"]);
+  let q = _.pick(req.body, CONFIG.TERM_PARAMS);
 
   searcher.searchTerms(q, (err, terms) => {
     // TODO: add better error handling
@@ -178,6 +179,189 @@ router.get('/v1/version', (req, res, next) => {
       _sendVersionResponse(gitHash);
     });
   }
+});
+
+/* get a term by its key */
+router.get('/v1/locations/:org_country', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.term_type = "sites.org_country";
+  q.term      = req.params.org_country;
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+/* get a term by its key */
+router.get('/v1/locations/:org_country/:org_state_or_province', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.term_type = "_org_state_or_provinces";
+  q.org_country      = req.params.org_country;
+  if (req.params.org_state_or_province !== "_all") {
+    q.term      = req.params.org_state_or_province;
+  }
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/locations/:org_country/:org_state_or_province/:org_city', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.org_country            = req.params.org_country;
+  q.org_state_or_province  = req.params.org_state_or_province;
+  q.term_type = "_org_cities";
+  if (req.params.org_city !== "_all") {
+    q.term = req.params.org_city;
+  }
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/sites_by_country_zip/:org_country/:org_postal_code', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.org_country             = req.params.org_country;
+  q.org_state_or_province   = req.params.org_state_or_province;
+  q.org_city                = req.params.org_city;
+  q.org_postal_code         = req.params.org_postal_code;
+  q.term                    = req.params.org_name;
+
+  q.term_type               = "_orgs_by_location";
+
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/sites_by_zip/:org_postal_code', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.org_country             = req.params.org_country;
+  q.org_state_or_province   = req.params.org_state_or_province;
+  q.org_city                = req.params.org_city;
+  q.org_postal_code         = req.params.org_postal_code;
+  q.term                    = req.params.org_name;
+
+  q.term_type               = "_orgs_by_location";
+
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/sites/:org_country/:org_state_or_province/:org_city/:org_name', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.org_country             = req.params.org_country;
+  q.org_state_or_province   = req.params.org_state_or_province;
+  q.org_city                = req.params.org_city;
+  q.org_postal_code         = req.params.org_postal_code;
+  q.term                    = req.params.org_name;
+
+  q.term_type               = "_orgs_by_location";
+
+  if (req.params.org_name) {
+    q.term = req.params.org_name;
+  }
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/sites/:org_country/:org_state_or_province/:org_city', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.org_country             = req.params.org_country;
+  q.org_state_or_province   = req.params.org_state_or_province;
+  q.org_city                = req.params.org_city;
+
+  q.term_type               = "_orgs_by_location";
+
+  if (req.params.org_name) {
+    q.term = req.params.org_name;
+  }
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/sites/:org_country/:org_state_or_province', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.org_country             = req.params.org_country;
+  q.org_state_or_province   = req.params.org_state_or_province;
+  q.org_coordinates_lat     = req.params.org_coordinates_lat;
+  q.org_coordinates_lon     = req.params.org_coordinates_lon;
+
+  q.term_type               = "_orgs_by_location";
+
+  if (req.params.org_name) {
+    q.term = req.params.org_name;
+  }
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/sites/:org_country', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.org_country             = req.params.org_country;
+
+  q.term_type               = "_orgs_by_location";
+
+  if (req.params.org_name) {
+    q.term = req.params.org_name;
+  }
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+});
+
+router.get('/v1/sites', (req, res, next) => {
+  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  q.term_type               = "_orgs_by_location";
+
+  if (req.params.org_name) {
+    q.term = req.params.org_name;
+  }
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
 });
 
 module.exports = router;

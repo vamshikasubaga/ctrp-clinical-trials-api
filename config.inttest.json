@@ -11,9 +11,12 @@
   "SEARCH_TERMS": [
     "_diseases",
     "_locations",
+    "_org_state_or_province",
+    "_org_cities",
+    "_orgs_by_location",
     "sites.org_postal_code",
     "sites.org_country",
-    "sites.org_city",
+    "sites.org_citys",
     "sites.org_state_or_province",
     "sites.org_name",
     "sites.org_family",
@@ -27,5 +30,7 @@
     "brief_summary",
     "official_title",
     "arms.interventions.synonyms"
-  ]
+  ],
+  "TERM_PARAMS": ["term", "term_type", "size", "from", "sort", "codes", "current_trial_statuses", "viewable",
+    "org_country", "org_state_province", "org_city", "org_postal_code", "org_coordinates_dist", "org_coordinates_lat", "org_coordinates_lon"]
 }

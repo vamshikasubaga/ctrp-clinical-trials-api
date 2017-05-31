@@ -28,6 +28,21 @@
         "analyzer": "keyword_ci",
         "include_in_all": false
       },
+      "_org_state_or_provinces": {
+        "type": "string",
+        "analyzer": "keyword_ci",
+        "include_in_all": false
+      },
+      "_org_cities": {
+        "type": "string",
+        "analyzer": "keyword_ci",
+        "include_in_all": false
+      },
+      "_orgs_by_location": {
+        "type": "string",
+        "analyzer": "keyword_ci",
+        "include_in_all": false
+      },
       "_treatments": {
         "type": "string",
         "analyzer": "keyword_ci",
