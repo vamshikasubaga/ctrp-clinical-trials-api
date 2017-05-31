@@ -1,6 +1,8 @@
 //import { describe, it } from 'mocha';
 
 import { expect } from 'chai';
+const CONFIG              = require("../../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
+
 const Bodybuilder              = require("bodybuilder");
 const querystring              = require('querystring');
 const Searcher                 = require("../../search/searcher");
@@ -127,14 +129,15 @@ describe('Searcher', _ => {
 
     it('Should Build an Array with 9 Elements', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
-        expect(searcher.TERM_TYPE_DEFAULTS.length).to.eql(9);
+        expect(searcher.TERM_TYPE_DEFAULTS.length).to.eql(CONFIG.SEARCH_TERMS.length);
     });
 
     it('Should Be an Array with 9 Elements', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
-        expect(searcher.TERM_TYPE_DEFAULTS).to.eql(["_diseases", "_locations", "sites.org_postal_code", "sites.org_country", "sites.org_city", "sites.org_state_or_province", "sites.org_name", "sites.org_family", "_treatments"]);
+        expect(searcher.TERM_TYPE_DEFAULTS).to.eql(CONFIG.SEARCH_TERMS);
     });
 
+    /* This is not really a Unit test and bothersome to maintain, we dont need values at certain locations
     it('Should Be an Array Containing sites.org_postal_code Which Put in the 2nd Position', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
         expect(searcher.TERM_TYPE_DEFAULTS[2]).to.eql('sites.org_postal_code');
@@ -144,6 +147,7 @@ describe('Searcher', _ => {
         let searcher = new Searcher(new SearcherMockAdapter());
         expect(searcher.TERM_TYPE_DEFAULTS[4]).to.eql('sites.org_city');
     });
+    */
 
     // Unit testing for _searchTermQuery
     it('Should Build a Term Query with term', () => {
