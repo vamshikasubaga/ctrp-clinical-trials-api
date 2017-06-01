@@ -1156,17 +1156,16 @@ class Searcher {
         "term": {
           "order": "asc"
         }
-      }
-    }
-    else {
+      };
+    } else {
       query["sort"] = {
         "_score": {
           "order": "desc"
         }
-      }
+      };
     }
-      // query is the intermediate object.
-      // q is to get the actual values
+    // query is the intermediate object.
+    // q is to get the actual values
     return query;
   }
 
@@ -1196,7 +1195,6 @@ class Searcher {
 
   _searchTermByKey(key) {
     let body = new Bodybuilder();
-
     body.query("match", "term_key", key);
 
     let query = body.build();
