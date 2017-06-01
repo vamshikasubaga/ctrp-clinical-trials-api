@@ -716,7 +716,7 @@ class Searcher {
         "terms": {
           "field": aPath + ".code"
         }
-      }
+      };
 
       //This is adding a filter for type ahead if a user supplied the agg_term param
       let innerAgg = {};
