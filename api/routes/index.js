@@ -13,7 +13,7 @@ const package             = require("../package.json");
 let logger                = new Logger({name: "api-router"});
 let searcher              = new Searcher(searcherAdapter);
 
-const router              = express.Router();
+const router              = new express.Router();
 const searchPropsByType   = Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
 const respondInvalidQuery = (res) => {
   return res.status(400).send("Invalid query.");

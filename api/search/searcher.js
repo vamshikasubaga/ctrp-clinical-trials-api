@@ -1081,9 +1081,9 @@ class Searcher {
     if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
 
       if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || q.org_coordinates_dist === 0) {
-        q.org_coordinates_dist = 0.000000001;
+        q["org_coordinates_dist = 0.000000001"];
       } else {
-        q.org_coordinates_dist = parseFloat(q.org_coordinates_dist);
+        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist);
       }
 
       //add in filter.
@@ -1134,7 +1134,7 @@ class Searcher {
         "factor": .25
       }
     }];
-    functionQuery.boost_mode = "multiply";
+    functionQuery["boost_mode"] = "multiply";
 
     // set the size, from and sort
     let resultSize = q.size || TERM_RESULT_SIZE_DEFAULT;
