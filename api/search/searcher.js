@@ -6,7 +6,6 @@ const moment              = require("moment");
 const Logger              = require("../../common/logger");
 const Utils               = require("../../common/utils");
 const trialMapping        = require("../indexer/trial/mapping.json");
-const VIEWABLE_STATUSES   = CONFIG.VIEWABLE_STATUSES;
 
 const transformStringToKey = Utils.transformStringToKey;
 const DATE_FORMAT = "YYYY-MM-DD";
@@ -19,7 +18,7 @@ const searchPropsByType = Utils.getFlattenedMappingPropertiesByType(trialMapping
 
 //This is a white list of nested fields that we will use a NestedFilter
 //to filter against.
-const NESTED_SEARCH_PROPS_FILTER = ['sites'];
+const NESTED_SEARCH_PROPS_FILTER = ["sites"];
 
 let logger = new Logger({name: "from " + CONFIG.ES_HOST + " searcher"});
 logger.level(CONFIG.LOG_LEVEL);
@@ -37,11 +36,12 @@ class Searcher {
   _searchTrialById(id) {
     let body = new Bodybuilder();
 
-    if(id.substr(0, 4) === "NCI-")
+    if(id.substr(0, 4) === "NCI-") {
       body.query("match", "nci_id", id);
-    else
-    // else if(id.substr(0, 3) === "NCT")
+    } else {
+      // else if(id.substr(0, 3) === "NCT")
       body.query("match", "nct_id", id);
+    }
 
     let query = body.build();
     // logger.info(query);
@@ -53,8 +53,8 @@ class Searcher {
   getTrialById(id, callback) {
     logger.info("Getting trial", {id});
     this.client.search({
-      index: 'cancer-clinical-trials',
-      type: 'trial',
+      index: "cancer-clinical-trials",
+      type: "trial",
       body: this._searchTrialById(id)
     }, (err, res) => {
       if(err) {
@@ -303,7 +303,7 @@ class Searcher {
     } else {
       body.filter("term", field, filter.toLowerCase());
     }
-  };
+  }
 
   _addStringFilters(body, q) {
     searchPropsByType["string"].forEach((field) => {
@@ -328,11 +328,11 @@ class Searcher {
         filter.forEach((filterElement) => {
           logger.info(filterElement);
           //Note for the actual query the field name must contain a . before _fulltext
-          query.orQuery("match", field + "._fulltext", filterElement, { type: 'phrase' });
+          query.orQuery("match", field + "._fulltext", filterElement, { type: "phrase" });
         });
       } else {
         //Note for the actual query the field name must contain a . before _fulltext
-        query.query("match", field + "._fulltext", filter, { type: 'phrase' });
+        query.query("match", field + "._fulltext", filter, { type: "phrase" });
       }
 
       body.filter("bool", "and", query.build("v2"));
@@ -398,7 +398,6 @@ class Searcher {
               `Invalid date supplied for ${field}_${rangeType}. ` +
               `Please use format ${DATE_FORMAT} or ISO8601.`
             );
-            return;
           }
         }
       };
@@ -501,18 +500,19 @@ class Searcher {
       }
       //TODO: add in validation of values for distance
 
-      if (err != "") {
+      if (err !== "") {
         throw new Error(err);
         return;
       }
 
       //add in filter.
-      body.filter("geodistance", field, distance, { lat: latitude, lon: longitude})
+      body.filter("geodistance", field, distance, { lat: latitude, lon: longitude});
     };
 
     //iterate over geo_point fields.
     //make sure that we have lat/lon/and dist for each (maybe dist is optional)
-    let possibleGeoProps = searchPropsByType["geo_point"]
+    let possibleGeoProps = searchPropsByType["geo_point"];
+
     possibleGeoProps.forEach((field) => {
       let latParam = q[field + "_lat"];
       let lonParam = q[field + "_lon"];
@@ -673,7 +673,7 @@ class Searcher {
         return callback(err);
       }
       // return callback(null, res);
-      let trials = Utils.omitPrivateKeys(
+      let trialsResults = Utils.omitPrivateKeys(
         _.map(res.hits.hits, (hit) => {
           return hit._source;
         })
@@ -681,8 +681,9 @@ class Searcher {
 
       let formattedRes = {
         total: res.hits.total,
-        trials: trials
-      }
+        trials: trialsResults
+      };
+
       return callback(null, formattedRes);
     });
   }
@@ -757,7 +758,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  _getFilteredAggregate(q, size) {
+  _getFilteredAggregate(q, rSize) {
     //They are doing autocomplete, so we need handle multiple layers.
     //body.aggregations()
 
@@ -792,20 +793,20 @@ class Searcher {
     tmpAgg[field + "_filtered"]["aggs"] = {};
     tmpAgg[field + "_filtered"]["aggs"][field] = {"terms": {
       "field": field + "._raw",
-      "size": size
+      "size": rSize
     }};
 
     //First off, it is important to make sure that if the field contains a ".", then
     //it is most likely a nested field.  We would need to add a nested aggregation.
     let lastIdx = field.lastIndexOf(".");
 
-    if (lastIdx != -1) {
+    if (lastIdx !== -1) {
       //This is a nested field, and since a field cannot contain a ".", then
       //the last period must split the path from the field name.
-      let path = field.substr(0, lastIdx);
+      let nPath = field.substr(0, lastIdx);
 
       let nested = {};
-      nested[field + "_nested"] = { "nested": { "path": path}};
+      nested[field + "_nested"] = { "nested": { "path": nPath}};
       nested[field + "_nested"]["aggs"] = tmpAgg;
 
       return nested;
@@ -822,7 +823,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  _addAggregation(body, q, size) {
+  _addAggregation(body, q, rSize) {
 
     //TODO: NEED TO ADD SIZE to aggregate fields.  This will allow us to control the
     //number of terms to be returned.
@@ -858,10 +859,10 @@ class Searcher {
         //This case can be delt with, but it is much more complicated
         //aggregation.
 
-        let tmpAgg = {}
+        let tmpAgg = {};
         tmpAgg[q["agg_field"]] = {"terms": {
           "field": q["agg_field"] + "._raw",
-          "size": size
+          "size": rSize
         }};
 
         aggregation = tmpAgg;
@@ -1047,8 +1048,8 @@ class Searcher {
     if (q.current_trial_statuses) {
       if(q.current_trial_statuses instanceof Array) {
         let orBody = new Bodybuilder();
-        q.current_trial_statuses.forEach((current_trial_status) => {
-          orBody.orFilter("term", "current_trial_statuses", current_trial_status);
+        q.current_trial_statuses.forEach((currentTrialStatus) => {
+          orBody.orFilter("term", "current_trial_statuses", currentTrialStatus);
         });
         body.filter("bool", "and", orBody.build());
       } else {
@@ -1102,27 +1103,6 @@ class Searcher {
 
     }
 
-
-    if (q.viewable) {
-      if(q.viewable.toUpperCase() === "TRUE") {
-        let orBody = new Bodybuilder();
-        VIEWABLE_STATUSES.forEach((current_trial_status) => {
-          orBody.orFilter("term", "current_trial_statuses", current_trial_status);
-        });
-        body.filter("bool", "and", orBody.build());
-      } else if (q.viewable.toUpperCase() === "FALSE"){
-        let norBody = new Bodybuilder();
-        VIEWABLE_STATUSES.forEach((current_trial_status) => {
-          norBody.notFilter("term", "current_trial_statuses", current_trial_status);
-        });
-        body.filter("bool", "and", norBody.build());
-      } else {
-        let noBody = new Bodybuilder();
-        noBody.filter("term", "current_trial_statuses", "current_trial_status");
-        body.filter("bool", "and", noBody.build());
-      }
-    }
-
     // set the term types (use defaults if not supplied)
     let termTypes = this.TERM_TYPE_DEFAULTS;
     if (q.term_type) {
@@ -1171,7 +1151,7 @@ class Searcher {
     logger.info(query);
 
     // right place to change term to order alphabetically
-    if (sort == "term") {
+    if (sort === "term") {
       query["sort"] = {
         "term": {
           "order": "asc"
