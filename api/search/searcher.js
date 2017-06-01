@@ -1060,6 +1060,10 @@ class Searcher {
       body.filter("term", "org_country", q.org_country);
     }
 
+    if (q.org_postal_code) {
+      body.filter("term", "org_postal_code", q.org_postal_code);
+    }
+
     if (q.org_state_or_province) {
       body.filter("term", "org_state_or_province", q.org_state_or_province);
     }
