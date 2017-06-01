@@ -939,14 +939,14 @@ class Searcher {
           key: item.key,
           count: item.doc_count,
           codes: aCodes
-        }
+        };
       });
     } else {
       return bucket.map((item) => {
         return {
           key: item.key,
           count: item.doc_count //This number is != number of trials that have this field.
-        }
+        };
       });
     }
 
@@ -983,8 +983,7 @@ class Searcher {
       return {
         total: 0, //TODO: Get count from agg bucket
         terms: bucket
-      }
-
+      };
   }
 
   aggTrials(q, callback) {
