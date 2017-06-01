@@ -438,7 +438,7 @@ class Searcher {
       _addRangeForRangeType("gte", gteRange);
 
       body.filter("range", field, ranges);
-    }
+    };
 
     let possibleRangeProps = searchPropsByType["long"];
     possibleRangeProps.forEach((field) => {
