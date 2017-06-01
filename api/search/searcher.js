@@ -364,10 +364,10 @@ class Searcher {
       //supporting "begins with" (on word boundary) type queries.
       ["ccr_id", "ctep_id", "dcp_id", "nci_id", "nct_id", "other_ids.value", "protocol_id"].forEach((idField) => {
         query.orQuery("match", idField + "._trialid", searchstr, { type: "phrase" });
-      })
+      });
 
       body.orQuery("bool", "or", query.build("v2"));
-    }
+    };
 
 
     if (!q["_trialids"]) {
@@ -500,7 +500,6 @@ class Searcher {
 
       if (err !== "") {
         throw new Error(err);
-        return;
       }
 
       //add in filter.
@@ -1211,9 +1210,9 @@ class Searcher {
   getTermByKey(key, callback) {
     logger.info("Getting term", {key});
     this.client.search({
-      index: 'cancer-terms',
-      type: 'term',
-      body: this._searchTermByKey(key)
+      index: "cancer-terms",
+      type:  "term",
+      body:  this._searchTermByKey(key)
     }, (err, res) => {
       if(err) {
         logger.error(err);
