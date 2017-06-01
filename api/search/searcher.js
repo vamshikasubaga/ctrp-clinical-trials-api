@@ -462,7 +462,6 @@ class Searcher {
             throw new Error(
               `Invalid number supplied for ${field}_${rangeType}.`
             );
-            return;
           }
         }
       };
