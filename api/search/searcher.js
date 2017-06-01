@@ -1048,7 +1048,7 @@ class Searcher {
       if(q.current_trial_statuses instanceof Array) {
         let orBody = new Bodybuilder();
         q.current_trial_statuses.forEach((current_trial_status) => {
-          orBody.orFilter("term", "current_trial_statuses", q.current_trial_status);
+          orBody.orFilter("term", "current_trial_statuses", current_trial_status);
         });
         body.filter("bool", "and", orBody.build());
       } else {
