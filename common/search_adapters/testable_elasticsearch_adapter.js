@@ -25,5 +25,5 @@ class TestableElasticsearchAdapter extends BaseElasticsearchAdapter {
     }
 }
 
-let exportedInstance = new TestableElasticsearchAdapter()
+let exportedInstance = new TestableElasticsearchAdapter();
 module.exports = exportedInstance;

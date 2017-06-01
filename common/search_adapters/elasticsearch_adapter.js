@@ -1,4 +1,4 @@
-const AwsEsConnector                = require('http-aws-es');
+const AwsEsConnector                = require("http-aws-es");
 const ElasticSearch                 = require("elasticsearch");
 const Logger                        = require("../../common/logger");
 const BaseElasticsearchAdapter      = require("./base_elasticsearch_adapter");

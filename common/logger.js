@@ -13,13 +13,13 @@ module.exports = class Logger {
     this.info = bun.info.bind(bun);
     this.level = bun.level.bind(bun);
     this.debug = bun.debug.bind(bun);
-    this.trace = (methodType, requestUrl, body, responseBody, responseStatus) => {
+    this.trace = (lMethod, lRequestUrl, lBody, lResponseBody, lResponseStatus) => {
       bun.trace({
-        method: methodType,
-        requestUrl: requestUrl,
-        body: body,
-        responseBody: responseBody,
-        responseStatus: responseStatus
+        method:         lMethod,
+        requestUrl:     lRequestUrl,
+        body:           lBody,
+        responseBody:   lResponseBody,
+        responseStatus: lResponseStatus
       });
     };
     this.serializers = bun.serializers;

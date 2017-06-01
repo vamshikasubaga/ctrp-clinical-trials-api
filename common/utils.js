@@ -71,25 +71,25 @@ class Utils {
 
   static omitDeepKeys(collection, excludeKeys) {
     const omitFn = (value) => {
-      if (value && typeof value === 'object') {
+      if (value && typeof value === "object") {
         excludeKeys.forEach((key) => {
           delete value[key];
         });
       }
-    }
+    };
     return _.cloneDeepWith(collection, omitFn);
   }
 
   static omitPrivateKeys(collection) {
     const omitFn = (value) => {
-      if (value && typeof value === 'object') {
+      if (value && typeof value === "object") {
         Object.keys(value).forEach((key) => {
           if (key[0] === "_") {
             delete value[key];
           }
         });
       }
-    }
+    };
     return _.cloneDeepWith(collection, omitFn);
   }
 

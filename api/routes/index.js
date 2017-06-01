@@ -5,7 +5,7 @@ const md                  = require("marked");
 const git                 = require("git-rev");
 const searcherAdapter     = require("../../common/search_adapters/elasticsearch_adapter");
 const Searcher            = require("../search/searcher");
-const Logger              = require('../../common/logger');
+const Logger              = require("../../common/logger");
 const Utils               = require("../../common/utils");
 const trialMapping        = require("../indexer/trial/mapping.json");
 const package             = require("../package.json");
@@ -100,7 +100,7 @@ router.get("/v1/clinical-trials", (req, res, next) => {
   queryClinicalTrialsAndSendResponse(q, res, next);
 });
 
-router.post('/v1/clinical-trials', (req, res, next) => {
+router.post("/v1/clinical-trials", (req, res, next) => {
   let q = req.body;
   queryClinicalTrialsAndSendResponse(q, res, next);
 });
@@ -118,7 +118,7 @@ router.get("/v1/terms", (req, res, next) => {
   });
 });
 
-router.post('/v1/terms', (req, res, next) => {
+router.post("/v1/terms", (req, res, next) => {
   let q = _.pick(req.body, CONFIG.TERM_PARAMS);
 
   searcher.searchTerms(q, (err, terms) => {
@@ -156,7 +156,7 @@ router.get("/v1/clinical-trial.json", (req, res, next) => {
 
 router.get("/v1/", (req, res, next) => {
   let title = "NCI Clinical Trials API";
-  res.render('index', { md, title });
+  res.render("index", { md, title });
 });
 
 router.get("/v1/version", (req, res, next) => {
@@ -173,7 +173,7 @@ router.get("/v1/version", (req, res, next) => {
   };
 
   if (gitHash) {
-    _sendVersionResponse(gitHash)
+    _sendVersionResponse(gitHash);
   } else {
     git.long((gitHash) => {
       _sendVersionResponse(gitHash);

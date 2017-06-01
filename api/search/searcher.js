@@ -289,7 +289,7 @@ class Searcher {
         });
       }
 
-    })
+    });
   }
 
   _addStringFilter(body, field, filter) {
@@ -336,7 +336,7 @@ class Searcher {
       }
 
       body.filter("bool", "and", query.build("v2"));
-    }
+    };
 
     let possibleFulltextProps = searchPropsByType["fulltext"];
     possibleFulltextProps.forEach((field) => {
@@ -381,7 +381,7 @@ class Searcher {
       _addTrialIDFilter(trialIdFilterBody, filterElement);
     });
 
-    body.filter("bool", "and", trialIdFilterBody.build('v2'));
+    body.filter("bool", "and", trialIdFilterBody.build("v2"));
   }
 
   _addDateRangeFilters(body, q) {
@@ -430,7 +430,6 @@ class Searcher {
             throw new Error(
               `Invalid number supplied for ${field}_${rangeType}.`
             );
-            return;
           }
         }
       };
@@ -441,7 +440,7 @@ class Searcher {
       body.filter("range", field, ranges);
     }
 
-    let possibleRangeProps = searchPropsByType["long"]
+    let possibleRangeProps = searchPropsByType["long"];
     possibleRangeProps.forEach((field) => {
       let lteRange = q[field + "_lte"];
       let gteRange = q[field + "_gte"];
@@ -490,10 +489,10 @@ class Searcher {
     const _addGeoDistanceFilter = (field, latitude, longitude, distance) => {
       let err = "";
       if (!(latitude) || isNaN(parseFloat(latitude))) {
-        err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. \n`
+        err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. \n`;
       }
       if (!(longitude) || isNaN(parseFloat(longitude))) {
-        err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`
+        err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`;
       }
       if (!(distance) || isNaN(parseFloat(distance)) || distance === 0) {
         distance = 0.000000001;
@@ -576,8 +575,12 @@ class Searcher {
       include = _enforceArray(include);
       exclude = _enforceArray(exclude);
       let _source = {};
-      if (include) _source.include = include;
-      if (exclude) _source.exclude = exclude;
+      if (include) {
+        _source.include = include;
+      }
+      if (exclude) {
+        _source.exclude = exclude;
+      }
       body.rawOption("_source", _source);
     }
   }
@@ -664,8 +667,8 @@ class Searcher {
   searchTrials(q, callback) {
     logger.info("Trial searching", q);
     this.client.search({
-      index: 'cancer-clinical-trials',
-      type: 'trial',
+      index: "cancer-clinical-trials",
+      type: "trial",
       body: this._searchTrialsQuery(q)
     }, (err, res) => {
       if(err) {
@@ -698,22 +701,22 @@ class Searcher {
    * @memberOf Searcher
    */
   _getCodedAggregation(q) {
-      let path = q["agg_field"];
+      let aPath = q["agg_field"];
 
 
       //This is an aggregate for grouping the code with the term.  This is the inner most
       //part of the aggregate and basically is returning the name and the code for this
       //specific drug.
       let groupAgg = {};
-      groupAgg[path] = {
+      groupAgg[aPath] = {
         "terms": {
-          "field" : path + ".name._raw"
+          "field" : aPath + ".name._raw"
         }
       };
-      groupAgg[path]["aggs"] = {};
-      groupAgg[path]["aggs"][path + ".code"] = {
+      groupAgg[aPath]["aggs"] = {};
+      groupAgg[aPath]["aggs"][aPath + ".code"] = {
         "terms": {
-          "field": path + ".code"
+          "field": aPath + ".code"
         }
       }
 
@@ -722,15 +725,15 @@ class Searcher {
       if (q["agg_term"]) {
 
 
-        innerAgg[path + "_filtered"] = {
+        innerAgg[aPath + "_filtered"] = {
           "filter": {
             "query": {
               "match": {}
             }
           }
         };
-        innerAgg[path + "_filtered"]["filter"]["query"]["match"][path + ".name._auto"] = q["agg_term"];
-        innerAgg[path + "_filtered"]["aggs"] = groupAgg;
+        innerAgg[aPath + "_filtered"]["filter"]["query"]["match"][aPath + ".name._auto"] = q["agg_term"];
+        innerAgg[aPath + "_filtered"]["aggs"] = groupAgg;
       } else {
         innerAgg = groupAgg;
       }
@@ -738,12 +741,12 @@ class Searcher {
       //This is adding the nested part of the query.  This ensures that we are getting
       //(and filtering) on the correct pairs of name/code pairs.
       let nested = {};
-      nested[path + "_nested"] = {
+      nested[aPath + "_nested"] = {
         "nested": {
-          "path": path
+          "path": aPath
         }
       };
-      nested[path + "_nested"]["aggs"] = innerAgg;
+      nested[aPath + "_nested"]["aggs"] = innerAgg;
 
       return nested;
   }
@@ -924,12 +927,12 @@ class Searcher {
   _extractAggBucket(field, bucket) {
     if (field.match(/^_interventions\./)) {
       return bucket.map((item) => {
-        let codes = [];
+        let aCodes = [];
 
         //TODO: This should exist, so determine what to do if it does not.
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
-          codes = item[field + ".code"].buckets.map((code_bucket) => code_bucket.key);
+          aCodes = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key);
         }
 
         //TODO: Extract synonyms when they are added.
@@ -937,7 +940,7 @@ class Searcher {
         return {
           key: item.key,
           count: item.doc_count,
-          codes: codes
+          codes: aCodes
         }
       });
     } else {
@@ -991,8 +994,8 @@ class Searcher {
 
     //We should call count, or search with size 0.
     this.client.search({
-      index: 'cancer-clinical-trials',
-      type: 'trial',
+      index: "cancer-clinical-trials",
+      type: "trial",
       body: this._aggTrialsQuery(q)
     }, (err, res) => {
       if(err) {
@@ -1087,7 +1090,7 @@ class Searcher {
       }
 
       //add in filter.
-      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, { lat: q.org_coordinates_lat, lon: q.org_coordinates_lon})
+      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, { lat: q.org_coordinates_lat, lon: q.org_coordinates_lon});
 /*
        body.sort([{
        "org_coordinates": {
@@ -1140,13 +1143,13 @@ class Searcher {
     let resultSize = q.size || TERM_RESULT_SIZE_DEFAULT;
     resultSize = resultSize > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : resultSize;
     let sort = q.sort || TERM_SORT_DEFAULT;
-    let from = q.from ? q.from : 0;
+    let aFrom = q.from ? q.from : 0;
 
     // finalize the query
     let query = {
       "query": { "function_score": functionQuery },
       "size": resultSize,
-      "from": from
+      "from": aFrom
     };
     logger.info(query);
 
@@ -1173,8 +1176,8 @@ class Searcher {
   searchTerms(q, callback) {
     // logger.info("Term searching", q);
     this.client.search({
-      index: 'cancer-terms',
-      type: 'term',
+      index: "cancer-terms",
+      type: "term",
       body: this._searchTermsQuery(q)
     }, (err, res) => {
       if(err) {
