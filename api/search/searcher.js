@@ -494,7 +494,7 @@ class Searcher {
         err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`;
       }
       if (!(distance) || isNaN(parseFloat(distance)) || distance === 0) {
-        distance = 0.000000001;
+        distance = 1;
       }
       //TODO: add in validation of values for distance
 
