@@ -1076,6 +1076,14 @@ class Searcher {
       body.filter("term", "org_name", q.org_name.toLowerCase());
     }
 
+    if (q.org_family) {
+      body.filter("term", "org_family", q.org_family.toLowerCase());
+    }
+
+    if (q.org_to_family_relationship) {
+      body.filter("term", "org_to_family_relationship", q.org_to_family_relationship.toLowerCase());
+    }
+
 
     if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
 
