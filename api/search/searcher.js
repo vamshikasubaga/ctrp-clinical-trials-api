@@ -496,7 +496,6 @@ class Searcher {
       if (!(distance) || isNaN(parseFloat(distance)) || distance === 0) {
         distance = 0.001;
       }
-      //TODO: add in validation of values for distance
 
       if (err !== "") {
         throw new Error(err);
@@ -1049,32 +1048,32 @@ class Searcher {
       if(q.current_trial_statuses instanceof Array) {
         let orBody = new Bodybuilder();
         q.current_trial_statuses.forEach((currentTrialStatus) => {
-          orBody.orFilter("term", "current_trial_statuses", currentTrialStatus);
+          orBody.orFilter("term", "current_trial_statuses", currentTrialStatus.toLowerCase());
         });
         body.filter("bool", "and", orBody.build());
       } else {
-        body.filter("term", "current_trial_statuses", q.current_trial_statuses);
+        body.filter("term", "current_trial_statuses", q.current_trial_statuses.toLowerCase());
       }
     }
 
     if (q.org_country) {
-      body.filter("term", "org_country", q.org_country);
+      body.filter("term", "org_country", q.org_country.toLowerCase());
     }
 
     if (q.org_postal_code) {
-      body.filter("term", "org_postal_code", q.org_postal_code);
+      body.filter("term", "org_postal_code", q.org_postal_code.toLowerCase());
     }
 
     if (q.org_state_or_province) {
-      body.filter("term", "org_state_or_province", q.org_state_or_province);
+      body.filter("term", "org_state_or_province", q.org_state_or_province.toLowerCase());
     }
 
     if (q.org_city) {
-      body.filter("term", "org_city", q.org_city);
+      body.filter("term", "org_city", q.org_city.toLowerCase());
     }
 
     if (q.org_name) {
-      body.filter("term", "org_name", q.org_name);
+      body.filter("term", "org_name", q.org_name.toLowerCase());
     }
 
 
@@ -1083,24 +1082,8 @@ class Searcher {
       if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || q.org_coordinates_dist === 0) {
         q["org_coordinates_dist = 0.000000001"];
       } else {
-        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist);
+        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
       }
-
-      //add in filter.
-      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, { lat: q.org_coordinates_lat, lon: q.org_coordinates_lon});
-/*
-       body.sort([{
-       "org_coordinates": {
-       "location": {
-       "lat": q["org_coordinates_lat"],
-       "lon": q["org_coordinates_lon"]
-       },
-       "order": "asc",
-       "unit": "mi",
-       "distance_type": "plane"
-       }
-       }]);*/
-
     }
 
     // set the term types (use defaults if not supplied)
