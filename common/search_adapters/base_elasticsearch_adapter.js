@@ -21,7 +21,7 @@ class BaseElasticsearchAdapter extends AbstractSearchAdapter {
         let hosts = [];
 
         if (Array.isArray(CONFIG.ES_HOST)) {
-            CONFIG.ES_HOST.forEach(host => {
+            CONFIG.ES_HOST.forEach((host) => {
               hosts.push(`${host}`);
             });
         } else {
