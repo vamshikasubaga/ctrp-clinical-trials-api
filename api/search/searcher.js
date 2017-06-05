@@ -1084,6 +1084,10 @@ class Searcher {
       } else {
         q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
       }
+
+      //add in filter.
+      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, { lat: q.org_coordinates_lat, lon: q.org_coordinates_lon});
+
     }
 
     // set the term types (use defaults if not supplied)
