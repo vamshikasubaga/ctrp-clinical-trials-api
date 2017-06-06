@@ -29,6 +29,7 @@ Example: [clinical-trials?eligibility.structured.gender=female&include=nct_id](c
 
 When supplying an array of values for a single filter param, please use the following convention: `clinical-trials?<field_param>=<field_value_a>&<field_param>=<field_value_b>` and note that `string` field values are not case sensitive (must otherwise must match exactly).
 
+
 Example: [clinical-trials?sites.org_state_or_province=CA&sites.org_state_or_province=OR](clinical-trials?sites.org_state_or_province=CA&sites.org_state_or_province=OR)
 
 -------
