@@ -1,7 +1,6 @@
 const CONFIG              = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 const _                   = require("lodash");
 const express             = require("express");
-const md                  = require("marked");
 const git                 = require("git-rev");
 const searcherAdapter     = require("../../common/search_adapters/elasticsearch_adapter");
 const Searcher            = require("../search/searcher");
@@ -152,11 +151,6 @@ router.get("/v1/clinical-trial.json", (req, res, next) => {
   ];
   clinicalTrialJson = Utils.omitDeepKeys(clinicalTrialJson, excludeKeys);
   res.json(clinicalTrialJson["trial"]["properties"]);
-});
-
-router.get("/v1/", (req, res, next) => {
-  let title = "NCI Clinical Trials API";
-  res.render("index", { md, title });
 });
 
 router.get("/v1/version", (req, res, next) => {

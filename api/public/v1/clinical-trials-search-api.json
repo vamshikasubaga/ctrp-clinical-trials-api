@@ -1,0 +1,819 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "NCI Clinical Trials API",
+    "description": ["<h2>Fetching Daily Updates</h2><p>Updates to the API are made daily (the refresh occurs each morning at 7:30 AM ET). Unfortunately, the API does not do a <code>diff</code> to track changes, and there is no one field in the underlying database (which the API taps into) which captures when a trial has been modified. Future modifications to the database architecture are being scheduled to change this by adding <code>date_created</code> and <code>date_updated</code> fields to each table.</p><p>Until these updates are made, the best field to use to see which trials have <em>possibly</em> been changed in the past 24 hours is the <code>record_verification_date</code> field. This field is updated whenever a human auditor verifies a clinical trial record. It is important to note that verification does not necessarily imply that a change was made to the clinical trial record, simply that an auditor took another look at it - but this is inclusive of any instances where the auditor made modifications to the trial.</p><p>As an example, to see which clinical trials have been verified by an auditor since 2016-08-25...</p><p>Example: <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trials?record_verification_date_gte=2016-08-25\">clinical-trials?record_verification_date_gte=2016-08-25</a></p><hr><p>For the time-being, if you simply wish to track when a trial has changed its status, the <code>current_trial_status_date</code> field might be more helpful...</p><p>Example: <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trials?current_trial_status_date_gte=2016-08-25\">clinical-trials?current_trial_status_date_gte=2016-08-25</a></p><h2>Issues</h2><p>Please file any questions or issues at the <a target=\"_blank\" href=\"https://github.com/CBIIT/ctrp-clinical-trials-api/issues\">clinical-trials-search repository</a>.</p>"],
+    "contact": {
+      "email": ""
+    },
+    "license": {
+      "name": "",
+      "url": ""
+    }
+  },
+  "host": "",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "cancer-clinical-trials",
+      "description": "",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    },
+    {
+      "name": "cancer-terms",
+      "description": "",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://swagger.io"
+      }
+    }
+  ],
+  "schemes": [
+    "https", "http"
+  ],
+    "paths": {
+    "/v1/clinical-trial/{id}": {
+      "get": {
+        "tags": [
+          "cancer-clinical-trials"
+        ],
+        "summary": "Get Trial",
+        "description": "<h3>GET clinical-trial&lt;id&gt;</h3><p>Retrieves the clinical trial with supplied <code>nci_id</code> or <code>nct_id</code>. <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trial.json\">All fields</a> (including nested ones) are returned.</p><p>Examples:</p><ul><li><a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trial/NCT02194738\">clinical-trial/NCT02194738</a></li><li><a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trial/NCI-2014-01509\">clinical-trial/NCI-2014-01509</a></li></ul><hr>",
+        "operationId": "getTrialById",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "NCI ID or NCT ID of Trial.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trial details for the given id."
+          },
+          "400": {
+            "description": "Bad Request."
+          },
+          "500": {
+            "description": "An exception occurred at the backend."
+          }
+        }
+      }
+    },
+    "/v1/clinical-trials": {
+      "get": {
+        "tags": [
+          "cancer-clinical-trials"
+        ],
+        "summary": "Search Trials by GET",
+        "description": "<h3>GET clinical-trials&lt;filter_params&gt;</h3><p>Filters all clinical trials based upon supplied filter params. Filter params may be any of the <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trial.json\">fields in the schema</a> as well as any of the following params...</p><p><code>size</code>: limit the amount of results a supplied amount (default is 10, max is 50)</p><p><code>from</code>: start the results from a supplied starting point (default is 0)</p><p><code>include</code>: include only the supplied filter param fields in all results (useful if you want to minimize the payload returned)</p><p><code>exclude</code>: exclude the supplied filter param fields from all results (useful if you want most of the payload returned with the exception of a few fields)</p><p><code>_fulltext</code>: filter results by examining a variety of text-based fields (including the trial title, description, treatments, etc)</p><p>Example: <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trials?eligibility.structured.gender=female&amp;include=nct_id\">clinical-trials?eligibility.structured.gender=female&amp;include=nct_id</a></p><hr><p>When supplying an array of values for a single filter param, please use the following convention:<br> <code>clinical-trials?&lt;field_param&gt;=&lt;field_value_a&gt;&amp;&lt;field_param&gt;=&lt;field_value_b&gt;</code><br> and note that <code>string</code> field values are not case sensitive (must otherwise must match exactly).</p><hr><p>Example: <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR\">clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR</a></p><hr><p>For field params which are filtering as ranges (<code>date</code> and <code>long</code> types), please supply <code>_gte</code> or <code>_lte</code> to the end of the field param (depending on if you are filtering on greater than or equal (gte), less than or equal (lte), or both):<br> <code>clinical-trials?&lt;field_param&gt;_gte=&lt;field_value_from&gt;&amp;&lt;field_param&gt;_lte=&lt;field_value_to&gt;</code></p><p>Example: <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trials?record_verification_date_gte=2016-08-25\">clinical-trials?record_verification_date_gte=2016-08-25</a></p><hr><p>For field params which are geolocation coordinates (<code>geo_point</code>), please supply the following to the end of the field param:</p><ul><li><code>_lat</code> - The latitude in decimal degrees and plus/minus.</li><li><code>_lon</code> - The longitude in decimal degrees and plus/minus.</li><li><code>_dist</code> - The radius to search within. Format must be an integer followed by a unit defined as:<ul><li>mi - miles (for example <code>2mi</code>)</li><li>km - kilometer (for example <code>5km</code>)  </li></ul></li></ul><p><code>clinical-trials?&lt;field_param&gt;_lat=&lt;field_value_latitude&gt;&amp;&lt;field_param&gt;_lon=&lt;field_value_longitude&gt;&amp;&lt;field_param&gt;_dist=&lt;field_value_dist&gt;</code></p><p>Example: <a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi\">clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi</a></p><hr><p>Below are some examples of filters for trials and configurations of results.</p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
+        "operationId": "searchTrialsByGet",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "size",
+            "type": "string",
+            "description": "Size of results.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "type": "string",
+            "description": "Starting from nth position of results lineup.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "include",
+            "type": "string",
+            "description": "Include only this attribute in trials and exclude others.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "include",
+            "type": "string",
+            "description": "Include only this attribute in trials and exclude others.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "exclude",
+            "type": "string",
+            "description": "Exclude only this attribute in trials and include others.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "exclude",
+            "type": "string",
+            "description": "Exclude only this attribute in trials and include others.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "_fulltext",
+            "type": "string",
+            "description": "filter results by examining a variety of text-based fields.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nci_id",
+            "type": "string",
+            "description": "Search by NCI ID.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "nct_id",
+            "type": "string",
+            "description": "Search by NCT ID.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "protocol_id",
+            "type": "string",
+            "description": "Search by Protocol ID.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "ccr_id",
+            "type": "string",
+            "description": "Search by CCR ID.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "ctep_id",
+            "type": "string",
+            "description": "Search by CTEP ID",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "dcp_id",
+            "type": "string",
+            "description": "Search by DCP ID",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name":
+            "current_trial_status",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name":
+            "phase.phase",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name":
+            "study_protocol_type",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name":
+            "brief_title",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name":
+            "brief_summary",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name":
+            "official_title",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name":
+            "arms.interventions.synonyms",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "accepts_healthy_volunteers_indicator",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "acronym",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "amendment_date",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "anatomic_sites",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.arm_description",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.arm_name",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.arm_type",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.interventions.intervention_code",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.interventions.intervention_description",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.interventions.intervention_name",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.interventions.intervention_type",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.interventions.synonyms",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "associated_studies.study_id",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "associated_studies.study_id_type",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.gender",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "current_trial_status_date_lte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "current_trial_status_date_gte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "record_verification_date_lte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "record_verification_date_gte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_coordinates_lat",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_coordinates_lon",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_coordinates_dist",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.contact_email",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.contact_name",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.contact_name._auto",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.contact_name._raw",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.contact_phone",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.generic_contact",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_address_line_1",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_address_line_2",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_city",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_coordinates",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "arms.arm_description",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_country",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_country._raw",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_email",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_family",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_fax",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_name",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_name._auto",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_name._raw",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_phone",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_postal_code",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_state_or_province",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_status",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_status_date",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_to_family_relationship",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_tty",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.recruitment_status",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.recruitment_status_date",
+            "type": "string",
+            "description": "",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list having personSearchResult matching given search criteria."
+          },
+          "500": {
+            "description": "An exception occurred at the backend."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cancer-clinical-trials"
+        ],
+        "summary": "Search Trials by POST",
+        "description": "<h3><code>POST clinical-trials</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/clinical-trials' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"sites.org_state_or_province\": [\"CA\", \"OR\"],<br>\"record_verification_date_gte\": \"2016-06-01\",<br>\"include\": [\"nci_id\"]<br> }'</code>",
+        "operationId": "searchTrialsByPost",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "status",
+            "type": "string",
+            "description": "Search Parameters",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Exception occured at the backend (except EntityNotFoundException)."
+          }
+        }
+      }
+    },
+      "/v1/term/{term_key}": {
+        "get": {
+          "tags": [
+            "cancer-terms"
+          ],
+          "summary": "Get Term by 'term_key' value",
+          "description": "<h3>GET term&lt;term_key&gt;</h3><p>Retrieves the term with supplied <code>term_key</code>.</p><p>Example:</p><p><a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/term/acute_myeloid_leukemia_in_remission\">Term with term_key value of acute_myeloid_leukemia_in_remission</a>.</p><hr>",
+          "operationId": "getTermByTermKey",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "term_key",
+              "description": "'term_key' value of term.",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Term details for the given term_key."
+            },
+            "400": {
+              "description": "Bad Request."
+            },
+            "500": {
+              "description": "An exception occurred at the backend."
+            }
+          }
+        }
+      },
+    "/v1/terms": {
+      "get": {
+        "tags": [
+          "cancer-terms"
+        ],
+        "summary": "Search Terms by GET",
+        "description": "<h3><code>GET terms?term=&lt;search_term&gt;[&amp;term_type=&lt;search_term_type&gt;]</code></h3><p>The <code>terms</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available terms which can later be used to filter clinical trial results. Terms are matched partially by supplying a string to the <code>term</code> field and may be filtered by clinical trial type using the <code>term_type</code> field. Results are sorted by a combination of string relevancy and popularity.</p><p>Example:<a target='_blank' href=\"https://ctapi-int-lb-frontend-60052684.us-east-1.elb.amazonaws.com/v1/terms?term=pancreatic%20n\">terms?term=pancreatic%20n</a></p><ul>List of exposed Term Types:<li>_diseases</li><li>_treatments</li><li>_locations</li><li>_org_state_or_provinces</li><li>_org_cities</li><li>_orgs_by_location</li><li>sites.org_postal_code</li><li>sites.org_country</li><li>sites.org_city</li><li>sites.org_state_or_province</li><li>sites.org_name</li><li>sites.org_family</li><li>current_trial_status</li><li>phase.phase</li><li>study_protocol_type</li><li>brief_title</li><li>brief_summary</li><li>official_title</li><li>arms.interventions.synonyms</li></ul><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
+        "operationId": "searchTermsByGet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "term",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "term_type",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "type": "string",
+            "description": "Sort by 'term' if sort is alphabetical or count by occurance.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "from",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "codes",
+            "type": "string",
+            "description": "Used with _diseases",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "current_trial_statuses",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_country",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_state_or_province",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_city",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_postal_code",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_family",
+            "type": "string",
+            "description": "Org Family: To be used with _orgs_by_location to set family",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_to_family_relationship",
+            "type": "string",
+            "description": "Org Family Relationship: To be used with _orgs_by_location to set family relationship",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_coordinates_lon",
+            "type": "string",
+            "description": "Longitude: To be used with _orgs_by_location to set longitude"
+          },
+          {
+            "in": "query",
+            "name": "org_coordinates_lat",
+            "type": "string",
+            "description": "Latitude: To be used with _orgs_by_location to set latitude",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "org_coordinates_dist",
+            "type": "string",
+            "description": "Distance (in miles): To be used with _orgs_by_location to find distance from coordinates",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list having personSearchResult matching given search criteria."
+          },
+          "500": {
+            "description": "An exception occurred at the backend."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "cancer-terms"
+        ],
+        "summary": "Search Terms by POST",
+        "description": "<h3><code>POST terms</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><hr>",
+        "operationId": "searchTrialsByPost",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "status",
+            "type": "string",
+            "description": "Search Parameters",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Exception occured at the backend (except EntityNotFoundException)."
+          }
+        }
+      }
+    }
+  }
+}
