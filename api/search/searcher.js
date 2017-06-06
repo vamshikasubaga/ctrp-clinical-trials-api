@@ -1193,7 +1193,6 @@ class Searcher {
     body.query("match", "term_key", key);
 
     let query = body.build();
-    // logger.info(query);
 
     return query;
   }
