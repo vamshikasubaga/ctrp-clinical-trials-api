@@ -1048,11 +1048,11 @@ class Searcher {
       if(q.current_trial_statuses instanceof Array) {
         let orBody = new Bodybuilder();
         q.current_trial_statuses.forEach((currentTrialStatus) => {
-          orBody.orFilter("term", "current_trial_statuses", currentTrialStatus.toLowerCase());
+          orBody.orFilter("term", "current_trial_statuses", currentTrialStatus.toUpperCase());
         });
         body.filter("bool", "and", orBody.build());
       } else {
-        body.filter("term", "current_trial_statuses", q.current_trial_statuses.toLowerCase());
+        body.filter("term", "current_trial_statuses", q.current_trial_statuses.toUpperCase());
       }
     }
 
