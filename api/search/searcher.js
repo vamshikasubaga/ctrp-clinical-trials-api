@@ -493,7 +493,7 @@ class Searcher {
       if (!(longitude) || isNaN(parseFloat(longitude))) {
         err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`;
       }
-      if (!(distance) || isNaN(parseFloat(distance)) || distance === 0) {
+      if (!(distance) || isNaN(parseFloat(distance)) || parseFloat(distance) < 0.001) {
         distance = 0.001;
       }
 
@@ -1086,11 +1086,10 @@ class Searcher {
 
 
     if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
-
-      if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || q.org_coordinates_dist === 0) {
-        q["org_coordinates_dist = 0.000000001"];
+      if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
+        q["org_coordinates_dist"] = 0.001;
       } else {
-        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
+        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist);
       }
 
       //add in filter.
