@@ -3,6 +3,7 @@ const _                   = require("lodash");
 const express             = require("express");
 const md                  = require("marked");
 const git                 = require("git-rev");
+const axios               = require("axios");
 const searcherAdapter     = require("../../common/search_adapters/elasticsearch_adapter");
 const Searcher            = require("../search/searcher");
 const Logger              = require("../../common/logger");
@@ -12,6 +13,7 @@ const package             = require("../package.json");
 
 let logger                = new Logger({name: "api-router"});
 let searcher              = new Searcher(searcherAdapter);
+let zipCodesSource        = "http://www.cancer.gov/publishedcontent/Files/Configuration/data/zip_codes.json";
 
 const router              = new express.Router();
 const searchPropsByType   = Utils.getFlattenedMappingPropertiesByType(trialMapping["trial"]);
@@ -71,7 +73,7 @@ const _getInvalidTrialQueryParams = (queryParams) => {
   });
 };
 
-const queryClinicalTrialsAndSendResponse = (q, res, next) => {
+const queryClinicalTrialsAndSendResponse = (q, res) => {
   let queryParams = Object.keys(q);
   // validate query params...
   let invalidParams = _getInvalidTrialQueryParams(queryParams);
@@ -93,41 +95,72 @@ const queryClinicalTrialsAndSendResponse = (q, res, next) => {
     res.json(trials);
   });
 };
+const queryTermsAndSendResponse = (q, res) => {
+  searcher.searchTerms(q, (err, terms) => {
+    // TODO: add better error handling
+    if(err) {
+      return res.sendStatus(500);
+    }
+    res.json(terms);
+  });
+};
+
+const addCoordinatedGivenZip = (q, endPoint, res) => {
+  axios.get(zipCodesSource)
+    .then(function (response) {
+      if (endPoint === "terms") {
+        let coordinates = response.data[q["org_postal_code"]];
+        q["org_coordinates_lat"] = coordinates.lat;
+        q["org_coordinates_lon"] = coordinates.lon;
+        queryTermsAndSendResponse (q, res);
+      } else {
+        let coordinates = response.data[q["sites.org_postal_code"]];
+        q["sites.org_coordinates_lat"] = coordinates.lat;
+        q["sites.org_coordinates_lon"] = coordinates.lon;
+        queryClinicalTrialsAndSendResponse(q, res);
+      }
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+};
 
 /* get clinical trials that match supplied search criteria */
-router.get("/v1/clinical-trials", (req, res, next) => {
+router.get("/v1/clinical-trials", (req, res) => {
   let q = req.query;
-  queryClinicalTrialsAndSendResponse(q, res, next);
+  if (q["sites.org_postal_code"] && q["sites.org_coordinates_dist"]) {
+    addCoordinatedGivenZip(q, "trials", res);
+  } else {
+    queryClinicalTrialsAndSendResponse(q, res);
+  }
 });
 
 router.post("/v1/clinical-trials", (req, res, next) => {
   let q = req.body;
-  queryClinicalTrialsAndSendResponse(q, res, next);
+  if (q["sites.org_postal_code"] && q["sites.org_coordinates_dist"]) {
+    addCoordinatedGivenZip(q, "trials", res);
+  } else {
+    queryClinicalTrialsAndSendResponse(q, res);
+  }
 });
 
 /* get key terms that can be used to search through clinical trials */
 router.get("/v1/terms", (req, res, next) => {
   let q = _.pick(req.query, CONFIG.TERM_PARAMS);
-
-  searcher.searchTerms(q, (err, terms) => {
-    // TODO: add better error handling
-    if(err) {
-      return res.sendStatus(500);
-    }
-    res.json(terms);
-  });
+  if (q["org_postal_code"] && q["org_coordinates_dist"]) {
+    addCoordinatedGivenZip(q, "terms", res);
+  } else {
+    queryTermsAndSendResponse (q, res);
+  }
 });
 
 router.post("/v1/terms", (req, res, next) => {
   let q = _.pick(req.body, CONFIG.TERM_PARAMS);
-
-  searcher.searchTerms(q, (err, terms) => {
-    // TODO: add better error handling
-    if(err) {
-      return res.sendStatus(500);
-    }
-    res.json(terms);
-  });
+  if (q["org_postal_code"] && q["org_coordinates_dist"]) {
+    addCoordinatedGivenZip(q, "terms", res);
+  } else {
+    queryTermsAndSendResponse (q, res);
+  }
 });
 
 /* get a term by its key */
