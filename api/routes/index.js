@@ -188,8 +188,7 @@ router.get("/v1/clinical-trial.json", (req, res, next) => {
 });
 
 router.get("/v1/", (req, res, next) => {
-  let title = "NCI Clinical Trials API";
-  res.render("index", { md, title });
+  res.redirect("/");
 });
 
 router.get("/v1/version", (req, res, next) => {
