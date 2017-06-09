@@ -14,10 +14,10 @@
   },
   "nyc": {
     "exclude": [
-      "api/public",
-      "api/views",
-      "api/test",
-      "api/bin"
+      "public",
+      "views",
+      "test",
+      "bin"
     ]
   },
   "dependencies": {
