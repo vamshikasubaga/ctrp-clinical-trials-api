@@ -12,6 +12,14 @@
     "test": "node ./node_modules/nyc/bin/nyc ./node_modules/mocha/bin/mocha --compilers js:babel-core/register ./test/**/*.spec.js",
     "build-report": "node ./node_modules/nyc/bin/nyc report --reporter=text-lcov > coverage/coverage.lcov"
   },
+  "nyc": {
+    "exclude": [
+      "public",
+      "views",
+      "test",
+      "bin"
+    ]
+  },
   "dependencies": {
     "body-parser": "1.13.2",
     "bodybuilder": "git://github.com/bryanpizzillo/bodybuilder",
