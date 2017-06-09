@@ -1,0 +1,7 @@
+
+exclude_paths:
+  - api/public
+  - api/views
+  - api/test
+  - api/bin
+  - '*.md'
