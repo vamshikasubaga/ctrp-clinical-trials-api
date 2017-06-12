@@ -59,7 +59,7 @@ after_success:
   - docker run -it --rm -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
     -e AWS_DEFAULT_REGION=us-east-1 silintl/ecs-deploy
     --cluster CTAPI-IntTest-Backend --service-name CTAPI-ctrp_clinical_trials_api-INTTEST
-    -i $DOCKER_IMAGE:$DATE --timeout 540 --max-definitions 25
+    -i $DOCKER_IMAGE:$DATE --timeout 540 --max-definitions 24
 
   #Trigger Travis bdd tests
   - curl -s -X POST -H "Content-Type:application/json" -H "Accept:application/json"  -H "Travis-API-Version:3" -H "Authorization:token $TRAVIS_TOKEN"  
