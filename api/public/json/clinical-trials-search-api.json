@@ -75,7 +75,7 @@
           "cancer-clinical-trials"
         ],
         "summary": "Search Trials by GET",
-        "description": "<h3>GET clinical-trials&lt;filter_params&gt;</h3><p>Filters all clinical trials based upon supplied filter params. Filter params may be any of the <a target='_blank' href=\"/v1/clinical-trial.json\">fields in the schema</a> as well as any of the following params...</p><p><code>size</code>: limit the amount of results a supplied amount (default is 10, max is 50)</p><p><code>from</code>: start the results from a supplied starting point (default is 0)</p><p><code>include</code>: include only the supplied filter param fields in all results (useful if you want to minimize the payload returned)</p><p><code>exclude</code>: exclude the supplied filter param fields from all results (useful if you want most of the payload returned with the exception of a few fields)</p><p><code>_fulltext</code>: filter results by examining a variety of text-based fields (including the trial title, description, treatments, etc)</p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?eligibility.structured.gender=female&amp;include=nct_id\">clinical-trials?eligibility.structured.gender=female&amp;include=nct_id</a></p><hr><p>When supplying an array of values for a single filter param, please use the following convention:<br> <code>clinical-trials?&lt;field_param&gt;=&lt;field_value_a&gt;&amp;&lt;field_param&gt;=&lt;field_value_b&gt;</code><br> and note that <code>string</code> field values are not case sensitive (must otherwise must match exactly).</p><hr><p>Example: <a target='_blank' href=\"/v1/clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR\">clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR</a></p><hr><p>For field params which are filtering as ranges (<code>date</code> and <code>long</code> types), please supply <code>_gte</code> or <code>_lte</code> to the end of the field param (depending on if you are filtering on greater than or equal (gte), less than or equal (lte), or both):<br> <code>clinical-trials?&lt;field_param&gt;_gte=&lt;field_value_from&gt;&amp;&lt;field_param&gt;_lte=&lt;field_value_to&gt;</code></p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?record_verification_date_gte=2016-08-25\">clinical-trials?record_verification_date_gte=2016-08-25</a></p><hr><p>For field params which are geolocation coordinates (<code>geo_point</code>), please supply the following to the end of the field param:</p><ul><li><code>_lat</code> - The latitude in decimal degrees and plus/minus.</li><li><code>_lon</code> - The longitude in decimal degrees and plus/minus.</li><li><code>_dist</code> - The radius to search within. Format must be an integer followed by a unit defined as:<ul><li>mi - miles (for example <code>2mi</code>)</li><li>km - kilometer (for example <code>5km</code>)  </li></ul></li></ul><p><code>clinical-trials?&lt;field_param&gt;_lat=&lt;field_value_latitude&gt;&amp;&lt;field_param&gt;_lon=&lt;field_value_longitude&gt;&amp;&lt;field_param&gt;_dist=&lt;field_value_dist&gt;</code></p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi\">clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi</a></p><hr><p>Below are some examples of filters for trials and configurations of results.</p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
+        "description": "<h3>GET clinical-trials&lt;filter_params&gt;</h3><p>Filters all clinical trials based upon supplied filter params. Filter params may be any of the <a target='_blank' href=\"/v1/clinical-trial.json\">fields in the schema</a> as well as any of the following params...</p><p><code>size</code>: limit the amount of results a supplied amount (default is 10, max is 50)</p><p><code>from</code>: start the results from a supplied starting point (default is 0)</p><p><code>include</code>: include only the supplied filter param fields in all results (useful if you want to minimize the payload returned)</p><p><code>exclude</code>: exclude the supplied filter param fields from all results (useful if you want most of the payload returned with the exception of a few fields)</p><p><code>_fulltext</code>: filter results by examining a variety of text-based fields (including the trial title, description, treatments, etc)</p><p><code>_trialids</code>: filter results by examining trial identifiers (ccr_id, ctep_id, dcp_id, nci_id, nct_id, other_ids.value, protocol_id)</p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?eligibility.structured.gender=female&amp;include=nct_id\">clinical-trials?eligibility.structured.gender=female&amp;include=nct_id</a></p><hr><p>When supplying an array of values for a single filter param, please use the following convention:<br> <code>clinical-trials?&lt;field_param&gt;=&lt;field_value_a&gt;&amp;&lt;field_param&gt;=&lt;field_value_b&gt;</code><br> and note that <code>string</code> field values are not case sensitive (must otherwise must match exactly).</p><hr><p>Example: <a target='_blank' href=\"/v1/clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR\">clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR</a></p><hr><p>For field params which are filtering as ranges (<code>date</code> and <code>long</code> types), please supply <code>_gte</code> or <code>_lte</code> to the end of the field param (depending on if you are filtering on greater than or equal (gte), less than or equal (lte), or both):<br> <code>clinical-trials?&lt;field_param&gt;_gte=&lt;field_value_from&gt;&amp;&lt;field_param&gt;_lte=&lt;field_value_to&gt;</code></p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?record_verification_date_gte=2016-08-25\">clinical-trials?record_verification_date_gte=2016-08-25</a></p><hr><p>For field params which are geolocation coordinates (<code>geo_point</code>), please supply the following to the end of the field param:</p><ul><li><code>_lat</code> - The latitude in decimal degrees and plus/minus.</li><li><code>_lon</code> - The longitude in decimal degrees and plus/minus.</li><li><code>_dist</code> - The radius to search within. Format must be an integer followed by a unit defined as:<ul><li>mi - miles (for example <code>2mi</code>)</li><li>km - kilometer (for example <code>5km</code>)  </li></ul></li></ul><p><code>clinical-trials?&lt;field_param&gt;_lat=&lt;field_value_latitude&gt;&amp;&lt;field_param&gt;_lon=&lt;field_value_longitude&gt;&amp;&lt;field_param&gt;_dist=&lt;field_value_dist&gt;</code></p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi\">clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi</a></p><hr><p>Below are some examples of filters for trials and configurations of results.</p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
         "operationId": "searchTrialsByGet",
         "produces": [
           "application/json"
@@ -128,6 +128,20 @@
             "name": "_fulltext",
             "type": "string",
             "description": "filter results by examining a variety of text-based fields.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sites.org_name_fulltext",
+            "type": "string",
+            "description": "filter results by examining words that make up organization name e.g 'Mayo'.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "_trialids",
+            "type": "string",
+            "description": "filter results by examining trial identifiers.",
             "required": false
           },
           {
@@ -329,6 +343,76 @@
           {
             "in": "query",
             "name": "eligibility.structured.gender",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.max_age_in_years_lte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.max_age_in_years_gte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.min_age_in_years_lte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.min_age_in_years_gte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.min_age_unit",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.max_age_unit",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.max_age_number_lte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.max_age_number_gte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.min_age_number_lte",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "eligibility.structured.min_age_number_gte",
             "type": "string",
             "description": "",
             "required": false
@@ -656,7 +740,7 @@
           "cancer-terms"
         ],
         "summary": "Search Terms by GET",
-        "description": "<h3><code>GET terms?term=&lt;search_term&gt;[&amp;term_type=&lt;search_term_type&gt;]</code></h3><p>The <code>terms</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available terms which can later be used to filter clinical trial results. Terms are matched partially by supplying a string to the <code>term</code> field and may be filtered by clinical trial type using the <code>term_type</code> field. Results are sorted by a combination of string relevancy and popularity.</p><p>Example:<a target='_blank' href=\"/v1/terms?term=pancreatic%20n\">terms?term=pancreatic%20n</a></p><ul>List of exposed Term Types:<li>_diseases</li><li>_treatments</li><li>_locations</li><li>_org_state_or_provinces</li><li>_org_cities</li><li>_orgs_by_location</li><li>sites.org_postal_code</li><li>sites.org_country</li><li>sites.org_city</li><li>sites.org_state_or_province</li><li>sites.org_name</li><li>sites.org_family</li><li>current_trial_status</li><li>phase.phase</li><li>study_protocol_type</li><li>brief_title</li><li>brief_summary</li><li>official_title</li><li>arms.interventions.synonyms</li></ul><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
+        "description": "<h3><code>GET terms?term=&lt;search_term&gt;[&amp;term_type=&lt;search_term_type&gt;]</code></h3><p>The <code>terms</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available terms which can later be used to filter clinical trial results. Terms are matched partially by supplying a string to the <code>term</code> field and may be filtered by clinical trial type using the <code>term_type</code> field. Results are sorted by a combination of string relevancy and popularity.</p><p>Example:<a target='_blank' href=\"/v1/terms?term=pancreatic%20n\">terms?term=pancreatic%20n</a></p><ul>List of exposed Term Types:<li>_diseases</li><li>_treatments</li><li>_locations</li><li>_org_state_or_provinces</li><li>_org_cities</li><li>_orgs_by_location</li><li>sites.org_postal_code</li><li>sites.org_country</li><li>sites.org_city</li><li>sites.org_state_or_province</li><li>sites.org_name</li><li>sites.org_family</li><li>current_trial_status</li><li>phase.phase</li><li>study_protocol_type</li><li>brief_title</li><li>brief_summary</li><li>official_title</li><li>arms.interventions.synonyms</li><li>sites.org_to_family_relationship</li><li>anatomic_sites</li><li>arms.interventions.intervention_type</li><li>primary_purpose.primary_purpose_code</li><li>arms.interventions.intervention_code</li><li>principal_investigator</li><li>lead_org</li></ul><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
         "operationId": "searchTermsByGet",
         "consumes": [
           "application/json"
@@ -779,7 +863,7 @@
         ],
         "responses": {
           "200": {
-            "description": "The list having personSearchResult matching given search criteria."
+            "description": "The list matching given search criteria."
           },
           "500": {
             "description": "An exception occurred at the backend."
