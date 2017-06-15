@@ -447,21 +447,21 @@
           },
           {
             "in": "query",
-            "name": "org_coordinates_lat",
+            "name": "sites.org_coordinates_lat",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name": "org_coordinates_lon",
+            "name": "sites.org_coordinates_lon",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name": "org_coordinates_dist",
+            "name": "sites.org_coordinates_dist",
             "type": "string",
             "description": "",
             "required": false
@@ -531,14 +531,14 @@
           },
           {
             "in": "query",
-            "name": "sites.org_coordinates",
+            "name": "sites.org_postal_code",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name": "arms.arm_description",
+            "name": "sites.org_state_or_province",
             "type": "string",
             "description": "",
             "required": false
@@ -602,20 +602,6 @@
           {
             "in": "query",
             "name": "sites.org_phone",
-            "type": "string",
-            "description": "",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "sites.org_postal_code",
-            "type": "string",
-            "description": "",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "sites.org_state_or_province",
             "type": "string",
             "description": "",
             "required": false
@@ -857,7 +843,7 @@
             "in": "query",
             "name": "org_coordinates_dist",
             "type": "string",
-            "description": "Distance (in miles): To be used with _orgs_by_location to find distance from coordinates",
+            "description": "Distance (in miles): To be used with _orgs_by_location to find distance from coordinates OR postal code",
             "required": false
           }
         ],
