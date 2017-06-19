@@ -104,20 +104,6 @@
           },
           {
             "in": "query",
-            "name": "include",
-            "type": "string",
-            "description": "Include only this attribute in trials and exclude others.",
-            "required": false
-          },
-          {
-            "in": "query",
-            "name": "exclude",
-            "type": "string",
-            "description": "Exclude only this attribute in trials and include others.",
-            "required": false
-          },
-          {
-            "in": "query",
             "name": "exclude",
             "type": "string",
             "description": "Exclude only this attribute in trials and include others.",
