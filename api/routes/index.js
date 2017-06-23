@@ -70,8 +70,7 @@ router.post("/v1/clinical-trials", (req, res, next) => {
 router.get("/v1/terms", (req, res, next) => {
   let q = _.pick(req.query, CONFIG.TERM_PARAMS);
   if (q["org_postal_code"] && q["org_coordinates_dist"]) {
-    var mod_q = RouteUtils.addCoordinatedGivenZip(q, "terms", usZipCodes);
-    RouteUtils.queryTermsAndSendResponse(mod_q, res);
+    RouteUtils.queryTermsAndSendResponse(RouteUtils.addCoordinatedGivenZip(q, "terms", usZipCodes), res);
   } else {
     RouteUtils.queryTermsAndSendResponse(q, res);
   }

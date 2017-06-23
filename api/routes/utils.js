@@ -42,7 +42,7 @@ class Utils {
       }
       return true;
     });
-  };
+  }
 
   static queryClinicalTrialsAndSendResponse (q, res) {
     let queryParams = Object.keys(q);
@@ -53,7 +53,6 @@ class Utils {
         "Error": "Invalid query params.",
         "Invalid Params": invalidParams
       };
-      logger.error(error);
       return res.status(400).send(error);
     }
 
@@ -65,7 +64,7 @@ class Utils {
       // TODO: format trials
       res.json(trials);
     });
-  };
+  }
 
   static queryTermsAndSendResponse (q, res) {
     searcher.searchTerms(q, (err, terms) => {
@@ -75,7 +74,7 @@ class Utils {
       }
       res.json(terms);
     });
-  };
+  }
 
   static addCoordinatedGivenZip (q, endPoint, usZipCodes) {
     if (endPoint === "terms") {
