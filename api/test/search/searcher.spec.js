@@ -5,8 +5,13 @@ const CONFIG              = require("../../../config" + (process.env.NODE_ENV ? 
 
 const Bodybuilder              = require("bodybuilder");
 const querystring              = require('querystring');
+const RouteUtils               = require("../../routes/utils");
 const Searcher                 = require("../../search/searcher");
 const AbstractSearchAdapter    = require("../../../common/search_adapters/abstract_search_adapter");
+const axios                    = require("axios");
+const zipCodesSource           = "http://www.cancer.gov/publishedcontent/Files/Configuration/data/zip_codes.json";
+
+
 
 /**
  * Represents a mock ES adapter for use by the Searcher class. 
@@ -247,6 +252,120 @@ describe('Searcher', _ => {
             }
         });
     });
+
+    it('Should Build a Term Query with that searches organizations with a distance from zip code.', () => {
+        let searcher = new Searcher(new SearcherMockAdapter());
+        let q = querystring.parse("term_type=_orgs_by_location&org_coordinates_dist=3&org_postal_code=20910");
+        axios.get(zipCodesSource)
+          .then(function (response) {
+            let query = searcher._searchTermsQuery(RouteUtils.addCoordinatedGivenZip(q, "terms", response.data));
+            expect(query.query.function_score.query).to.eql({
+              bool: {
+                "filter": {
+                  "bool": {
+                    "must": [
+                      {
+                        "geo_distance": {
+                          "distance": "3mi",
+                          "org_coordinates": {
+                            "lat": 39.0015,
+                            "lon": -77.0357
+                          }
+                        }
+                      }
+                    ],
+                    "should": [
+                      {
+                        "term": {
+                          "term_type": "_orgs_by_location"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            });
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+    });
+
+
+  it('Should Build a Term Query filtering by trial current_trial_statuses (single)', () => {
+    let searcher = new Searcher(new SearcherMockAdapter());
+    let q = querystring.parse("term_type=_orgs_by_location&current_trial_statuses=TEMPoRARILY%20CLOSED%20TO%20ACCRUAL");
+    let query = searcher._searchTermsQuery(q);
+
+    expect(query.query.function_score.query).to.eql({
+      bool: {
+        "filter": {
+          "bool": {
+            "must": [
+              {
+                "term": {
+                  "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
+                }
+              }
+            ],
+            "should": [
+              {
+                "term": {
+                  "term_type": "_orgs_by_location"
+                }
+              }
+            ]
+          }
+        }
+      }
+    });
+  });
+
+  it('Should Build a Term Query filtering by trial current_trial_statuses (multiple)', () => {
+    let searcher = new Searcher(new SearcherMockAdapter());
+    let q = querystring.parse("term_type=_orgs_by_location&current_trial_statuses=TEMPoRARILY%20CLOSED%20TO%20ACCRUAL&current_trial_statuses=ADMINISTRATIVELY%20COMPLETE");
+    let query = searcher._searchTermsQuery(q);
+
+    expect(query.query.function_score.query).to.eql({
+      bool: {
+        "filter": {
+          "bool": {
+            "must": [
+              {
+                "query": {
+                  "filtered": {
+                    "filter": {
+                      "bool": {
+                        "should": [
+                          {
+                            "term": {
+                              "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
+                            }
+                          },
+                          {
+                            "term": {
+                              "current_trial_statuses": "ADMINISTRATIVELY COMPLETE"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "should": [
+              {
+                "term": {
+                  "term_type": "_orgs_by_location"
+                }
+              }
+            ]
+          }
+        }
+      }
+    });
+  });
 
     // Unit testing for _searchTermByKey
     it('Should Build a Term Key Query', () => {
