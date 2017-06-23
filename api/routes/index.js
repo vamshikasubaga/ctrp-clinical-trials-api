@@ -112,11 +112,13 @@ const addCoordinatedGivenZip = (q, endPoint, res) => {
         let coordinates = response.data[q["org_postal_code"]];
         q["org_coordinates_lat"] = coordinates.lat;
         q["org_coordinates_lon"] = coordinates.lon;
+        delete q["org_postal_code"]
         queryTermsAndSendResponse (q, res);
       } else {
         let coordinates = response.data[q["sites.org_postal_code"]];
         q["sites.org_coordinates_lat"] = coordinates.lat;
         q["sites.org_coordinates_lon"] = coordinates.lon;
+        delete q["sites.org_postal_code"]
         queryClinicalTrialsAndSendResponse(q, res);
       }
     })

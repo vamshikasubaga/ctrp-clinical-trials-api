@@ -1089,7 +1089,7 @@ class Searcher {
       if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
         q["org_coordinates_dist"] = 0.001;
       } else {
-        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist);
+        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
       }
 
       //add in filter.
