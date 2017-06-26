@@ -847,7 +847,7 @@
           "cancer-terms"
         ],
         "summary": "Search Terms by POST",
-        "description": "<h3><code>POST terms</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><hr>",
+        "description": "<h3><code>POST terms</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/terms' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"term_type\": \"_orgs_by_location\",<br>\"org_postal_code\": \"20910\",<br>\"org_coordinates_dist\": 10,<br>\"org_to_family_relationship\": \"organizational\"<br>}'</code><hr>",
         "operationId": "searchTrialsByPost",
         "consumes": [
           "application/json"
