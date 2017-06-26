@@ -1,0 +1,5 @@
+exclude_paths:
+  - api/public/**/*
+  - api/public/*
+  - api/views/**/*
+  - api/test/**/*
