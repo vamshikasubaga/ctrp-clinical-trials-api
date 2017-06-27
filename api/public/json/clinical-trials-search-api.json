@@ -800,13 +800,6 @@
           },
           {
             "in": "query",
-            "name": "org_family",
-            "type": "string",
-            "description": "Org Family: To be used with _orgs_by_location to set family",
-            "required": false
-          },
-          {
-            "in": "query",
             "name": "org_to_family_relationship",
             "type": "string",
             "description": "Org Family Relationship: To be used with _orgs_by_location to set family relationship",
