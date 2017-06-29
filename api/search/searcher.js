@@ -1145,19 +1145,19 @@ class Searcher {
     logger.info(query);
 
     // right place to change term to order alphabetically
-    if (sort === "term") {
-      query["sort"] = {
-        "term": {
-          "order": "asc"
-        }
-      };
-    } else {
-      query["sort"] = {
-        "_score": {
-          "order": "desc"
-        }
-      };
+    if (sort === "score") {
+      sort = "_score"
     }
+    query["sort"] = {};
+    query["sort"][sort] = {};
+    let sortBy = query["sort"][sort];
+
+    if (sort !== "count" && sort !== "count_normalized" && sort !== "_score") {
+      sortBy["order"] = "asc";
+    } else {
+      sortBy["order"] = "desc";
+    }
+
     // query is the intermediate object.
     // q is to get the actual values
     return query;
@@ -1170,19 +1170,20 @@ class Searcher {
       type: "term",
       body: this._searchTermsQuery(q)
     }, (err, res) => {
+      let formattedRes = {};
       if(err) {
-        logger.error(err);
-        return callback(err);
+        formattedRes = {"error": "Bad Request"};
+      } else {
+        // return callback(null, res);
+        formattedRes = {
+          total: res.hits.total,
+          terms: _.map(res.hits.hits, (hit) => {
+            let source = hit._source;
+            source.score = hit._score;
+            return source;
+          })
+        };
       }
-      // return callback(null, res);
-      let formattedRes = {
-        total: res.hits.total,
-        terms: _.map(res.hits.hits, (hit) => {
-          let source = hit._source;
-          source.score = hit._score;
-          return source;
-        })
-      };
       return callback(null, formattedRes);
     });
   }

@@ -367,6 +367,30 @@ describe('Searcher', _ => {
     });
   });
 
+
+  it('Should Build a Term Query ordering by count', () => {
+    let searcher = new Searcher(new SearcherMockAdapter());
+    let q = querystring.parse("term_type=sites.org_country&sort=count");
+    let query = searcher._searchTermsQuery(q);
+
+    expect(query.query.function_score.query).to.eql({
+      bool: {
+
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "term": {
+                  "term_type": "sites.org_country"
+                }
+              }
+            ]
+          }
+        }
+      }
+    });
+  });
+
     // Unit testing for _searchTermByKey
     it('Should Build a Term Key Query', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
