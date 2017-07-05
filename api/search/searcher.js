@@ -20,6 +20,7 @@ const searchPropsByType = Utils.getFlattenedMappingPropertiesByType(trialMapping
 //to filter against.
 const NESTED_SEARCH_PROPS_FILTER = ["sites"];
 
+let CT_API_ERROR          = null;
 let logger = new Logger({name: "from " + CONFIG.ES_HOST + " searcher"});
 logger.level(CONFIG.LOG_LEVEL);
   
@@ -498,7 +499,8 @@ class Searcher {
       }
 
       if (err !== "") {
-        throw new Error(err);
+        CT_API_ERROR = new Error(err);
+        return CT_API_ERROR;
       }
 
       //add in filter.
@@ -668,22 +670,22 @@ class Searcher {
       type: "trial",
       body: this._searchTrialsQuery(q)
     }, (err, res) => {
+      let formattedRes = {};
       if(err) {
-        logger.error(err);
-        return callback(err);
+        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
+      } else {
+        // return callback(null, res);
+        let trialsResults = Utils.omitPrivateKeys(
+          _.map(res.hits.hits, (hit) => {
+            return hit._source;
+          })
+        );
+
+        formattedRes = {
+          total: res.hits.total,
+          trials: trialsResults
+        };
       }
-      // return callback(null, res);
-      let trialsResults = Utils.omitPrivateKeys(
-        _.map(res.hits.hits, (hit) => {
-          return hit._source;
-        })
-      );
-
-      let formattedRes = {
-        total: res.hits.total,
-        trials: trialsResults
-      };
-
       return callback(null, formattedRes);
     });
   }
@@ -1151,11 +1153,14 @@ class Searcher {
     query["sort"] = {};
     query["sort"][sort] = {};
     let sortBy = query["sort"][sort];
+    sortBy["order"] = q.order;
 
-    if (sort !== "count" && sort !== "count_normalized" && sort !== "_score") {
-      sortBy["order"] = "asc";
-    } else {
-      sortBy["order"] = "desc";
+    if (sortBy["order"] === null || sortBy["order"] === undefined) {
+      if (sort !== "count" && sort !== "count_normalized" && sort !== "_score") {
+        sortBy["order"] = "asc";
+      } else {
+        sortBy["order"] = "desc";
+      }
     }
 
     // query is the intermediate object.
@@ -1172,7 +1177,7 @@ class Searcher {
     }, (err, res) => {
       let formattedRes = {};
       if(err) {
-        formattedRes = {"error": "Bad Request"};
+        formattedRes = {"Error": "Bad Request"};
       } else {
         // return callback(null, res);
         formattedRes = {
