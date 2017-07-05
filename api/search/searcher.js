@@ -1156,21 +1156,29 @@ class Searcher {
     return body;
   }
 
+  _validateGeoCoords(q) {
+    if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
+      q["org_coordinates_dist"] = 0.001;
+    } else {
+      q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
+    }
+    return q;
+  }
+
+  _getGeoCoordsFilter(q, body) {
+    //add in filter.
+    return body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, {
+      lat: q.org_coordinates_lat,
+      lon: q.org_coordinates_lon
+    });
+  }
+
   _filterByGeoCoords(q, body) {
     if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
-      if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
-        q["org_coordinates_dist"] = 0.001;
-      } else {
-        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
-      }
-
-      //add in filter.
-      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, {
-        lat: q.org_coordinates_lat,
-        lon: q.org_coordinates_lon
-      });
+      return this._getGeoCoordsFilter(this._validateGeoCoords(q), body);
+    } else {
+      return body;
     }
-    return body;
   }
 
   searchTerms(q, callback) {

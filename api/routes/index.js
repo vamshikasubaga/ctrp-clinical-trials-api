@@ -20,9 +20,6 @@ let   usZipCodes          = [];
 axios.get(zipCodesSource)
   .then(function (response) {
     usZipCodes = response.data;
-  })
-  .catch(function (error) {
-    console.log(error);
   });
 
 const respondInvalidQuery = (res) => {
