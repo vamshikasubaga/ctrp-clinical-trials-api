@@ -558,21 +558,9 @@ class Searcher {
     let include = q.include;
     let exclude = q.exclude;
 
-    const _enforceArray = (obj) => {
-      if (!(obj instanceof Array)) {
-        if (typeof(obj) === "string") {
-          return [obj];
-        } else {
-          return [];
-        }
-      } else {
-        return obj;
-      }
-    };
-
     if (include || exclude) {
-      include = _enforceArray(include);
-      exclude = _enforceArray(exclude);
+      include = Utils.enforceArray(include);
+      exclude = Utils.enforceArray(exclude);
       let _source = {};
       if (include) {
         _source.include = include;
@@ -1024,96 +1012,73 @@ class Searcher {
     // TODO: use BodyBuilder more
     let body = new Bodybuilder();
 
+    body = this._addQueryTerms            (q, body);
+    body = this._filterByCodes            (q, body);
+    body = this._filterByCurrentStatuses  (q, body);
+    body = this._filterByParam            (q.org_country,                 "org_country", body);
+    body = this._filterByParam            (q.org_postal_code,             "org_postal_code", body);
+    body = this._filterByParam            (q.org_state_or_province,       "org_state_or_province", body);
+    body = this._filterByParam            (q.org_city,                    "org_city", body);
+    body = this._filterByParam            (q.org_name,                    "org_name", body);
+    body = this._filterByParam            (q.org_family,                  "org_family", body);
+    body = this._filterByParam            (q.org_to_family_relationship,  "org_to_family_relationship", body);
+    body = this._filterByParam            (q.org_country,                 "org_country", body);
+    body = this._filterByGeoCoords        (q, body);
+    body = this._setTermType              (q, body);
+
+    let functionQuery = this._getFunctionQuery (q, body);
+
+    // query is the intermediate object.
+    // q is to get the actual values
+    return this._sortAndGetQuery(q, functionQuery);
+  }
+  _addQueryTerms(q, body) {
     // add query terms (boost when phrase is matched)
     if (q.term) {
       body.query("match", "term_suggest", q.term);
       body.query("match", "term_suggest", q.term, {type: "phrase"});
     }
+    return body;
+  }
 
-    //Handle finding a term by code
-    // note we uppercase here and that is because terms
-    //are indexed as C12234 and not c12234
-    if (q.codes) {
-      if(q.codes instanceof Array) {
-        let orBody = new Bodybuilder();
-        q.codes.forEach((code) => {
-          logger.info(code);
-          orBody.orFilter("term", "codes", code.toUpperCase());
-        });
-        body.filter("bool", "and", orBody.build());
+  _sortAndGetQuery(q, functionQuery) {
+    // set the size, from and sort
+    let resultSize = q.size || TERM_RESULT_SIZE_DEFAULT;
+    resultSize = resultSize > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : resultSize;
+    let sort = q.sort || TERM_SORT_DEFAULT;
+    let aFrom = q.from ? q.from : 0;
+
+    // finalize the query
+    let query = {
+      "query": { "function_score": functionQuery },
+      "size": resultSize,
+      "from": aFrom
+    };
+    //logger.info(query);
+
+    // right place to change term to order alphabetically
+    if (sort === "score") {
+      sort = "_score";
+    }
+    query["sort"] = {};
+    query["sort"][sort] = {};
+    let sortBy = query["sort"][sort];
+    sortBy["order"] = q.order;
+
+    if (!sortBy["order"]) {
+      if (sort !== "count" && sort !== "count_normalized" && sort !== "_score") {
+        sortBy["order"] = "asc";
       } else {
-        body.filter("term", "codes", q.codes.toUpperCase());
+        sortBy["order"] = "desc";
       }
     }
+    return query;
+  }
 
-    if (q.current_trial_statuses) {
-      if(q.current_trial_statuses instanceof Array) {
-        let orBody = new Bodybuilder();
-        q.current_trial_statuses.forEach((currentTrialStatus) => {
-          orBody.orFilter("term", "current_trial_statuses", currentTrialStatus.toUpperCase());
-        });
-        body.filter("bool", "and", orBody.build());
-      } else {
-        body.filter("term", "current_trial_statuses", q.current_trial_statuses.toUpperCase());
-      }
-    }
-
-    if (q.org_country) {
-      body.filter("term", "org_country", q.org_country.toLowerCase());
-    }
-
-    if (q.org_postal_code) {
-      body.filter("term", "org_postal_code", q.org_postal_code.toLowerCase());
-    }
-
-    if (q.org_state_or_province) {
-      body.filter("term", "org_state_or_province", q.org_state_or_province.toLowerCase());
-    }
-
-    if (q.org_city) {
-      body.filter("term", "org_city", q.org_city.toLowerCase());
-    }
-
-    if (q.org_name) {
-      body.filter("term", "org_name", q.org_name.toLowerCase());
-    }
-
-    if (q.org_family) {
-      body.filter("term", "org_family", q.org_family.toLowerCase());
-    }
-
-    if (q.org_to_family_relationship) {
-      body.filter("term", "org_to_family_relationship", q.org_to_family_relationship.toLowerCase());
-    }
-
-
-    if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
-      if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
-        q["org_coordinates_dist"] = 0.001;
-      } else {
-        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
-      }
-
-      //add in filter.
-      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, { lat: q.org_coordinates_lat, lon: q.org_coordinates_lon});
-
-    }
-
-    // set the term types (use defaults if not supplied)
-    let termTypes = this.TERM_TYPE_DEFAULTS;
-    if (q.term_type) {
-      if (q.term_type instanceof Array) {
-        termTypes = q.term_type;
-      } else {
-        termTypes = [q.term_type];
-      }
-    }
-    termTypes.forEach((termType) => {
-      body.orFilter("term", "term_type", termType);
-    });
-
+  _getFunctionQuery(q, body) {
     // build the query and add custom fields (that bodyparser can't handle)
     let functionQuery = body.build("v2");
+
     // boost exact match
     if (q.term) {
       functionQuery.query.bool.should = {
@@ -1131,41 +1096,81 @@ class Searcher {
       }
     }];
     functionQuery["boost_mode"] = "multiply";
+    return functionQuery;
+  }
 
-    // set the size, from and sort
-    let resultSize = q.size || TERM_RESULT_SIZE_DEFAULT;
-    resultSize = resultSize > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : resultSize;
-    let sort = q.sort || TERM_SORT_DEFAULT;
-    let aFrom = q.from ? q.from : 0;
-
-    // finalize the query
-    let query = {
-      "query": { "function_score": functionQuery },
-      "size": resultSize,
-      "from": aFrom
-    };
-    logger.info(query);
-
-    // right place to change term to order alphabetically
-    if (sort === "score") {
-      sort = "_score"
-    }
-    query["sort"] = {};
-    query["sort"][sort] = {};
-    let sortBy = query["sort"][sort];
-    sortBy["order"] = q.order;
-
-    if (sortBy["order"] === null || sortBy["order"] === undefined) {
-      if (sort !== "count" && sort !== "count_normalized" && sort !== "_score") {
-        sortBy["order"] = "asc";
+  _setTermType(q, body) {
+    // set the term types (use defaults if not supplied)
+    let termTypes = this.TERM_TYPE_DEFAULTS;
+    if (q.term_type) {
+      if (q.term_type instanceof Array) {
+        termTypes = q.term_type;
       } else {
-        sortBy["order"] = "desc";
+        termTypes = [q.term_type];
       }
     }
+    termTypes.forEach((termType) => {
+      body.orFilter("term", "term_type", termType);
+    });
+    return body;
+  }
 
-    // query is the intermediate object.
-    // q is to get the actual values
-    return query;
+  _filterByCodes(q, body) {
+    //Handle finding a term by code
+    // note we uppercase here and that is because terms
+    //are indexed as C12234 and not c12234
+    if (q.codes) {
+      if(q.codes instanceof Array) {
+        let orBody = new Bodybuilder();
+        q.codes.forEach((code) => {
+          logger.info(code);
+          orBody.orFilter("term", "codes", code.toUpperCase());
+        });
+        body.filter("bool", "and", orBody.build());
+      } else {
+        body.filter("term", "codes", q.codes.toUpperCase());
+      }
+    }
+    return body;
+  }
+
+  _filterByCurrentStatuses(q, body) {
+    if (q.current_trial_statuses) {
+      if(q.current_trial_statuses instanceof Array) {
+        let orBody = new Bodybuilder();
+        q.current_trial_statuses.forEach((currentTrialStatus) => {
+          orBody.orFilter("term", "current_trial_statuses", currentTrialStatus.toUpperCase());
+        });
+        body.filter("bool", "and", orBody.build());
+      } else {
+        body.filter("term", "current_trial_statuses", q.current_trial_statuses.toUpperCase());
+      }
+    }
+    return body;
+  }
+
+  _filterByParam (param, field, body) {
+    if (param) {
+      body.filter("term", field, param.toLowerCase());
+    }
+    return body;
+  }
+
+  _filterByGeoCoords(q, body) {
+    if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
+      if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
+        q["org_coordinates_dist"] = 0.001;
+      } else {
+        q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
+      }
+
+      //add in filter.
+      body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, {
+        lat: q.org_coordinates_lat,
+        lon: q.org_coordinates_lon
+      });
+    }
+    return body;
   }
 
   searchTerms(q, callback) {

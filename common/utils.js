@@ -3,6 +3,18 @@ const latinize            = require("latinize");
 
 class Utils {
 
+  static enforceArray (obj) {
+    if (!(obj instanceof Array)) {
+      if (typeof(obj) === "string") {
+        return [obj];
+      } else {
+        return [];
+      }
+    } else {
+      return obj;
+    }
+  }
+
   static transformStringToKey(text) {
     return latinize(text)
       .toLowerCase()
