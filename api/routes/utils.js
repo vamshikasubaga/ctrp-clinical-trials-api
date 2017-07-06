@@ -57,11 +57,11 @@ class Utils {
     }
 
     searcher.searchTrials(q, (err, trials) => {
-      // TODO: add better error handling
-      if (err) {
+      if (trials.Error) {
+        return res.status(400).send(trials);
+      } else if (err) {
         return res.sendStatus(500);
       }
-      // TODO: format trials
       res.json(trials);
     });
   }

@@ -489,10 +489,10 @@ class Searcher {
     const _addGeoDistanceFilter = (field, latitude, longitude, distance) => {
       let err = "";
       if (!(latitude) || isNaN(parseFloat(latitude))) {
-        err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. \n`;
+        err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. `;
       }
       if (!(longitude) || isNaN(parseFloat(longitude))) {
-        err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon. \n`;
+        err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon.`;
       }
       if (!(distance) || isNaN(parseFloat(distance)) || parseFloat(distance) < 0.001) {
         distance = 0.001;
