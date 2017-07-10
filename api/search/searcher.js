@@ -661,6 +661,7 @@ class Searcher {
       let formattedRes = {};
       if(err) {
         formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
+        CT_API_ERROR = null;
       } else {
         // return callback(null, res);
         let trialsResults = Utils.omitPrivateKeys(
