@@ -1,7 +1,5 @@
 {
   "term": {
-    "type": "nested",
-    "include_in_root": true,
     "properties": {
       "term_key": {
         "type": "string",
