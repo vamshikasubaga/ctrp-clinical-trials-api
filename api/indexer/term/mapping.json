@@ -38,25 +38,25 @@
       },
       "org_country": {
         "type": "string",
-        "analyzer": "keyword_ci",
-        "copy_to": "term_suggest"
+        "index": "not_analyzed"
       },
       "org_state_or_province": {
         "type": "string",
-        "analyzer": "keyword_ci",
-        "copy_to": "term_suggest"
+        "index": "not_analyzed"
       },
       "org_city": {
         "type": "string",
-        "analyzer": "keyword_ci",
-        "copy_to": "term_suggest"
+        "index": "not_analyzed"
       },
       "org_postal_code": {
         "type": "string",
-        "analyzer": "keyword_ci",
-        "copy_to": "term_suggest"
+        "index": "not_analyzed"
       },
       "org_name": {
+        "type": "string",
+        "index": "not_analyzed"
+      },
+      "org_family": {
         "type": "string",
         "analyzer": "keyword_ci",
         "copy_to": "term_suggest"
