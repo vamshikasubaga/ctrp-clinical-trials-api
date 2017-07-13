@@ -557,19 +557,20 @@ class Searcher {
   _addIncludeExclude(body, q) {
     let include = q.include;
     let exclude = q.exclude;
-
     if (include || exclude) {
-      include = Utils.enforceArray(include);
-      exclude = Utils.enforceArray(exclude);
-      let _source = {};
-      if (include) {
-        _source.include = include;
-      }
-      if (exclude) {
-        _source.exclude = exclude;
-      }
-      body.rawOption("_source", _source);
+      body.rawOption("_source", this._getSource(Utils.enforceArray(include), Utils.enforceArray(exclude)));
     }
+  }
+
+  _getSource(include, exclude) {
+    let _source = {};
+    if (include) {
+      _source.include = include;
+    }
+    if (exclude) {
+      _source.exclude = exclude;
+    }
+    return _source;
   }
 
   /**
