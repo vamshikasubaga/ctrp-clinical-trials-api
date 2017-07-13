@@ -1080,7 +1080,7 @@ class Searcher {
 
   _setSortByField(q) {
     // use default unless specified and for 'score' use '_score'
-    return q.sort === "score" ? "_score" : (q.sort || TERM_SORT_DEFAULT)
+    return q.sort === "score" ? "_score" : (q.sort || TERM_SORT_DEFAULT);
   }
 
   _getFunctionQuery(q, body) {
