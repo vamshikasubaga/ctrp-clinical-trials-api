@@ -1063,7 +1063,10 @@ class Searcher {
 
   _addSortQuery(query, q) {
     // use default unless specified and for 'score' use '_score'
-    let sort = q.sort === "score" ? "_score" : (q.sort || TERM_SORT_DEFAULT);
+    let sort = q.sort || TERM_SORT_DEFAULT;
+    if (sort === "score") {
+      sort = "_score";
+    }
     query["sort"][sort] = {};
     let sortBy = query["sort"][sort];
 
