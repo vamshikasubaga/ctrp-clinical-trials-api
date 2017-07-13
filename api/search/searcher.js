@@ -1068,12 +1068,10 @@ class Searcher {
     let sortBy = query["sort"][sort];
 
     sortBy["order"] = q.order;
-    if (!sortBy["order"]) {
-      if (sort !== "count" && sort !== "count_normalized" && sort !== "_score") {
-        sortBy["order"] = "asc";
-      } else {
-        sortBy["order"] = "desc";
-      }
+    if (!sortBy["order"] && ["count", "count_normalized", "_score"].indexOf(sort) < 0) {
+      sortBy["order"] = "asc";
+    } else if (!sortBy["order"]){
+      sortBy["order"] = "desc";
     }
 
     //logger.info(query);
