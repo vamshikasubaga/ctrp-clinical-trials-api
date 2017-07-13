@@ -1062,16 +1062,13 @@ class Searcher {
   }
 
   _addSortQuery(query, q) {
-    // use default unless specified and for 'score' use '_score'
-    let sort = q.sort || TERM_SORT_DEFAULT;
-    if (sort === "score") {
-      sort = "_score";
-    }
-    query["sort"][sort] = {};
-    let sortBy = query["sort"][sort];
+    let sortField = this._setSortByField(q);
+
+    query["sort"][sortField] = {};
+    let sortBy = query["sort"][sortField];
 
     sortBy["order"] = q.order;
-    if (!sortBy["order"] && ["count", "count_normalized", "_score"].indexOf(sort) < 0) {
+    if (!sortBy["order"] && ["count", "count_normalized", "_score"].indexOf(sortField) < 0) {
       sortBy["order"] = "asc";
     } else if (!sortBy["order"]){
       sortBy["order"] = "desc";
@@ -1079,6 +1076,11 @@ class Searcher {
 
     //logger.info(query);
     return query;
+  }
+
+  _setSortByField(q) {
+    // use default unless specified and for 'score' use '_score'
+    return q.sort === "score" ? "_score" : (q.sort || TERM_SORT_DEFAULT)
   }
 
   _getFunctionQuery(q, body) {
