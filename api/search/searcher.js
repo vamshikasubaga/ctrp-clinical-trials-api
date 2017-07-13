@@ -1047,26 +1047,27 @@ class Searcher {
     // set the size, from and sort
     let resultSize = q.size || TERM_RESULT_SIZE_DEFAULT;
     resultSize = resultSize > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : resultSize;
-    let sort = q.sort || TERM_SORT_DEFAULT;
     let aFrom = q.from ? q.from : 0;
 
     // finalize the query
-    let query = {
+    let query = this._addSortQuery({
       "query": { "function_score": functionQuery },
       "size": resultSize,
-      "from": aFrom
-    };
-    //logger.info(query);
+      "from": aFrom,
+      "sort": {}
+    }, q);
 
-    // right place to change term to order alphabetically
-    if (sort === "score") {
-      sort = "_score";
-    }
-    query["sort"] = {};
+    //logger.info(query);
+    return query;
+  }
+
+  _addSortQuery(query, q) {
+    // use default unless specified and for 'score' use '_score'
+    let sort = q.sort === "score" ? "_score" : (q.sort || TERM_SORT_DEFAULT);
     query["sort"][sort] = {};
     let sortBy = query["sort"][sort];
-    sortBy["order"] = q.order;
 
+    sortBy["order"] = q.order;
     if (!sortBy["order"]) {
       if (sort !== "count" && sort !== "count_normalized" && sort !== "_score") {
         sortBy["order"] = "asc";
@@ -1074,6 +1075,8 @@ class Searcher {
         sortBy["order"] = "desc";
       }
     }
+
+    //logger.info(query);
     return query;
   }
 
