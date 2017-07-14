@@ -395,10 +395,10 @@ class Searcher {
           if(dateRange.isValid()) {
             ranges[rangeType] = dateRange.utc().format(DATE_FORMAT);
           } else {
-            throw new Error(
+            CT_API_ERROR = new Error(
               `Invalid date supplied for ${field}_${rangeType}. ` +
-              `Please use format ${DATE_FORMAT} or ISO8601.`
-            );
+              `Please use format ${DATE_FORMAT} or ISO8601.`);
+            return;
           }
         }
       };
@@ -428,9 +428,8 @@ class Searcher {
           if(!isNaN(parseInt(longRange))) {
             ranges[rangeType] = longRange;
           } else {
-            throw new Error(
-              `Invalid number supplied for ${field}_${rangeType}.`
-            );
+            CT_API_ERROR = new Error(`Invalid number supplied for ${field}_${rangeType}.`);
+            return;
           }
         }
       };
@@ -460,9 +459,8 @@ class Searcher {
           if(!isNaN(parseFloat(floatRange))) {
             ranges[rangeType] = floatRange;
           } else {
-            throw new Error(
-              `Invalid number supplied for ${field}_${rangeType}.`
-            );
+            CT_API_ERROR = new Error(`Invalid number supplied for ${field}_${rangeType}.`);
+            return;
           }
         }
       };
@@ -483,25 +481,20 @@ class Searcher {
     });
   }
 
-  _addGeoDistanceFilters(body, q) {
+  _validateGeoParams(field, latitude, longitude) {
+    let err = "";
+    if (!(latitude) || isNaN(parseFloat(latitude))) {
+      err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. `;
+    }
+    if (!(longitude) || isNaN(parseFloat(longitude))) {
+      err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon.`;
+    }
+    return err;
+  }
 
+  _addGeoDistanceFilters(body, q) {
     //We need to put lat/long/distance into a single filter
     const _addGeoDistanceFilter = (field, latitude, longitude, distance) => {
-      let err = "";
-      if (!(latitude) || isNaN(parseFloat(latitude))) {
-        err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. `;
-      }
-      if (!(longitude) || isNaN(parseFloat(longitude))) {
-        err +=  `Geo Distance filter for ${field} missing or invalid longitude.  Please supply valid ${field}_lon.`;
-      }
-      if (!(distance) || isNaN(parseFloat(distance)) || parseFloat(distance) < 0.001) {
-        distance = 0.001;
-      }
-
-      if (err !== "") {
-        CT_API_ERROR = new Error(err);
-        return CT_API_ERROR;
-      }
 
       //add in filter.
       body.filter("geodistance", field, distance, { lat: latitude, lon: longitude});
@@ -517,6 +510,13 @@ class Searcher {
       let distParam = q[field + "_dist"];
 
       if (latParam || lonParam || distParam) {
+        let err = this._validateGeoParams(field, latParam, lonParam);
+        if (err !== "") {
+          CT_API_ERROR = new Error(err);
+          return;
+        } else if (!(distParam) || isNaN(parseFloat(distParam)) || parseFloat(distParam) < 0.001) {
+          distParam = 0.001;
+        }
         _addGeoDistanceFilter(field, latParam, lonParam, distParam);
       }
     });
@@ -660,7 +660,7 @@ class Searcher {
       body: this._searchTrialsQuery(q)
     }, (err, res) => {
       let formattedRes = {};
-      if(err) {
+      if(err || CT_API_ERROR) {
         formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
         CT_API_ERROR = null;
       } else {
@@ -1165,10 +1165,15 @@ class Searcher {
   }
 
   _validateGeoCoords(q) {
-    if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
-      q["org_coordinates_dist"] = 0.001;
+    let err = this._validateGeoParams("org_coordinates", q.org_coordinates_lat, q.org_coordinates_lon);
+    if (err !== "") {
+      CT_API_ERROR = new Error(err);
+      return q;
     } else {
-      q["org_coordinates_dist"] = parseFloat(q.org_coordinates_dist) + "mi";
+      if (!(q.org_coordinates_dist) || isNaN(parseFloat(q.org_coordinates_dist)) || parseFloat(q.org_coordinates_dist) < 0.001) {
+        q.org_coordinates_dist = 0.001;
+      }
+      q.org_coordinates_dist = parseFloat(q.org_coordinates_dist) + "mi";
     }
     return q;
   }
@@ -1197,8 +1202,9 @@ class Searcher {
       body: this._searchTermsQuery(q)
     }, (err, res) => {
       let formattedRes = {};
-      if(err) {
-        formattedRes = {"Error": "Bad Request"};
+      if(err || CT_API_ERROR) {
+        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
+        CT_API_ERROR = null;
       } else {
         // return callback(null, res);
         formattedRes = {
