@@ -1187,7 +1187,7 @@ class Searcher {
   }
 
   _filterByGeoCoords(q, body) {
-    if (q["org_coordinates_lat"] && q["org_coordinates_lon"]) {
+    if (q["org_coordinates_lat"] || q["org_coordinates_lon"] || q["org_coordinates_dist"]) {
       return this._getGeoCoordsFilter(this._validateGeoCoords(q), body);
     } else {
       return body;
