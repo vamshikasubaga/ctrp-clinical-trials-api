@@ -1068,7 +1068,13 @@ class Searcher {
     let sortBy = query["sort"][sortField];
 
     sortBy["order"] = q.order;
-    if (!sortBy["order"] && ["count", "count_normalized", "_score"].indexOf(sortField) < 0) {
+    if (q.order && q.order.length && !(q.term && q.term.length) && !(q.sort && q.sort.length)) {
+      CT_API_ERROR = new Error("Order can only be used when passing in a 'term' parameter (where a sort-by field is set as a default) and/or passing in a 'sort' parameter which is the field to sort by.");
+      return;
+    } else if (q.order && q.order.length && ["asc", "desc"].indexOf(q.order) < 0) {
+      CT_API_ERROR = new Error("Order can only be descending (desc) or ascending (asc).");
+      return;
+    } if (!sortBy["order"] && ["count", "count_normalized", "_score"].indexOf(sortField) < 0) {
       sortBy["order"] = "asc";
     } else if (!sortBy["order"]){
       sortBy["order"] = "desc";
