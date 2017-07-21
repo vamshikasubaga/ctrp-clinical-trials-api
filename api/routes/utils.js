@@ -68,8 +68,9 @@ class Utils {
 
   static queryTermsAndSendResponse (q, res) {
     searcher.searchTerms(q, (err, terms) => {
-      // TODO: add better error handling
-      if (err) {
+      if (terms.Error) {
+        return res.status(400).send(terms);
+      } else if (err) {
         return res.sendStatus(500);
       }
       res.json(terms);
