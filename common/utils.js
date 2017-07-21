@@ -1,7 +1,12 @@
 const _                   = require("lodash");
 const latinize            = require("latinize");
+const CONFIG              = require("../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 
 class Utils {
+
+  static config() {
+    return CONFIG;
+  }
 
   static enforceArray (obj) {
     if (!(obj instanceof Array)) {
@@ -13,6 +18,60 @@ class Utils {
     } else {
       return obj;
     }
+  }
+
+  static searchTerms() {
+    return [
+      "_diseases",
+      "_locations",
+      "_org_state_or_provinces",
+      "_org_cities",
+      "_orgs_by_location",
+      "sites.org_postal_code",
+      "sites.org_country",
+      "sites.org_city",
+      "sites.org_state_or_province",
+      "sites.org_name",
+      "sites.org_family",
+      "sites.org_to_family_relationship",
+      "_treatments",
+      "anatomic_sites",
+      "arms.interventions.intervention_type",
+      "current_trial_status",
+      "phase.phase",
+      "study_protocol_type",
+      "brief_title",
+      "brief_summary",
+      "official_title",
+      "arms.interventions.synonyms",
+      "primary_purpose.primary_purpose_code",
+      "arms.interventions.intervention_code",
+      "principal_investigator",
+      "lead_org"
+    ];
+  }
+
+  static termParams() {
+    return [
+      "term",
+      "term_type",
+      "size",
+      "from",
+      "sort",
+      "order",
+      "codes",
+      "current_trial_statuses",
+      "viewable",
+      "org_family",
+      "org_to_family_relationship",
+      "org_country",
+      "org_state_or_province",
+      "org_city",
+      "org_postal_code",
+      "org_coordinates_dist",
+      "org_coordinates_lat",
+      "org_coordinates_lon"
+    ];
   }
 
   static transformStringToKey(text) {

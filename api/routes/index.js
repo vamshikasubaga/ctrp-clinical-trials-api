@@ -1,4 +1,3 @@
-const CONFIG              = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 const _                   = require("lodash");
 const express             = require("express");
 const md                  = require("marked");
@@ -11,6 +10,7 @@ const RouteUtils          = require("../routes/utils");
 const trialMapping        = require("../indexer/trial/mapping.json");
 const package             = require("../package.json");
 const axios               = require("axios");
+const utilTermParams      = Utils.termParams();
 
 let logger                = new Logger({name: "api-router"});
 let searcher              = new Searcher(searcherAdapter);
@@ -65,7 +65,7 @@ router.post("/v1/clinical-trials", (req, res, next) => {
 
 /* get key terms that can be used to search through clinical trials */
 router.get("/v1/terms", (req, res, next) => {
-  let q = _.pick(req.query, CONFIG.TERM_PARAMS);
+  let q = _.pick(req.query, utilTermParams);
   if (q["org_postal_code"] && q["org_coordinates_dist"]) {
     RouteUtils.queryTermsAndSendResponse(RouteUtils.addCoordinatedGivenZip(q, "terms", usZipCodes), res);
   } else {
@@ -74,7 +74,7 @@ router.get("/v1/terms", (req, res, next) => {
 });
 
 router.post("/v1/terms", (req, res, next) => {
-  let q = _.pick(req.body, CONFIG.TERM_PARAMS);
+  let q = _.pick(req.body, utilTermParams);
   if (q["org_postal_code"] && q["org_coordinates_dist"]) {
     RouteUtils.queryTermsAndSendResponse(RouteUtils.addCoordinatedGivenZip(q, "terms", usZipCodes), res);
   } else {
@@ -94,6 +94,18 @@ router.get("/v1/term/:key", (req, res, next) => {
   });
 });
 
+/* get aggregates for a field that match supplied
+ search criteria
+ */
+router.get('/v1/trial-aggregates', (req, res, next) => {
+  let q = req.query;
+  RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
+});
+
+router.post('/v1/trial-aggregates', (req, res, next) => {
+  let q = req.body;
+  RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
+});
 
 router.get("/v1/clinical-trial.json", (req, res, next) => {
   let clinicalTrialJson = Utils.omitPrivateKeys(trialMapping);

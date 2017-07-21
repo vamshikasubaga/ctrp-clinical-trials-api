@@ -1,10 +1,10 @@
-const CONFIG              = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 const _                   = require("lodash");
 const Bodybuilder         = require("bodybuilder");
 const moment              = require("moment");
 
 const Logger              = require("../../common/logger");
 const Utils               = require("../../common/utils");
+const CONFIG              = Utils.config();
 const trialMapping        = require("../indexer/trial/mapping.json");
 
 const transformStringToKey = Utils.transformStringToKey;
@@ -689,54 +689,82 @@ class Searcher {
    * @memberOf Searcher
    */
   _getCodedAggregation(q) {
-      let aPath = q["agg_field"];
+    let path = q["agg_field"];
 
 
-      //This is an aggregate for grouping the code with the term.  This is the inner most
-      //part of the aggregate and basically is returning the name and the code for this
-      //specific drug.
-      let groupAgg = {};
-      groupAgg[aPath] = {
-        "terms": {
-          "field" : aPath + ".name._raw"
-        }
-      };
-      groupAgg[aPath]["aggs"] = {};
-      groupAgg[aPath]["aggs"][aPath + ".code"] = {
-        "terms": {
-          "field": aPath + ".code"
-        }
-      };
+    //This is an aggregate for grouping the code & synonyms with the term.  This is the inner most
+    //part of the aggregate and basically is returning the name and the code for this
+    //specific drug.
+    let groupAgg = {};
+    groupAgg[path] = {
+      "terms": {
+        "field" : path + ".name._raw"
+      }
+    };
+    groupAgg[path]["aggs"] = {};
+    groupAgg[path]["aggs"][path + ".code"] = {
+      "terms": {
+        "field": path + ".code"
+      }
+    }
+    groupAgg[path]["aggs"][path + ".synonyms"] = {
+      "terms": {
+        "field": path + ".synonyms._raw"
+      }
+    }
 
-      //This is adding a filter for type ahead if a user supplied the agg_term param
-      let innerAgg = {};
-      if (q["agg_term"]) {
+
+    //This is adding a filter for type ahead if a user supplied the agg_term param
+    let innerAgg = {};
+    if (q["agg_term"]) {
 
 
-        innerAgg[aPath + "_filtered"] = {
-          "filter": {
-            "query": {
-              "match": {}
+      //This will handle matching both the name and synonyms
+      innerAgg[path + "_filtered"] = {
+        "filter": {
+          "query": {
+            "bool": {
+              "should":[]
             }
           }
-        };
-        innerAgg[aPath + "_filtered"]["filter"]["query"]["match"][aPath + ".name._auto"] = q["agg_term"];
-        innerAgg[aPath + "_filtered"]["aggs"] = groupAgg;
-      } else {
-        innerAgg = groupAgg;
-      }
-
-      //This is adding the nested part of the query.  This ensures that we are getting
-      //(and filtering) on the correct pairs of name/code pairs.
-      let nested = {};
-      nested[aPath + "_nested"] = {
-        "nested": {
-          "path": aPath
         }
       };
-      nested[aPath + "_nested"]["aggs"] = innerAgg;
 
-      return nested;
+      let nameMatch = {
+        "match": {}
+      };
+
+      nameMatch["match"][path + ".name._auto"] = {
+        "type": "phrase",
+        "query": q["agg_term"]
+      }
+      innerAgg[path + "_filtered"]["filter"]["query"]["bool"]["should"].push(nameMatch);
+
+      let synMatch = {
+        "match": {}
+      };
+      synMatch["match"][path + ".synonyms._auto"] = {
+        "type": "phrase",
+        "query": q["agg_term"]
+      };
+      innerAgg[path + "_filtered"]["filter"]["query"]["bool"]["should"].push(synMatch);
+
+      innerAgg[path + "_filtered"]["aggs"] = groupAgg;
+    } else {
+      innerAgg = groupAgg;
+    }
+
+    //This is adding the nested part of the query.  This ensures that we are getting
+    //(and filtering) on the correct pairs of name/code pairs.
+    let nested = {};
+    nested[path + "_nested"] = {
+      "nested": {
+        "path": path
+      }
+    };
+    nested[path + "_nested"]["aggs"] = innerAgg;
+
+    return nested;
   }
 
   /**
@@ -749,7 +777,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  _getFilteredAggregate(q, rSize) {
+  _getFilteredAggregate(q, size) {
     //They are doing autocomplete, so we need handle multiple layers.
     //body.aggregations()
 
@@ -784,20 +812,20 @@ class Searcher {
     tmpAgg[field + "_filtered"]["aggs"] = {};
     tmpAgg[field + "_filtered"]["aggs"][field] = {"terms": {
       "field": field + "._raw",
-      "size": rSize
+      "size": size
     }};
 
     //First off, it is important to make sure that if the field contains a ".", then
     //it is most likely a nested field.  We would need to add a nested aggregation.
     let lastIdx = field.lastIndexOf(".");
 
-    if (lastIdx !== -1) {
+    if (lastIdx != -1) {
       //This is a nested field, and since a field cannot contain a ".", then
       //the last period must split the path from the field name.
-      let nPath = field.substr(0, lastIdx);
+      let path = field.substr(0, lastIdx);
 
       let nested = {};
-      nested[field + "_nested"] = { "nested": { "path": nPath}};
+      nested[field + "_nested"] = { "nested": { "path": path}};
       nested[field + "_nested"]["aggs"] = tmpAgg;
 
       return nested;
@@ -814,7 +842,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  _addAggregation(body, q, rSize) {
+  _addAggregation(body, q, size) {
 
     //TODO: NEED TO ADD SIZE to aggregate fields.  This will allow us to control the
     //number of terms to be returned.
@@ -850,10 +878,10 @@ class Searcher {
         //This case can be delt with, but it is much more complicated
         //aggregation.
 
-        let tmpAgg = {};
+        let tmpAgg = {}
         tmpAgg[q["agg_field"]] = {"terms": {
           "field": q["agg_field"] + "._raw",
-          "size": rSize
+          "size": size
         }};
 
         aggregation = tmpAgg;
@@ -915,28 +943,33 @@ class Searcher {
   _extractAggBucket(field, bucket) {
     if (field.match(/^_interventions\./)) {
       return bucket.map((item) => {
-        let aCodes = [];
+        let codes = [];
+        let synonyms = [];
 
         //TODO: This should exist, so determine what to do if it does not.
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
-          aCodes = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key);
+          codes = item[field + ".code"].buckets.map((code_bucket) => code_bucket.key);
         }
 
         //TODO: Extract synonyms when they are added.
+        if (item[field + ".synonyms"] && item[field + ".synonyms"].buckets.length > 0) {
+          synonyms = item[field + ".synonyms"].buckets.map((syn_bucket) => syn_bucket.key);
+        }
 
         return {
           key: item.key,
           count: item.doc_count,
-          codes: aCodes
-        };
+          codes: codes,
+          synonyms: synonyms
+        }
       });
     } else {
       return bucket.map((item) => {
         return {
           key: item.key,
           count: item.doc_count //This number is != number of trials that have this field.
-        };
+        }
       });
     }
 
@@ -953,27 +986,27 @@ class Searcher {
    */
   _extractAggregations(field, res) {
 
-      let bucket = [];
+    let bucket = [];
 
-      //If we had to nest, we need to skip over this layer and move
-      //to the next aggregate level down.
-      if (res.aggregations[field + "_nested"]) {
-        if (res.aggregations[field + "_nested"][field + "_filtered"]) {
-          bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field + "_filtered"][field].buckets);
-        } else {
-          bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field].buckets);
-        }
-      } else if (res.aggregations[field + "_filtered"]) {
-
-        bucket = this._extractAggBucket(field, res.aggregations[field + "_filtered"][field].buckets);
-      } else {        //untested.
-        bucket = this._extractAggBucket(field, res.aggregations[field].buckets);
+    //If we had to nest, we need to skip over this layer and move
+    //to the next aggregate level down.
+    if (res.aggregations[field + "_nested"]) {
+      if (res.aggregations[field + "_nested"][field + "_filtered"]) {
+        bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field + "_filtered"][field].buckets);
+      } else {
+        bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field].buckets);
       }
+    } else if (res.aggregations[field + "_filtered"]) {
 
-      return {
-        total: 0, //TODO: Get count from agg bucket
-        terms: bucket
-      };
+      bucket = this._extractAggBucket(field, res.aggregations[field + "_filtered"][field].buckets);
+    } else {        //untested.
+      bucket = this._extractAggBucket(field, res.aggregations[field].buckets);
+    }
+
+    return {
+      total: 0, //TODO: Get count from agg bucket
+      terms: bucket
+    }
   }
 
   aggTrials(q, callback) {
@@ -999,14 +1032,12 @@ class Searcher {
     });
   }
 
-
-
   /***********************************************************************
                                    TERMS
    ***********************************************************************/
 
   get TERM_TYPE_DEFAULTS() {
-    return CONFIG.SEARCH_TERMS;
+    return Utils.searchTerms();
   }
 
   _searchTermsQuery(q) {

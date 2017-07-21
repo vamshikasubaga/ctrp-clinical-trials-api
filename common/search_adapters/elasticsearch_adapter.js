@@ -3,7 +3,8 @@ const ElasticSearch                 = require("elasticsearch");
 const Logger                        = require("../../common/logger");
 const BaseElasticsearchAdapter      = require("./base_elasticsearch_adapter");
 
-const CONFIG                 = require("../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
+const Utils                         = require("../../common/utils");
+const CONFIG                        = Utils.config();
 
 /**
  * A logger to be used by ElasticSearch 

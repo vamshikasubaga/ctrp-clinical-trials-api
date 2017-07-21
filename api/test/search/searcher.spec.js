@@ -1,7 +1,6 @@
 //import { describe, it } from 'mocha';
 
 import { expect } from 'chai';
-const CONFIG              = require("../../../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 
 const Bodybuilder              = require("bodybuilder");
 const querystring              = require('querystring');
@@ -9,8 +8,9 @@ const RouteUtils               = require("../../routes/utils");
 const Searcher                 = require("../../search/searcher");
 const AbstractSearchAdapter    = require("../../../common/search_adapters/abstract_search_adapter");
 const axios                    = require("axios");
+const Utils                    = require("../../../common/utils");
 const zipCodesSource           = "http://www.cancer.gov/publishedcontent/Files/Configuration/data/zip_codes.json";
-
+const utilTermParams           = Utils.termParams();
 
 
 /**
@@ -26,7 +26,6 @@ class SearcherMockAdapter extends AbstractSearchAdapter {
      * 
      */
     constructor() {
-        console.log("CONSTRUCTOR")
         super();
         this.client = false;
     }
@@ -134,12 +133,12 @@ describe('Searcher', _ => {
 
     it('Should Build an Array with 9 Elements', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
-        expect(searcher.TERM_TYPE_DEFAULTS.length).to.eql(CONFIG.SEARCH_TERMS.length);
+        expect(searcher.TERM_TYPE_DEFAULTS.length).to.eql(utilTermParams.length);
     });
 
     it('Should Be an Array with 9 Elements', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
-        expect(searcher.TERM_TYPE_DEFAULTS).to.eql(CONFIG.SEARCH_TERMS);
+        expect(searcher.TERM_TYPE_DEFAULTS).to.eql(utilTermParams);
     });
 
     /* This is not really a Unit test and bothersome to maintain, we dont need values at certain locations
