@@ -162,13 +162,13 @@ class Utils {
       return res.status(400).send(error);
     }
 
-    searcher.aggTrials(q, (err, agg_res) => {
-      if (agg_res.Error) {
-        return res.status(400).send(agg_res);
+    searcher.aggTrials(q, (err, aggRes) => {
+      if (aggRes.Error) {
+        return res.status(400).send(aggRes);
       } else if (err) {
         return res.sendStatus(500);
       }
-      res.json(agg_res);
+      res.json(aggRes);
     });
   }
 

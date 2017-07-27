@@ -859,7 +859,7 @@ class Searcher {
     //it is most likely a nested field.  We would need to add a nested aggregation.
     let lastIdx = field.lastIndexOf(".");
 
-    if (lastIdx != -1) {
+    if (lastIdx !== -1) {
       //This is a nested field, and since a field cannot contain a ".", then
       //the last period must split the path from the field name.
       let path = field.substr(0, lastIdx);
@@ -990,13 +990,13 @@ class Searcher {
         //TODO: This should exist, so determine what to do if it does not.
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
-          interventionCodes = item[field + ".code"].buckets.map((code_bucket) => code_bucket.key);
+          interventionCodes = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key);
         }
         if (item[field + ".category"] && item[field + ".category"].buckets.length > 0) {
           interventionCategory = item[field + ".category"].buckets[0].key;
         }
         if (item[field + ".synonyms"] && item[field + ".synonyms"].buckets.length > 0) {
-          interventionSynonyms = item[field + ".synonyms"].buckets.map((synonyms_bucket) => synonyms_bucket.key);
+          interventionSynonyms = item[field + ".synonyms"].buckets.map((synonymsBucket) => synonymsBucket.key);
         }
         if (item[field + ".type"] && item[field + ".type"].buckets.length > 0) {
           interventionType = item[field + ".type"].buckets[0].key;
@@ -1007,7 +1007,7 @@ class Searcher {
           codes:    interventionCodes,
           synonyms: interventionSynonyms,
           category: interventionCategory
-        }
+        };
       });
     } else {
       return bucket.map((item) => {
