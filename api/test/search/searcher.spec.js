@@ -10,7 +10,7 @@ const AbstractSearchAdapter    = require("../../../common/search_adapters/abstra
 const axios                    = require("axios");
 const Utils                    = require("../../../common/utils");
 const zipCodesSource           = "http://www.cancer.gov/publishedcontent/Files/Configuration/data/zip_codes.json";
-const utilTermParams           = Utils.termParams();
+const utilTermParams           = Utils.searchTerms();
 
 
 /**
