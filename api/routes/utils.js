@@ -90,7 +90,7 @@ class Utils {
     //    to handle the number requested and the sort order.
     //  - agg_term -- the optional text to be used to preface the term.
     let without = _.without(queryParams,
-      "agg_field", "agg_term", "size", "sort", "_all", "_fulltext", "_trialids");
+      "agg_field", "agg_term", "size", "sort", "order", "_all", "_fulltext", "_trialids", "code", "category");
     return without.filter((queryParam) => {
       if (_.includes(searchPropsByType["string"], queryParam)) {
         return false;
@@ -162,13 +162,12 @@ class Utils {
       return res.status(400).send(error);
     }
 
-
     searcher.aggTrials(q, (err, agg_res) => {
-      // TODO: add better error handling
-      if(err) {
+      if (agg_res.Error) {
+        return res.status(400).send(agg_res);
+      } else if (err) {
         return res.sendStatus(500);
       }
-      // TODO: format trials
       res.json(agg_res);
     });
   }

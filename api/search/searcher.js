@@ -297,7 +297,7 @@ class Searcher {
     if(filter instanceof Array) {
       let orBody = new Bodybuilder();
       filter.forEach((filterElement) => {
-        logger.info(filterElement);
+        //logger.info(filterElement);
         orBody.orFilter("term", field, filterElement.toLowerCase());
       });
       body.filter("bool", "and", orBody.build());
@@ -327,7 +327,7 @@ class Searcher {
       if (filter instanceof Array) {
         let orBody = new Bodybuilder();
         filter.forEach((filterElement) => {
-          logger.info(filterElement);
+          //logger.info(filterElement);
           //Note for the actual query the field name must contain a . before _fulltext
           query.orQuery("match", field + "._fulltext", filterElement, { type: "phrase" });
         });
@@ -648,7 +648,7 @@ class Searcher {
 
     query = body.build();
 
-    logger.info(query);
+    //logger.info(query);
     return query;
   }
 
@@ -691,6 +691,7 @@ class Searcher {
    */
   _getCodedAggregation(q) {
     let path = q["agg_field"];
+    let innerAgg = {};
 
 
     //This is an aggregate for grouping the code & synonyms with the term.  This is the inner most
@@ -699,7 +700,11 @@ class Searcher {
     let groupAgg = {};
     groupAgg[path] = {
       "terms": {
-        "field" : path + ".name._raw"
+        "field" : path + ".name._raw",
+        "order": {
+          "_term" : "asc"
+        },
+        "size": TERM_RESULT_SIZE_DEFAULT
       }
     };
     groupAgg[path]["aggs"] = {};
@@ -707,49 +712,69 @@ class Searcher {
       "terms": {
         "field": path + ".code"
       }
-    }
+    };
+
     groupAgg[path]["aggs"][path + ".synonyms"] = {
       "terms": {
         "field": path + ".synonyms._raw"
       }
-    }
+    };
 
-
-    //This is adding a filter for type ahead if a user supplied the agg_term param
-    let innerAgg = {};
-    if (q["agg_term"]) {
-
-
-      //This will handle matching both the name and synonyms
-      innerAgg[path + "_filtered"] = {
-        "filter": {
-          "query": {
-            "bool": {
-              "should":[]
-            }
+    //This will handle matching both the name and synonyms
+    innerAgg[path + "_filtered"] = {
+      "filter": {
+        "query": {
+          "bool": {
+            "must":[],
+            "should":[]
           }
         }
-      };
-
-      let nameMatch = {
-        "match": {}
-      };
-
-      nameMatch["match"][path + ".name._auto"] = {
-        "type": "phrase",
-        "query": q["agg_term"]
       }
-      innerAgg[path + "_filtered"]["filter"]["query"]["bool"]["should"].push(nameMatch);
+    };
 
-      let synMatch = {
-        "match": {}
-      };
-      synMatch["match"][path + ".synonyms._auto"] = {
-        "type": "phrase",
-        "query": q["agg_term"]
-      };
-      innerAgg[path + "_filtered"]["filter"]["query"]["bool"]["should"].push(synMatch);
+    let bool = innerAgg[path + "_filtered"]["filter"]["query"]["bool"];
 
+    if (q["sort"] || q["order"]) {
+      let validSort   = q["sort"] === "count" || q["sort"] === "term";
+      let validOrder  = q["order"] === "asc" || q["order"] === "desc";
+      if (validSort && validOrder) {
+        let sortKey = "_" + q["sort"];
+        groupAgg[path]["terms"]["order"][sortKey] = q["order"];
+      } else {
+        CT_API_ERROR = new Error("Parameters missing or incorrect. Sort can only be by (term) or (count) and order can only be descending (desc) or ascending (asc).");
+      }
+    }
+
+    if (q["size"]) {
+      if (!isNaN(parseFloat(q["size"])) && parseFloat(q["size"]) < (TERM_RESULT_SIZE_MAX + 1)) {
+        groupAgg[path]["terms"]["size"] = parseFloat(q["size"]);
+      } else {
+        CT_API_ERROR = new Error("Size must be a number not greater than " + TERM_RESULT_SIZE_MAX + ".");
+      }
+    }
+
+    // Interventions specific
+    if (q["agg_field"] === "_aggregates.interventions") {
+
+      groupAgg[path]["aggs"][path + ".type"] = {
+        "terms": {
+          "field": path + ".type"
+        }
+      };
+      groupAgg[path]["aggs"][path + ".category"] = {
+        "terms": {
+          "field": path + ".category"
+        }
+      };
+      this._filterAggByField(path, bool["must"], q["type"],      "type._fulltext");
+      this._filterAggByField(path, bool["must"], q["category"],  "category._fulltext");
+      this._filterAggByField(path, bool["must"], q["code"],     "code._fulltext");
+    }
+
+    this._filterAggByField(path, bool["should"], q["agg_term"], "name._auto");
+    this._filterAggByField(path, bool["should"], q["agg_term"], "synonyms._auto");
+
+    if (bool["should"].length || bool["must"].length) {
       innerAgg[path + "_filtered"]["aggs"] = groupAgg;
     } else {
       innerAgg = groupAgg;
@@ -761,11 +786,25 @@ class Searcher {
     nested[path + "_nested"] = {
       "nested": {
         "path": path
-      }
+      },
+      "aggs": innerAgg
     };
-    nested[path + "_nested"]["aggs"] = innerAgg;
 
     return nested;
+  }
+
+  _filterAggByField (path, bool, paramFieldVal, field) {
+    let fieldMatch = {
+      "match": {}
+    };
+
+    if (paramFieldVal) {
+      fieldMatch["match"][path + "." + field ] = {
+        "type": "phrase",
+        "query": paramFieldVal
+      };
+      bool.push(fieldMatch);
+    }
   }
 
   /**
@@ -856,8 +895,7 @@ class Searcher {
     //Intervions are special.  Actually, any coded field is special,
     //but this is the only implementation so far, but this can easily
     //be extended to _diseases.
-    if (q["agg_field"].match(/^_interventions\./)) {
-      //TODO: handle _interventions.drugs differently? (How doe we handle synonyms?)
+    if (q["agg_field"] === "_aggregates.interventions") {
       aggregation = this._getCodedAggregation(q);
     } else {
 
@@ -879,7 +917,7 @@ class Searcher {
         //This case can be delt with, but it is much more complicated
         //aggregation.
 
-        let tmpAgg = {}
+        let tmpAgg = {};
         tmpAgg[q["agg_field"]] = {"terms": {
           "field": q["agg_field"] + "._raw",
           "size": size
@@ -942,27 +980,33 @@ class Searcher {
    * @memberOf Searcher
    */
   _extractAggBucket(field, bucket) {
-    if (field.match(/^_interventions\./)) {
+    if (field === "_aggregates.interventions") {
       return bucket.map((item) => {
-        let codes = [];
-        let synonyms = [];
+        let interventionCodes    = [];
+        let interventionSynonyms = [];
+        let interventionType     = "";
+        let interventionCategory = "";
 
         //TODO: This should exist, so determine what to do if it does not.
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
-          codes = item[field + ".code"].buckets.map((code_bucket) => code_bucket.key);
+          interventionCodes = item[field + ".code"].buckets.map((code_bucket) => code_bucket.key);
         }
-
-        //TODO: Extract synonyms when they are added.
+        if (item[field + ".category"] && item[field + ".category"].buckets.length > 0) {
+          interventionCategory = item[field + ".category"].buckets[0].key;
+        }
         if (item[field + ".synonyms"] && item[field + ".synonyms"].buckets.length > 0) {
-          synonyms = item[field + ".synonyms"].buckets.map((syn_bucket) => syn_bucket.key);
+          interventionSynonyms = item[field + ".synonyms"].buckets.map((synonyms_bucket) => synonyms_bucket.key);
+        }
+        if (item[field + ".type"] && item[field + ".type"].buckets.length > 0) {
+          interventionType = item[field + ".type"].buckets[0].key;
         }
 
         return {
-          key: item.key,
-          count: item.doc_count,
-          codes: codes,
-          synonyms: synonyms
+          name:     item.key,
+          codes:    interventionCodes,
+          synonyms: interventionSynonyms,
+          category: interventionCategory
         }
       });
     } else {
@@ -1005,7 +1049,7 @@ class Searcher {
     }
 
     return {
-      total: 0, //TODO: Get count from agg bucket
+      //total: 0, //TODO: Get count from agg bucket
       terms: bucket
     }
   }
@@ -1019,15 +1063,18 @@ class Searcher {
       type: "trial",
       body: this._aggTrialsQuery(q)
     }, (err, res) => {
-      if(err) {
-        logger.error(err);
-        return callback(err);
+
+
+      let formattedRes = {};
+      if(err || CT_API_ERROR) {
+        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
+        CT_API_ERROR = null;
+      } else {
+        //Get the field name
+        let field = q["agg_field"];
+
+        formattedRes = this._extractAggregations(field, res);
       }
-
-      //Get the field name
-      let field = q["agg_field"];
-
-      let formattedRes = this._extractAggregations(field, res);
 
       return callback(null, formattedRes);
     });
@@ -1168,7 +1215,7 @@ class Searcher {
       if(q.codes instanceof Array) {
         let orBody = new Bodybuilder();
         q.codes.forEach((code) => {
-          logger.info(code);
+          //logger.info(code);
           orBody.orFilter("term", "codes", code.toUpperCase());
         });
         body.filter("bool", "and", orBody.build());

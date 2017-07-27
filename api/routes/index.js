@@ -97,13 +97,19 @@ router.get("/v1/term/:key", (req, res, next) => {
 /* get aggregates for a field that match supplied
  search criteria
  */
-router.get('/v1/trial-aggregates', (req, res, next) => {
+router.get('/v1/interventions', (req, res, next) => {
   let q = req.query;
+  q["agg_field"]  = "_aggregates.interventions";
+  q["agg_term"]   = q["intervention"];
+  delete q["intervention"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
 
-router.post('/v1/trial-aggregates', (req, res, next) => {
+router.post('/v1/interventions', (req, res, next) => {
   let q = req.body;
+  q["agg_field"]  = "_aggregates.interventions";
+  q["agg_term"]   = q["intervention"];
+  delete q["intervention"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
 

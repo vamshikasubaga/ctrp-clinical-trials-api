@@ -43,57 +43,86 @@
         "analyzer": "keyword_ci",
         "include_in_all": false
       },
-      "_interventions" : {
+      "_aggregates" : {
         "type": "nested",
         "include_in_root": true,
         "properties" : {
-          "code": {
-            "type": "string",
-            "analyzer": "keyword_ci",
-            "include_in_all": true
-          },
-          "type": {
-            "type": "string",
-            "analyzer": "keyword_ci",
-            "include_in_all": true
-          },
-          "name": {
-            "type": "string",
-            "analyzer": "keyword_ci",
-            "include_in_all": true,
-            "fields": {
-              "_fulltext": {
+          "interventions": {
+            "type": "nested",
+            "include_in_root": true,
+            "properties": {
+              "code": {
                 "type": "string",
-                "analyzer": "englishfulltext"
+                "analyzer": "keyword_ci",
+                "include_in_all": false,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "keyword_ci"
+                  }
+                }
               },
-              "_raw": {
+              "type": {
                 "type": "string",
-                "index": "not_analyzed"
+                "analyzer": "keyword_ci",
+                "include_in_all": false,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "keyword_ci"
+                  }
+                }
               },
-              "_auto": {
+              "category": {
                 "type": "string",
-                "analyzer": "autocomplete_index",
-                "search_analyzer": "autocomplete_search"
-              }
-            }
-          },
-          "synonyms": {
-            "type": "string",
-            "analyzer": "keyword_ci",
-            "include_in_all": true,
-            "fields": {
-              "_fulltext": {
-                "type": "string",
-                "analyzer": "englishfulltext"
+                "analyzer": "keyword_ci",
+                "include_in_all": false,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "keyword_ci"
+                  }
+                }
               },
-              "_raw": {
+              "name": {
                 "type": "string",
-                "index": "not_analyzed"
+                "analyzer": "keyword_ci",
+                "include_in_all": true,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "englishfulltext"
+                  },
+                  "_raw": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                  },
+                  "_auto": {
+                    "type": "string",
+                    "analyzer": "autocomplete_index",
+                    "search_analyzer": "autocomplete_search"
+                  }
+                }
               },
-              "_auto": {
+              "synonyms": {
                 "type": "string",
-                "analyzer": "autocomplete_index",
-                "search_analyzer": "autocomplete_search"
+                "analyzer": "keyword_ci",
+                "include_in_all": true,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "englishfulltext"
+                  },
+                  "_raw": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                  },
+                  "_auto": {
+                    "type": "string",
+                    "analyzer": "autocomplete_index",
+                    "search_analyzer": "autocomplete_search"
+                  }
+                }
               }
             }
           }
@@ -404,46 +433,46 @@
         "type": "nested",
         "include_in_root": true,
         "properties": {
-            "disease_code": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            },
-            "synonyms": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            },
-            "display_name": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            },
-            "preferred_name": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            },
-            "lead_disease_indicator": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            },
-            "inclusion_indicator": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            },
-            "nci_thesaurus_concept_id": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            },
-            "parents": {
-              "type": "string",
-              "analyzer": "keyword_ci",
-              "include_in_all": false
-            }
+          "disease_code": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          },
+          "synonyms": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          },
+          "display_name": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          },
+          "preferred_name": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          },
+          "lead_disease_indicator": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          },
+          "inclusion_indicator": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          },
+          "nci_thesaurus_concept_id": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          },
+          "parents": {
+            "type": "string",
+            "analyzer": "keyword_ci",
+            "include_in_all": false
+          }
         }
       },
       "eligibility": {
