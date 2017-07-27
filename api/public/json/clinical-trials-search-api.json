@@ -955,7 +955,7 @@
       },
       "post": {
         "tags": [
-          "interventions"
+          "cancer-interventions"
         ],
         "summary": "Search Interventions by POST",
         "description": "<h3><code>POST interventions</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/interventions' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"category\": \"agent\",<br>\"intervention\": \"Barseb-HC\",<br>\"current_trial_status\": [<br>\"Active\", \"Approved\"<br>]}'</code><hr>",
