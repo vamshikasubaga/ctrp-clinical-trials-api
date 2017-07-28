@@ -885,7 +885,7 @@
           "cancer-interventions"
         ],
         "summary": "Search Interventions by GET",
-        "description": "<h3><code>GET interventions?intervention=&lt;intervention_name&gt;[&amp;category=&lt;category_name&gt;]</code></h3><p>The <code>interventions</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available interventions which can later be used to filter clinical trial results. Interventions are matched partially by supplying a string to the <code>intervention</code> field and may be filtered by <code>category</code> field. Results are sorted by a combination of in alphabetical order by default i.e sort is set to intervention and order is set to asc.</p><p>Example:<a target='_blank' href=\"/v1/interventions?category=agent%20category&intervention=Therapeutic\">interventions?category=agent%20category&intervention=Therapeutic</a></p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
+        "description": "<h3><code>GET interventions?name=&lt;intervention_name&gt;[&amp;category=&lt;category_name&gt;]</code></h3><p>The <code>interventions</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available interventions which can later be used to filter clinical trial results. Interventions are matched partially by supplying a string to the <code>name</code> field and may be filtered by <code>category</code> field. Results are sorted by a combination of in alphabetical order by default i.e sort is set to name and order is set to asc.</p><p>Example:<a target='_blank' href=\"/v1/interventions?category=agent%20category&name=Therapeutic\">interventions?category=agent%20category&name=Therapeutic</a></p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
         "operationId": "searchInterventionsByGet",
         "consumes": [
           "application/json"
@@ -896,7 +896,7 @@
         "parameters": [
           {
             "in": "query",
-            "name": "intervention",
+            "name": "name",
             "type": "string",
             "description": "",
             "required": false
@@ -912,7 +912,7 @@
             "in": "query",
             "name": "sort",
             "type": "string",
-            "description": "Default set to 'intervention'.",
+            "description": "Default set to 'name'.",
             "required": false
           },
           {
@@ -926,7 +926,7 @@
             "in": "query",
             "name": "size",
             "type": "string",
-            "description":  "Default set to 10.",
+            "description":  "Default set to 5.",
             "required": false
           },
           {
@@ -958,7 +958,7 @@
           "cancer-interventions"
         ],
         "summary": "Search Interventions by POST",
-        "description": "<h3><code>POST interventions</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/interventions' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"category\": \"agent\",<br>\"intervention\": \"Barseb-HC\",<br>\"current_trial_status\": [<br>\"Active\", \"Approved\"<br>]}'</code><hr>",
+        "description": "<h3><code>POST interventions</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/interventions' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"category\": \"agent\",<br>\"name\": \"Barseb-HC\",<br>\"current_trial_status\": [<br>\"Active\", \"Approved\"<br>]}'</code><hr>",
         "operationId": "searchInterventionsByPost",
         "consumes": [
           "application/json"

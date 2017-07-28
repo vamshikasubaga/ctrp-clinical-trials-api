@@ -735,10 +735,10 @@ class Searcher {
     let bool = innerAgg[path + "_filtered"]["filter"]["query"]["bool"];
 
     if (q["sort"] || q["order"]) {
-      let validSort   = q["sort"] === "count" || q["sort"] === "intervention";
+      let validSort   = q["sort"] === "count" || q["sort"] === "name";
       let validOrder  = q["order"] === "asc" || q["order"] === "desc";
       if (validSort && validOrder) {
-        let sortKey = "_" + q["sort"].replace("intervention", "term");
+        let sortKey = "_" + q["sort"].replace("name", "term");
         groupAgg[path]["terms"]["order"][sortKey] = q["order"];
       } else {
         CT_API_ERROR = new Error("Parameters missing or incorrect. Sort can only be by (intervention) or (count) and order can only be descending (desc) or ascending (asc).");

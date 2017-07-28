@@ -100,16 +100,16 @@ router.get("/v1/term/:key", (req, res, next) => {
 router.get("/v1/interventions", (req, res, next) => {
   let q = req.query;
   q["agg_field"]  = "_aggregates.interventions";
-  q["agg_term"]   = q["intervention"];
-  delete q["intervention"];
+  q["agg_term"]   = q["name"];
+  delete q["name"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
 
 router.post("/v1/interventions", (req, res, next) => {
   let q = req.body;
   q["agg_field"]  = "_aggregates.interventions";
-  q["agg_term"]   = q["intervention"];
-  delete q["intervention"];
+  q["agg_term"]   = q["name"];
+  delete q["name"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
 
