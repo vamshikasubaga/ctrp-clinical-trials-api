@@ -725,7 +725,12 @@ class Searcher {
       "filter": {
         "query": {
           "bool": {
-            "must":[],
+            "must":[{
+                "bool": {
+                  "should": [],
+                  "minimum_number_should_match": 1
+                }
+              }],
             "should":[]
           }
         }
@@ -766,9 +771,10 @@ class Searcher {
           "field": path + ".category"
         }
       };
-      this._filterAggByField(path, bool["must"], q["type"],      "type._fulltext");
-      this._filterAggByField(path, bool["must"], q["category"],  "category._fulltext");
-      this._filterAggByField(path, bool["must"], q["code"],     "code._fulltext");
+
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],      "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["category"],  "category._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["code"],     "code._fulltext");
     }
 
     this._filterAggByField(path, bool["should"], q["agg_term"], "name._auto");
@@ -793,18 +799,20 @@ class Searcher {
     return nested;
   }
 
-  _filterAggByField (path, bool, paramFieldVal, field) {
-    let fieldMatch = {
-      "match": {}
-    };
-
-    if (paramFieldVal) {
-      fieldMatch["match"][path + "." + field ] = {
-        "type": "phrase",
-        "query": paramFieldVal
+  _filterAggByField (path, bool, paramFieldVals, field) {
+    Utils.enforceArray(paramFieldVals).forEach((paramFieldVal) => {
+      let fieldMatch = {
+        "match": {}
       };
-      bool.push(fieldMatch);
-    }
+
+      if (paramFieldVal) {
+        fieldMatch["match"][path + "." + field ] = {
+          "type": "phrase",
+          "query": paramFieldVal
+        };
+        bool.push(fieldMatch);
+      }
+    });
   }
 
   /**
