@@ -716,7 +716,8 @@ class Searcher {
 
     groupAgg[path]["aggs"][path + ".synonyms"] = {
       "terms": {
-        "field": path + ".synonyms._raw"
+        "field": path + ".synonyms._raw",
+        "size": 0
       }
     };
 
