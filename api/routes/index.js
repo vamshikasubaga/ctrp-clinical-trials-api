@@ -113,6 +113,22 @@ router.post("/v1/interventions", (req, res, next) => {
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
 
+router.get("/v1/diseases", (req, res, next) => {
+  let q = req.query;
+  q["agg_field"]  = "_aggregates.diseases";
+  q["agg_term"]   = q["name"];
+  delete q["name"];
+  RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
+});
+
+router.post("/v1/diseases", (req, res, next) => {
+  let q = req.body;
+  q["agg_field"]  = "_aggregates.diseases";
+  q["agg_term"]   = q["name"];
+  delete q["name"];
+  RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
+});
+
 router.get("/v1/clinical-trial.json", (req, res, next) => {
   let clinicalTrialJson = Utils.omitPrivateKeys(trialMapping);
   let excludeKeys = [

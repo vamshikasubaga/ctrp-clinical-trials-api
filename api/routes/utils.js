@@ -90,7 +90,7 @@ class Utils {
     //    to handle the number requested and the sort order.
     //  - agg_term -- the optional text to be used to preface the term.
     let without = _.without(queryParams,
-      "agg_field", "agg_term", "size", "sort", "order", "_all", "_fulltext", "_trialids", "code", "category");
+      "agg_field", "agg_term", "size", "sort", "order", "_all", "_fulltext", "_trialids", "code", "category", "menu", "menu_not", "parents");
     return without.filter((queryParam) => {
       if (_.includes(searchPropsByType["string"], queryParam)) {
         return false;

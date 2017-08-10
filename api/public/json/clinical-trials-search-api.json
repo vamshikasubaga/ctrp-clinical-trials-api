@@ -981,6 +981,123 @@
           }
         }
       }
+    },
+    "/v1/diseases": {
+      "get": {
+        "tags": [
+          "diseases"
+        ],
+        "summary": "Search Diseases by GET",
+        "description": "<h3><code>GET diseases?name=&lt;disease_name&gt;[&amp;menu=&lt;menu_type&gt;]</code></h3><p>The <code>diseases</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available diseases which can later be used to filter clinical trial results. Diseases are matched partially by supplying a string to the <code>name</code> field and may be filtered by <code>menu</code> field. Results are sorted by a combination of in alphabetical order by default i.e sort is set to name and order is set to asc.</p><p>Example:<a target='_blank' href=\"/v1/diseases?menu=maintype&name=He\">diseases?menu=maintype&name=He</a></p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
+        "operationId": "searchDiseasesByGet",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "menu",
+            "type": "string",
+            "description": "Type of Disease - Note that multiple values for menu creates an AND condition for the result set. Results will meet all menu values requested. Use 'menu' and 'menu_not' together to further filter results.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "menu_not",
+            "type": "string",
+            "description": "This will do the opposite of 'menu' above and exclude rather than include. Again results will meet all menu_not values requested. Use 'menu' and 'menu_not' together to further filter results.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "parents",
+            "type": "string",
+            "description": "Parent code",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "current_trial_status",
+            "type": "string",
+            "description": "",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "type": "string",
+            "description": "Default set to 'name'.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "order",
+            "type": "string",
+            "description": "Asc or Desc. Default set to 'asc'.",
+            "required": false
+          },
+          {
+            "in": "query",
+            "name": "size",
+            "type": "string",
+            "description":  "Default set to 5.",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list matching given search criteria."
+          },
+          "500": {
+            "description": "An exception occurred at the backend."
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "diseases"
+        ],
+        "summary": "Search Diseases by POST",
+        "description": "<h3><code>POST diseases</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/diseases' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"menu\": \"maintype\",<br>\"name\": \"He\",<br>\"current_trial_status\": [<br>\"Active\", \"Approved\"<br>]}'</code><hr>",
+        "operationId": "searchDiseasesByPost",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "status",
+            "type": "string",
+            "description": "Search Parameters",
+            "required": true
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Exception occured at the backend (except EntityNotFoundException)."
+          }
+        }
+      }
     }
   }
 }

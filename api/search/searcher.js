@@ -727,12 +727,15 @@ class Searcher {
         "query": {
           "bool": {
             "must":[{
-                "bool": {
+                "bool" : {
+                  "must": [],
+                  "must_not": [],
                   "should": [],
                   "minimum_number_should_match": 1
                 }
               }],
-            "should":[]
+            "must_not":[],
+            "should"  :[]
           }
         }
       }
@@ -747,7 +750,7 @@ class Searcher {
         let sortKey = "_" + q["sort"].replace("name", "term");
         groupAgg[path]["terms"]["order"][sortKey] = q["order"];
       } else {
-        CT_API_ERROR = new Error("Parameters missing or incorrect. Sort can only be by (intervention) or (count) and order can only be descending (desc) or ascending (asc).");
+        CT_API_ERROR = new Error("Parameters missing or incorrect. Sort can only be by (name) or (count) and order can only be descending (desc) or ascending (asc).");
       }
     }
 
@@ -772,10 +775,40 @@ class Searcher {
           "field": path + ".category"
         }
       };
+      groupAgg[path]["aggs"][path + ".code"] = {
+        "terms": {
+          "field": path + ".code"
+        }
+      };
 
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],      "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["category"],  "category._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["code"],     "code._fulltext");
+    }
+
+    // Diseases specific
+    if (q["agg_field"] === "_aggregates.diseases") {
+
+      groupAgg[path]["aggs"][path + ".parents"] = {
+        "terms": {
+          "field": path + ".parents"
+        }
+      };
+      groupAgg[path]["aggs"][path + ".menu"] = {
+        "terms": {
+          "field": path + ".menu"
+        }
+      };
+      groupAgg[path]["aggs"][path + ".code"] = {
+        "terms": {
+          "field": path + ".code"
+        }
+      };
+
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["parents"],  "parents._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"],     q["menu"], "menu._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must_not"], q["menu_not"], "menu._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["code"],     "code._fulltext");
     }
 
     this._filterAggByField(path, bool["should"], q["agg_term"], "name._auto");
@@ -906,6 +939,8 @@ class Searcher {
     //be extended to _diseases.
     if (q["agg_field"] === "_aggregates.interventions") {
       aggregation = this._getCodedAggregation(q);
+    } else if (q["agg_field"] === "_aggregates.diseases") {
+      aggregation = this._getCodedAggregation(q);
     } else {
 
       if (q["agg_term"]) {
@@ -996,10 +1031,9 @@ class Searcher {
         let interventionType     = "";
         let interventionCategory = "";
 
-        //TODO: This should exist, so determine what to do if it does not.
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
-          interventionCodes = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key);
+          interventionCodes = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key.toUpperCase());
         }
         if (item[field + ".category"] && item[field + ".category"].buckets.length > 0) {
           interventionCategory = item[field + ".category"].buckets[0].key;
@@ -1015,7 +1049,32 @@ class Searcher {
           name:     item.key,
           codes:    interventionCodes,
           synonyms: interventionSynonyms,
-          category: interventionCategory
+          category: interventionCategory,
+          count:    item.doc_count,
+        };
+      });
+    } else if (field === "_aggregates.diseases") {
+      return bucket.map((item) => {
+        let diseaseCodes    = [];
+        let diseaseParents  = [];
+        let diseaseMenu  = [];
+        if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
+          //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
+          diseaseCodes    = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key.toUpperCase());
+        }
+        if (item[field + ".parents"] && item[field + ".parents"].buckets.length > 0) {
+          diseaseParents  = item[field + ".parents"].buckets.map((parentsBucket) => parentsBucket.key);
+        }
+        if (item[field + ".menu"] && item[field + ".menu"].buckets.length > 0) {
+          diseaseMenu     = item[field + ".menu"].buckets.map((menuBucket) => menuBucket.key);
+        }
+
+        return {
+          name:    item.key,
+          codes:   diseaseCodes,
+          parents: diseaseParents,
+          menu:    diseaseMenu,
+          count:   item.doc_count,
         };
       });
     } else {
