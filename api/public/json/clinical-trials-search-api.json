@@ -16,7 +16,7 @@
   "basePath": "/",
   "tags": [
     {
-      "name": "cancer-clinical-trials",
+      "name": "Clinical-trials",
       "description": "",
       "externalDocs": {
         "description": "Find out more",
@@ -24,7 +24,7 @@
       }
     },
     {
-      "name": "cancer-terms",
+      "name": "Cancer-terms",
       "description": "",
       "externalDocs": {
         "description": "Find out more",
@@ -32,7 +32,7 @@
       }
     },
     {
-      "name": "interventions",
+      "name": "Interventions",
       "description": "",
       "externalDocs": {
         "description": "Find out more",
@@ -47,7 +47,7 @@
     "/v1/clinical-trial/{id}": {
       "get": {
         "tags": [
-          "cancer-clinical-trials"
+          "Clinical-trials"
         ],
         "summary": "Get Trial",
         "description": "<h3>GET clinical-trial&lt;id&gt;</h3><p>Retrieves the clinical trial with supplied <code>nci_id</code> or <code>nct_id</code>. <a target='_blank' href=\"/v1/clinical-trial.json\">All fields</a> (including nested ones) are returned.</p><p>Examples:</p><ul><li><a target='_blank' href=\"/v1/clinical-trial/NCT02194738\">clinical-trial/NCT02194738</a></li><li><a target='_blank' href=\"/v1/clinical-trial/NCI-2014-01509\">clinical-trial/NCI-2014-01509</a></li></ul><hr>",
@@ -80,7 +80,7 @@
     "/v1/clinical-trials": {
       "get": {
         "tags": [
-          "cancer-clinical-trials"
+          "Clinical-trials"
         ],
         "summary": "Search Trials by GET",
         "description": "<h3>GET clinical-trials&lt;filter_params&gt;</h3><p>Filters all clinical trials based upon supplied filter params. Filter params may be any of the <a target='_blank' href=\"/v1/clinical-trial.json\">fields in the schema</a> as well as any of the following params...</p><p><code>size</code>: limit the amount of results a supplied amount (default is 10, max is 50)</p><p><code>from</code>: start the results from a supplied starting point (default is 0)</p><p><code>include</code>: include only the supplied filter param fields in all results (useful if you want to minimize the payload returned)</p><p><code>exclude</code>: exclude the supplied filter param fields from all results (useful if you want most of the payload returned with the exception of a few fields)</p><p><code>_fulltext</code>: filter results by examining a variety of text-based fields <i>(*_id, other_ids.value, _diseases.term, brief_title, brief_summary, official_title, detail_description, official_title, _diseases.term_fulltext, detail_description, sites.org_name_fulltext, collaborators.name_fulltext, “principal_investigator_fulltext, sites.contact_name_fulltext, sites.org_city_fulltext, sites.org_state_or_province_fulltext, arms.interventions.intervention_name)</i></p><p><code>&lt;field_param&gt;_fulltext</code>: filter results by examining the occurance in a field, of a 'word' 'begining with' the given value. <i>(_diseases.term_fulltext, _treatments_fulltext, brief_title_fulltext, collaborators.name_fulltext, principal_investigator_fulltext, lead_org_fulltext, sites.contact_name_fulltext, sites.org_name_fulltext, sites.org_city,  sites.org_state_or_province)</i></p><p><code>_trialids</code>: filter results by examining trial identifiers <i>(ccr_id, ctep_id, dcp_id, nci_id, nct_id, other_ids.value, protocol_id)</i></p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?eligibility.structured.gender=female&amp;include=nct_id\">clinical-trials?eligibility.structured.gender=female&amp;include=nct_id</a></p><hr><p>When supplying an array of values for a single filter param, please use the following convention:<br> <code>clinical-trials?&lt;field_param&gt;=&lt;field_value_a&gt;&amp;&lt;field_param&gt;=&lt;field_value_b&gt;</code><br> and note that <code>string</code> field values are not case sensitive (must otherwise must match exactly).</p><hr><p>Example: <a target='_blank' href=\"/v1/clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR\">clinical-trials?sites.org_state_or_province=CA&amp;sites.org_state_or_province=OR</a></p><hr><p>For field params which are filtering as ranges (<code>date</code> and <code>long</code> types), please supply <code>_gte</code> or <code>_lte</code> to the end of the field param (depending on if you are filtering on greater than or equal (gte), less than or equal (lte), or both):<br> <code>clinical-trials?&lt;field_param&gt;_gte=&lt;field_value_from&gt;&amp;&lt;field_param&gt;_lte=&lt;field_value_to&gt;</code></p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?record_verification_date_gte=2016-08-25\">clinical-trials?record_verification_date_gte=2016-08-25</a></p><hr><p>For field params which are geolocation coordinates (<code>geo_point</code>), please supply the following to the end of the field param:</p><ul><li><code>_lat</code> - The latitude in decimal degrees and plus/minus.</li><li><code>_lon</code> - The longitude in decimal degrees and plus/minus.</li><li><code>_dist</code> - The radius to search within. Format must be an integer followed by a unit defined as:<ul><li>mi - miles (for example <code>2mi</code>)</li><li>km - kilometer (for example <code>5km</code>)  </li></ul></li></ul><p><code>clinical-trials?&lt;field_param&gt;_lat=&lt;field_value_latitude&gt;&amp;&lt;field_param&gt;_lon=&lt;field_value_longitude&gt;&amp;&lt;field_param&gt;_dist=&lt;field_value_dist&gt;</code></p><p>Example: <a target='_blank' href=\"/v1/clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi\">clinical-trials?sites.org_coordinates_lat=39.1292&amp;sites.org_coordinates_lon=-77.2953&amp;sites.org_coordinates_dist=100mi</a></p><hr><p>Below are some examples of filters for trials and configurations of results.</p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
@@ -654,7 +654,7 @@
       },
       "post": {
         "tags": [
-          "cancer-clinical-trials"
+          "Clinical-trials"
         ],
         "summary": "Search Trials by POST",
         "description": "<h3><code>POST clinical-trials</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/clinical-trials' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"sites.org_state_or_province\": [\"CA\", \"OR\"],<br>\"record_verification_date_gte\": \"2016-06-01\",<br>\"include\": [\"nci_id\"]<br> }'</code>",
@@ -684,7 +684,7 @@
       "/v1/term/{term_key}": {
         "get": {
           "tags": [
-            "cancer-terms"
+            "Terms"
           ],
           "summary": "Get Term by 'term_key' value",
           "description": "<h3>GET term&lt;term_key&gt;</h3><p>Retrieves the term with supplied <code>term_key</code>.</p><p>Example:</p><p><a target='_blank' href=\"/v1/term/acute_myeloid_leukemia_in_remission\">Term with term_key value of acute_myeloid_leukemia_in_remission</a>.</p><hr>",
@@ -717,7 +717,7 @@
     "/v1/terms": {
       "get": {
         "tags": [
-          "cancer-terms"
+          "Terms"
         ],
         "summary": "Search Terms by GET",
         "description": "<h3><code>GET terms?term=&lt;search_term&gt;[&amp;term_type=&lt;search_term_type&gt;]</code></h3><p>The <code>terms</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available terms which can later be used to filter clinical trial results. Terms are matched partially by supplying a string to the <code>term</code> field and may be filtered by clinical trial type using the <code>term_type</code> field. Results are sorted by a combination of string relevancy and popularity.</p><p>Example:<a target='_blank' href=\"/v1/terms?term=pancreatic%20n\">terms?term=pancreatic%20n</a></p><ul>List of Exposed Term Types:<li>_diseases</li><li>_treatments</li><li>_locations</li><li>_org_state_or_provinces</li><li>_org_cities</li><li>_orgs_by_location</li><li>sites.org_postal_code</li><li>sites.org_country</li><li>sites.org_city</li><li>sites.org_state_or_province</li><li>sites.org_name</li><li>sites.org_family</li><li>current_trial_status</li><li>phase.phase</li><li>study_protocol_type</li><li>brief_title</li><li>brief_summary</li><li>official_title</li><li>arms.interventions.synonyms</li><li>sites.org_to_family_relationship</li><li>anatomic_sites</li><li>arms.interventions.intervention_type</li><li>primary_purpose.primary_purpose_code</li><li>arms.interventions.intervention_code</li><li>principal_investigator</li><li>lead_org</li></ul><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
@@ -852,7 +852,7 @@
       },
       "post": {
         "tags": [
-          "cancer-terms"
+          "Terms"
         ],
         "summary": "Search Terms by POST",
         "description": "<h3><code>POST terms</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/terms' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"term_type\": \"_orgs_by_location\",<br>\"org_postal_code\": \"20910\",<br>\"org_coordinates_dist\": 10,<br>\"org_to_family_relationship\": \"organizational\"<br>}'</code><hr>",
@@ -882,7 +882,7 @@
     "/v1/interventions": {
       "get": {
         "tags": [
-          "cancer-interventions"
+          "Interventions"
         ],
         "summary": "Search Interventions by GET",
         "description": "<h3><code>GET interventions?name=&lt;intervention_name&gt;[&amp;category=&lt;category_name&gt;]</code></h3><p>The <code>interventions</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available interventions which can later be used to filter clinical trial results. Interventions are matched partially by supplying a string to the <code>name</code> field and may be filtered by <code>category</code> field. Results are sorted by a combination of in alphabetical order by default i.e sort is set to name and order is set to asc.</p><p>Example:<a target='_blank' href=\"/v1/interventions?category=agent%20category&name=Therapeutic\">interventions?category=agent%20category&name=Therapeutic</a></p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
@@ -955,7 +955,7 @@
       },
       "post": {
         "tags": [
-          "cancer-interventions"
+          "Interventions"
         ],
         "summary": "Search Interventions by POST",
         "description": "<h3><code>POST interventions</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/interventions' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"category\": \"agent\",<br>\"name\": \"Barseb-HC\",<br>\"current_trial_status\": [<br>\"Active\", \"Approved\"<br>]}'</code><hr>",
@@ -985,7 +985,7 @@
     "/v1/diseases": {
       "get": {
         "tags": [
-          "diseases"
+          "Diseases"
         ],
         "summary": "Search Diseases by GET",
         "description": "<h3><code>GET diseases?name=&lt;disease_name&gt;[&amp;menu=&lt;menu_type&gt;]</code></h3><p>The <code>diseases</code> endpoint is intended for typeaheads and other use cases where it is necessary to search for available diseases which can later be used to filter clinical trial results. Diseases are matched partially by supplying a string to the <code>name</code> field and may be filtered by <code>menu</code> field. Results are sorted by a combination of in alphabetical order by default i.e sort is set to name and order is set to asc.</p><p>Example:<a target='_blank' href=\"/v1/diseases?menu=maintype&name=He\">diseases?menu=maintype&name=He</a></p><p>If you are crafting more complicated queries, it might be best to use the <code>POST</code> endpoint of the same name.</p><hr>",
@@ -1072,7 +1072,7 @@
       },
       "post": {
         "tags": [
-          "diseases"
+          "Diseases"
         ],
         "summary": "Search Diseases by POST",
         "description": "<h3><code>POST diseases</code></h3><p>Same as the <code>GET</code> endpoint, but allows you to craft a JSON body as the request.</p><p>Example:</p><code>curl -XPOST 'https://clinicaltrialsapi.cancer.gov/v1/diseases' \\<br>-H 'Content-Type: application/json' \\<br>-d '{<br>\"menu\": \"maintype\",<br>\"name\": \"He\",<br>\"current_trial_status\": [<br>\"Active\", \"Approved\"<br>]}'</code><hr>",
