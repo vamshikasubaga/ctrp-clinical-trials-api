@@ -812,7 +812,7 @@ class Searcher {
 
       this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["ancestor_ids"], "ancestor_ids._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["parent_id"],    "parent_id._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["type"],         "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"],     q["type"],         "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["must_not"], q["type_not"],     "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["code"],         "code._fulltext");
     }
