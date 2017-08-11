@@ -82,7 +82,7 @@
                   }
                 }
               },
-              "parents": {
+              "ancestor_ids": {
                 "type": "string",
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
@@ -93,7 +93,18 @@
                   }
                 }
               },
-              "menu": {
+              "parent_id": {
+                "type": "string",
+                "analyzer": "keyword_ci",
+                "include_in_all": false,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "keyword_ci"
+                  }
+                }
+              },
+              "type": {
                 "type": "string",
                 "analyzer": "keyword_ci",
                 "include_in_all": false,

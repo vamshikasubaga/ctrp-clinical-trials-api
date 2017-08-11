@@ -789,14 +789,14 @@ class Searcher {
     // Diseases specific
     if (q["agg_field"] === "_aggregates.diseases") {
 
-      groupAgg[path]["aggs"][path + ".parents"] = {
+      groupAgg[path]["aggs"][path + ".ancestor_ids"] = {
         "terms": {
-          "field": path + ".parents"
+          "field": path + ".ancestor_ids"
         }
       };
-      groupAgg[path]["aggs"][path + ".menu"] = {
+      groupAgg[path]["aggs"][path + ".type"] = {
         "terms": {
-          "field": path + ".menu"
+          "field": path + ".type"
         }
       };
       groupAgg[path]["aggs"][path + ".code"] = {
@@ -804,11 +804,17 @@ class Searcher {
           "field": path + ".code"
         }
       };
+      groupAgg[path]["aggs"][path + ".parent_id"] = {
+        "terms": {
+          "field": path + ".parent_id"
+        }
+      };
 
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["parents"],  "parents._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["must"],     q["menu"], "menu._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["must_not"], q["menu_not"], "menu._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["code"],     "code._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["ancestor_ids"], "ancestor_ids._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["parent_id"],    "parent_id._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"],     q["type"],         "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must_not"], q["type_not"],     "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["code"],         "code._fulltext");
     }
 
     this._filterAggByField(path, bool["should"], q["agg_term"], "name._auto");
@@ -1057,24 +1063,30 @@ class Searcher {
       return bucket.map((item) => {
         let diseaseCodes    = [];
         let diseaseParents  = [];
-        let diseaseMenu  = [];
+        let diseaseTypes  = [];
+        let diseaseParent = "";
+
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
           diseaseCodes    = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key.toUpperCase());
         }
-        if (item[field + ".parents"] && item[field + ".parents"].buckets.length > 0) {
-          diseaseParents  = item[field + ".parents"].buckets.map((parentsBucket) => parentsBucket.key);
+        if (item[field + ".ancestor_ids"] && item[field + ".ancestor_ids"].buckets.length > 0) {
+          diseaseParents  = item[field + ".ancestor_ids"].buckets.map((parentsBucket) => parentsBucket.key.toUpperCase());
         }
-        if (item[field + ".menu"] && item[field + ".menu"].buckets.length > 0) {
-          diseaseMenu     = item[field + ".menu"].buckets.map((menuBucket) => menuBucket.key);
+        if (item[field + ".parent_id"] && item[field + ".parent_id"].buckets.length > 0) {
+          diseaseParent = item[field + ".parent_id"].buckets[0].key.toUpperCase();
+        }
+
+        if (item[field + ".type"] && item[field + ".type"].buckets.length > 0) {
+          diseaseTypes     = item[field + ".type"].buckets.map((typesBucket) => typesBucket.key);
         }
 
         return {
-          name:    item.key,
-          codes:   diseaseCodes,
-          parents: diseaseParents,
-          menu:    diseaseMenu,
-          count:   item.doc_count,
+          name:         item.key,
+          codes:        diseaseCodes,
+          ancestor_ids: diseaseParents,
+          parent_id:    diseaseParent,
+          type:         diseaseTypes
         };
       });
     } else {
