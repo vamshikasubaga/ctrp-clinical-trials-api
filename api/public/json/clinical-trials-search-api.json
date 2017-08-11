@@ -1008,14 +1008,14 @@
             "in": "query",
             "name": "type",
             "type": "string",
-            "description": "Type of Disease - Note that multiple values for type creates an 'AND' condition for the result set. Results will meet all type values requested. Use 'type' and 'type_not' together to further filter results.",
+            "description": "Type of Disease - Note that multiple values for type creates an 'OR' condition for the result set. Results will meet one of the type values requested. Use 'type' and 'type_not' together to further filter results.",
             "required": false
           },
           {
             "in": "query",
             "name": "type_not",
             "type": "string",
-            "description": "This will do the opposite of 'type' above and exclude rather than include. Again results will meet all menu_not values requested. Use 'type' and 'type_not' together to further filter results.",
+            "description": "This will do the opposite of 'type' above and exclude rather than include. Note that multiple values for type creates an 'AND' condition for the result set. Results will meet all menu_not values requested. Use 'type' and 'type_not' together to further filter results.",
             "required": false
           },
           {
