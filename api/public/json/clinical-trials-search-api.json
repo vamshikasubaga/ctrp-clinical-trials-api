@@ -182,56 +182,49 @@
           },
           {
             "in": "query",
-            "name":
-            "current_trial_status",
+            "name": "current_trial_status",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name":
-            "phase.phase",
+            "name": "phase.phase",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name":
-            "study_protocol_type",
+            "name": "study_protocol_type",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name":
-            "brief_title",
+            "name": "brief_title",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name":
-            "brief_summary",
+            "name": "brief_summary",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name":
-            "official_title",
+            "name": "official_title",
             "type": "string",
             "description": "",
             "required": false
           },
           {
             "in": "query",
-            "name":
-            "arms.interventions.synonyms",
+            "name": "primary_purpose.primary_purpose_code",
             "type": "string",
             "description": "",
             "required": false

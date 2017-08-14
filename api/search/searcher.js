@@ -728,7 +728,14 @@ class Searcher {
           "bool": {
             "must":[{
                 "bool" : {
-                  "must": [],
+                  "must": [{
+                    "bool" : {
+                      "must": [],
+                      "must_not": [],
+                      "should": [],
+                      "minimum_number_should_match": 1
+                    }
+                  }],
                   "must_not": [],
                   "should": [],
                   "minimum_number_should_match": 1
@@ -810,11 +817,11 @@ class Searcher {
         }
       };
 
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["ancestor_ids"], "ancestor_ids._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["parent_id"],    "parent_id._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["must"],     q["type"],         "type._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["must_not"], q["type_not"],     "type._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],   q["code"],         "code._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],                       q["ancestor_ids"], "ancestor_ids._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],                       q["parent_id"],    "parent_id._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["should"],    q["type"],         "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must_not"],                     q["type_not"],     "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],                       q["code"],         "code._fulltext");
     }
 
     this._filterAggByField(path, bool["should"], q["agg_term"], "name._auto");
@@ -1056,7 +1063,7 @@ class Searcher {
           codes:    interventionCodes,
           synonyms: interventionSynonyms,
           category: interventionCategory,
-          count:    item.doc_count,
+          count:    item.doc_count
         };
       });
     } else if (field === "_aggregates.diseases") {
