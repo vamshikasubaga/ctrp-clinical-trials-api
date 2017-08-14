@@ -1,0 +1,82 @@
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "bool": {
+            "must": { "match": {"tweet": "elasticsearch"}},
+            "must_not": { "match": { "name" : "mary"}},
+            "should": { "match": { "tweet": "full text"}},
+            "filter": { "range": { "age" : { "gt" : 30}}}
+        }
+    }
+}
+'
+
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "bool": {
+            "must": { "match": {"tweet": "elasticsearch"}},
+            "must_not": { "match": { "name" : "mary"}},
+            "should": { "match": { "tweet": "full text"}},
+            "filter": { "range": { "age" : { "gt" : 30}}}
+        }
+    }
+}
+'
+
+https://www.elastic.co/guide/en/elasticsearch/guide/current/_most_important_queries.html
+
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "match_all": {}
+    }
+}
+'
+
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "match": {"tweet": "I"}
+    }
+}
+'
+
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "multi_match": {
+            "query": "and I",
+            "fields": ["tweet", "name"]
+        }
+    }
+}
+'
+
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "range": {
+            "date": "",
+            "fields": ["tweet", "name"]
+        }
+    }
+}
+'
+
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "term": {"_type": "tweet"}
+    }
+}
+'
+
+curl -XGET 'localhost:9200/_search?pretty' -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "match": {"_aggregates.interventions.name": "Nivolumab"}
+    }
+}
+'
+curl -X DELETE 'http://localhost:9200/_all'
