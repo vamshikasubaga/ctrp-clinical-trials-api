@@ -250,6 +250,25 @@ class Searcher {
     }
   }
 
+  /**
+   * Adds filters for disease types
+   *
+   * @param {any} body
+   * @param {any} q
+   * @returns
+   *
+   * @memberOf Searcher
+   */
+  _diseaseTypesFilter(body, q ) {
+    ["_maintypes", "_subtypes", "_stages", "_grades", "_findings"].forEach((types) => {
+      let query = new Bodybuilder();
+      Utils.enforceArray(q[types]).forEach((type) => {
+        query.orQuery("match", "diseases.nci_thesaurus_concept_id", type, { type: "phrase" });
+      });
+      body.andQuery("bool", "and", query.build("v2"));
+    });
+  }
+
   _addNestedFilters(body, q) {
     //Get the list of property paths to treat as a Nested Filter.
     let possibleNestedFilterProps =
@@ -588,6 +607,7 @@ class Searcher {
     this._addBooleanFilters(body, q);
     this._addFullTextFieldFilters(body, q);
     this._addTrialIDsFilter(body, q);
+    this._diseaseTypesFilter(body, q);
   }
 
   /**
