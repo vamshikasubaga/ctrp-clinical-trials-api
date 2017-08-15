@@ -721,9 +721,6 @@ class Searcher {
     groupAgg[path] = {
       "terms": {
         "field" : path + ".name._raw",
-        "order": {
-          "_term" : "asc"
-        },
         "size": TERM_RESULT_SIZE_DEFAULT
       }
     };
@@ -808,14 +805,17 @@ class Searcher {
 
       groupAgg[path]["aggs"][path + ".type"] = {
         "terms": {
-          "field": path + ".type"
+          "field": path + ".type",
+            "order": {"_term": "asc"}
         }
       };
       groupAgg[path]["aggs"][path + ".category"] = {
         "terms": {
-          "field": path + ".category"
+          "field": path + ".category",
+            "order": {"_term": "asc"}
         }
       };
+
       groupAgg[path]["aggs"][path + ".code"] = {
         "terms": {
           "field": path + ".code"
@@ -825,6 +825,7 @@ class Searcher {
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],      "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["category"],  "category._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["code"],     "code._fulltext");
+
     }
 
     // Diseases specific
