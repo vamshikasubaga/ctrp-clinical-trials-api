@@ -730,7 +730,21 @@ class Searcher {
                 "bool" : {
                   "must": [{
                     "bool" : {
-                      "must": [],
+                      "must": [{
+                        "bool" : {
+                          "must": [{
+                            "bool" : {
+                              "must": [],
+                              "must_not": [],
+                              "should": [],
+                              "minimum_number_should_match": 1
+                            }
+                          }],
+                          "must_not": [],
+                          "should": [],
+                          "minimum_number_should_match": 1
+                        }
+                      }],
                       "must_not": [],
                       "should": [],
                       "minimum_number_should_match": 1
@@ -817,11 +831,11 @@ class Searcher {
         }
       };
 
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],                       q["ancestor_ids"], "ancestor_ids._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],                       q["parent_id"],    "parent_id._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["should"],    q["type"],         "type._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["must_not"],                     q["type_not"],     "type._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"],                       q["code"],         "code._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["should"],                                          q["ancestor_ids"], "ancestor_ids._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["should"],                       q["parent_ids"],   "parent_id._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["should"],    q["type"],         "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must_not"],                                                           q["type_not"],     "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"],                                                             q["code"],         "code._fulltext");
     }
 
     this._filterAggByField(path, bool["should"], q["agg_term"], "name._auto");
@@ -1071,7 +1085,7 @@ class Searcher {
         let diseaseCodes    = [];
         let diseaseAncestors  = [];
         let diseaseTypes  = [];
-        let diseaseParent = [];
+        let diseaseParents = [];
 
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
@@ -1081,7 +1095,7 @@ class Searcher {
           diseaseAncestors  = item[field + ".ancestor_ids"].buckets.map((ancestorsBucket) => ancestorsBucket.key.toUpperCase());
         }
         if (item[field + ".parent_id"] && item[field + ".parent_id"].buckets.length > 0) {
-          diseaseParent = item[field + ".parent_id"].buckets.map((parentsBucket) => parentsBucket.key.toUpperCase());
+          diseaseParents = item[field + ".parent_id"].buckets.map((parentsBucket) => parentsBucket.key.toUpperCase());
         }
 
         if (item[field + ".type"] && item[field + ".type"].buckets.length > 0) {
@@ -1092,7 +1106,7 @@ class Searcher {
           name:         item.key,
           codes:        diseaseCodes,
           ancestor_ids: diseaseAncestors,
-          parent_id:    diseaseParent,
+          parent_ids:   diseaseParents,
           type:         diseaseTypes
         };
       });
