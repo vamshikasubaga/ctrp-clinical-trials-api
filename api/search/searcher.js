@@ -1069,19 +1069,19 @@ class Searcher {
     } else if (field === "_aggregates.diseases") {
       return bucket.map((item) => {
         let diseaseCodes    = [];
-        let diseaseParents  = [];
+        let diseaseAncestors  = [];
         let diseaseTypes  = [];
-        let diseaseParent = "";
+        let diseaseParent = [];
 
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
           //Treat as array to match old Terms endpoint, AND support possible diseases multikeys
           diseaseCodes    = item[field + ".code"].buckets.map((codeBucket) => codeBucket.key.toUpperCase());
         }
         if (item[field + ".ancestor_ids"] && item[field + ".ancestor_ids"].buckets.length > 0) {
-          diseaseParents  = item[field + ".ancestor_ids"].buckets.map((parentsBucket) => parentsBucket.key.toUpperCase());
+          diseaseAncestors  = item[field + ".ancestor_ids"].buckets.map((ancestorsBucket) => ancestorsBucket.key.toUpperCase());
         }
         if (item[field + ".parent_id"] && item[field + ".parent_id"].buckets.length > 0) {
-          diseaseParent = item[field + ".parent_id"].buckets[0].key.toUpperCase();
+          diseaseParent = item[field + ".parent_id"].buckets.map((parentsBucket) => parentsBucket.key.toUpperCase());
         }
 
         if (item[field + ".type"] && item[field + ".type"].buckets.length > 0) {
@@ -1091,7 +1091,7 @@ class Searcher {
         return {
           name:         item.key,
           codes:        diseaseCodes,
-          ancestor_ids: diseaseParents,
+          ancestor_ids: diseaseAncestors,
           parent_id:    diseaseParent,
           type:         diseaseTypes
         };
