@@ -790,7 +790,7 @@ class Searcher {
       if (validSort && validOrder) {
         let sortKey = "_" + q["sort"].replace("name", "term");
         groupAgg[path]["terms"]["order"][sortKey] = q["order"];
-      } else {
+      } else if (!(q["agg_field"] === "_aggregates.interventions" && q["sort"] === "cancergov")) {
         CT_API_ERROR = new Error("Parameters missing or incorrect. Sort can only be by (name) or (count) and order can only be descending (desc) or ascending (asc).");
       }
     }
@@ -822,8 +822,14 @@ class Searcher {
         }
       };
 
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],      "type._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["category"],  "category._fulltext");
+      if (q["sort"] === "cancergov") {
+        delete groupAgg[path]["terms"]["order"];
+        groupAgg       [path]["aggs" ][path + ".type"    ]["terms"]["order"] = {"_term": "asc"};
+        groupAgg       [path]["aggs" ][path + ".category"]["terms"]["order"] = {"_term": "asc"};
+      }
+
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],     "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["category"], "category._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["code"],     "code._fulltext");
     }
 
