@@ -808,17 +808,20 @@ class Searcher {
 
       groupAgg[path]["aggs"][path + ".type"] = {
         "terms": {
-          "field": path + ".type"
+          "field": path + ".type",
+          "size": 0
         }
       };
       groupAgg[path]["aggs"][path + ".category"] = {
         "terms": {
-          "field": path + ".category"
+          "field": path + ".category",
+          "size": 0
         }
       };
       groupAgg[path]["aggs"][path + ".code"] = {
         "terms": {
-          "field": path + ".code"
+          "field": path + ".code",
+          "size": 0
         }
       };
 
@@ -838,22 +841,26 @@ class Searcher {
 
       groupAgg[path]["aggs"][path + ".ancestor_ids"] = {
         "terms": {
-          "field": path + ".ancestor_ids"
+          "field": path + ".ancestor_ids",
+          "size": 0
         }
       };
       groupAgg[path]["aggs"][path + ".type"] = {
         "terms": {
-          "field": path + ".type"
+          "field": path + ".type",
+          "size": 0
         }
       };
       groupAgg[path]["aggs"][path + ".code"] = {
         "terms": {
-          "field": path + ".code"
+          "field": path + ".code",
+          "size": 0
         }
       };
       groupAgg[path]["aggs"][path + ".parent_id"] = {
         "terms": {
-          "field": path + ".parent_id"
+          "field": path + ".parent_id",
+          "size": 0
         }
       };
 
