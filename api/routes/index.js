@@ -157,13 +157,9 @@ router.get("/v1/version", (req, res, next) => {
     });
   };
 
-  if (gitHash) {
+  git.short((gitHash) => {
     _sendVersionResponse(gitHash);
-  } else {
-    git.long((gitHash) => {
-      _sendVersionResponse(gitHash);
-    });
-  }
+  });
 });
 
 module.exports = router;
