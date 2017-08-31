@@ -785,14 +785,25 @@ class Searcher {
     let bool = innerAgg[path + "_filtered"]["filter"]["query"]["bool"];
     let inInterventionsOrDiseases = q["agg_field"] === "_aggregates.interventions" || q["agg_field"] === "_aggregates.diseases";
     if (q["sort"] || q["order"]) {
-      let validSort   = q["sort"] === "count" || q["sort"] === "name";
-      let validOrder  = q["order"] === "asc" || q["order"] === "desc";
-      if (validSort && validOrder) {
-        let sortKey = "_" + q["sort"].replace("name", "term");
-        groupAgg[path]["terms"]["order"][sortKey] = q["order"];
-      } else if (!(inInterventionsOrDiseases && q["sort"] === "cancergov")) {
-        CT_API_ERROR = new Error("Parameters missing or incorrect. Sort can only be by (name) or (count) and order can only be descending (desc) or ascending (asc).");
-      }
+        let validSort = q["sort"] === "count" || q["sort"] === "name";
+        let validOrder = q["order"] === "asc" || q["order"] === "desc";
+        if (validSort && validOrder) {
+            let sortKey = "_" + q["sort"].replace("name", "term");
+            groupAgg[path]["terms"]["order"][sortKey] = q["order"];
+        } else if (q["sort"] === "cancergov" && inInterventionsOrDiseases) {
+            if(q["category"] === undefined){
+              //Would love to just throw an error here....-jv
+              CT_API_ERROR = new Error("Category must be defined when using sort cancergov");
+            }
+            let sortKey = "_" + "count";
+            if (q["category"] === "agent") {
+                groupAgg[path]["terms"]["order"][sortKey] = "desc";
+            } else {
+                groupAgg[path]["terms"]["order"][sortKey] = "asc";
+            }
+        } else if (!(inInterventionsOrDiseases && q["sort"] === "cancergov")) {
+            CT_API_ERROR = new Error("Parameters missing or incorrect. Sort can only be by one of the following [name, count, cancergov] and order can only be descending (desc) or ascending (asc).");
+        }
     }
 
     if (q["size"]) {
@@ -825,11 +836,15 @@ class Searcher {
         }
       };
 
-      if (q["sort"] === "cancergov") {
-        delete groupAgg[path]["terms"]["order"];
-        groupAgg       [path]["aggs" ][path + ".type"    ]["terms"]["order"] = {"_term": "asc"};
-        groupAgg       [path]["aggs" ][path + ".category"]["terms"]["order"] = {"_term": "asc"};
-      }
+      //Moved to the top
+      // if (q["sort"] === "cancergov") { //why?...this shouldn't be a thing. -jv
+      //     if(q["category"] === undefined){
+      //       CT_API_ERROR = new Error("Category must be defined when using sort cancergov");
+      //     }
+      //   delete groupAgg[path]["terms"]["order"];
+      //   groupAgg       [path]["aggs"][path + ".type"    ]["terms"]["order"] = {"_term": "asc"};
+      //   groupAgg       [path]["aggs"][path + ".category"]["terms"]["order"] = {"_term": "asc"};
+      // }
 
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],     "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["category"], "category._fulltext");
@@ -865,9 +880,10 @@ class Searcher {
       };
 
 
-      if (q["sort"] === "cancergov") {
-        // future use: for now will result in maintaining default sort
-      }
+      //Duplicated code from above! -jv
+      // if (q["sort"] === "cancergov") {
+      //   // future use: for now will result in maintaining default sort
+      // }
 
       this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["should"],                                          q["ancestor_ids"], "ancestor_ids._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["should"],                       q["parent_ids"],   "parent_id._fulltext");
@@ -894,6 +910,8 @@ class Searcher {
       },
       "aggs": innerAgg
     };
+    console.log("Ending");
+    console.dir(nested, {depth: null});
 
     return nested;
   }
