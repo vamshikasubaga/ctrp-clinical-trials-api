@@ -910,8 +910,6 @@ class Searcher {
       },
       "aggs": innerAgg
     };
-    console.log("Ending");
-    console.dir(nested, {depth: null});
 
     return nested;
   }
