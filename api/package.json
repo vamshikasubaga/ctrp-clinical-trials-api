@@ -1,6 +1,6 @@
 {
   "name": "api",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "authors": "Michael Balint <michael.balint@pif.gov> (https://presidentialinnovationfellows.gov/)",
   "private": true,
   "repository": {
