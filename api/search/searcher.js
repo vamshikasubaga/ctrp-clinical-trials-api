@@ -7,7 +7,6 @@ const Utils               = require("../../common/utils");
 const CONFIG              = Utils.config();
 const trialMapping        = require("../indexer/trial/mapping.json");
 
-const transformStringToKey = Utils.transformStringToKey;
 const DATE_FORMAT = "YYYY-MM-DD";
 const TRIAL_RESULT_SIZE_MAX = 50;
 const TRIAL_RESULT_SIZE_DEFAULT = 10;
@@ -34,7 +33,7 @@ class Searcher {
                                     TRIAL
    ***********************************************************************/
 
-  _searchTrialById(id) {
+  static _searchTrialById(id) {
     let body = new Bodybuilder();
 
     if(id.substr(0, 4) === "NCI-") {
@@ -44,10 +43,7 @@ class Searcher {
       body.query("match", "nct_id", id);
     }
 
-    let query = body.build();
-    // logger.info(query);
-
-    return query;
+    return body.build();
   }
 
   // queries on either nci or nct id
@@ -82,7 +78,7 @@ class Searcher {
     }
   }
 
-  _addFullTextQuery(body, q) {
+  static _addFullTextQuery(body, q) {
     if (q._fulltext) {
       // need to nest `_fulltext` query as a "must"
       let ftBody = new Bodybuilder();
@@ -296,7 +292,6 @@ class Searcher {
         // boolean "must", which holds its own query.
 
         let nestedBodyQuery = new Bodybuilder();
-        let boolMustContents = new Bodybuilder();
 
         this._addFieldFilters(nestedBodyQuery, paramsForNesting);
         body.query("nested", nestedfield, "avg", nestedBodyQuery.build());
@@ -344,7 +339,6 @@ class Searcher {
       let query = new Bodybuilder();
 
       if (filter instanceof Array) {
-        let orBody = new Bodybuilder();
         filter.forEach((filterElement) => {
           //logger.info(filterElement);
           //Note for the actual query the field name must contain a . before _fulltext
@@ -417,7 +411,6 @@ class Searcher {
             CT_API_ERROR = new Error(
               `Invalid date supplied for ${field}_${rangeType}. ` +
               `Please use format ${DATE_FORMAT} or ISO8601.`);
-            return;
           }
         }
       };
@@ -448,7 +441,6 @@ class Searcher {
             ranges[rangeType] = longRange;
           } else {
             CT_API_ERROR = new Error(`Invalid number supplied for ${field}_${rangeType}.`);
-            return;
           }
         }
       };
@@ -479,7 +471,6 @@ class Searcher {
             ranges[rangeType] = floatRange;
           } else {
             CT_API_ERROR = new Error(`Invalid number supplied for ${field}_${rangeType}.`);
-            return;
           }
         }
       };
@@ -500,7 +491,7 @@ class Searcher {
     });
   }
 
-  _validateGeoParams(field, latitude, longitude) {
+  static _validateGeoParams(field, latitude, longitude) {
     let err = "";
     if (!(latitude) || isNaN(parseFloat(latitude))) {
       err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. `;
@@ -565,7 +556,7 @@ class Searcher {
     });
   }
 
-  _addSizeFromParams(body, q) {
+  static _addSizeFromParams(body, q) {
     q.size = q.size ? q.size : TRIAL_RESULT_SIZE_DEFAULT;
     let size = q.size > TRIAL_RESULT_SIZE_MAX ? TRIAL_RESULT_SIZE_MAX : q.size;
     let from = q.from ? q.from : 0;
@@ -573,7 +564,7 @@ class Searcher {
     body.from(from);
   }
 
-  _addIncludeExclude(body, q) {
+  static _addIncludeExclude(body, q) {
     let include = q.include;
     let exclude = q.exclude;
     if (include || exclude) {
@@ -581,7 +572,7 @@ class Searcher {
     }
   }
 
-  _getSource(include, exclude) {
+  static _getSource(include, exclude) {
     let _source = {};
     if (include) {
       _source.include = include;
@@ -616,7 +607,7 @@ class Searcher {
    * @param {any} body An instance of a Bodybuilder class
    * @param {any} q The query parameters a user is searching for
    */
-  _addSortOrder(body, q) {
+  static _addSortOrder(body, q) {
     // NOTE: most of these sort fields are dependent on the transform
     //       code - to see how we are sorting enums, please look at the
     //       import/transform logic
@@ -653,7 +644,6 @@ class Searcher {
   }
 
   _searchTrialsQuery(q) {
-    var query;
     let body = new Bodybuilder();
 
     // TODO: remove _all filter...
@@ -666,10 +656,7 @@ class Searcher {
     this._addFullTextQuery(body, q);
     this._addSortOrder(body, q);
 
-    query = body.build();
-
-    //logger.info(query);
-    return query;
+    return body.build();
   }
 
   searchTrials(q, callback) {
@@ -880,6 +867,7 @@ class Searcher {
       this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["should"],                       q["parent_ids"],   "parent_id._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["should"],    q["type"],         "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["must_not"],                                                           q["type_not"],     "type._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must_not"],                                        q["name_not"],     "name._raw");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"],                                                             q["code"],         "code._fulltext");
     }
 
@@ -931,7 +919,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  _getFilteredAggregate(q, size) {
+  static _getFilteredAggregate(q, size) {
     //They are doing autocomplete, so we need handle multiple layers.
     //body.aggregations()
 
@@ -993,6 +981,7 @@ class Searcher {
    *
    * @param {any} body NOTE: Body is not a BodyBuilder because we need updated BB for that to work.
    * @param {any} q
+   * @param {any} size
    *
    * @memberOf Searcher
    */
@@ -1053,7 +1042,6 @@ class Searcher {
   }
 
   _aggTrialsQuery(q) {
-    var query;
     let body = new Bodybuilder();
 
     //Set the ES size parameter to 0 so that we get back no trial results and
@@ -1072,7 +1060,7 @@ class Searcher {
 
 
     // Turn the query into JSON
-    query = body.build();
+    let query = body.build();
 
     q.size = q.size ? q.size : TERM_RESULT_SIZE_DEFAULT;
     let size = q.size > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : q.size;
@@ -1100,7 +1088,6 @@ class Searcher {
       return bucket.map((item) => {
         let interventionCodes    = [];
         let interventionSynonyms = [];
-        let interventionType     = "";
         let interventionCategory = "";
 
         if (item[field + ".code"] && item[field + ".code"].buckets.length > 0) {
@@ -1112,9 +1099,6 @@ class Searcher {
         }
         if (item[field + ".synonyms"] && item[field + ".synonyms"].buckets.length > 0) {
           interventionSynonyms = item[field + ".synonyms"].buckets.map((synonymsBucket) => synonymsBucket.key);
-        }
-        if (item[field + ".type"] && item[field + ".type"].buckets.length > 0) {
-          interventionType = item[field + ".type"].buckets[0].key;
         }
 
         return {
@@ -1230,7 +1214,7 @@ class Searcher {
                                    TERMS
    ***********************************************************************/
 
-  get TERM_TYPE_DEFAULTS() {
+  static TERM_TYPE_DEFAULTS() {
     return Utils.searchTerms();
   }
 
@@ -1258,7 +1242,7 @@ class Searcher {
     // q is to get the actual values
     return this._sortAndGetQuery(q, functionQuery);
   }
-  _addQueryTerms(q, body) {
+  static _addQueryTerms(q, body) {
     // add query terms (boost when phrase is matched)
     if (q.term) {
       body.query("match", "term_suggest", q.term);
@@ -1273,16 +1257,12 @@ class Searcher {
     resultSize = resultSize > TERM_RESULT_SIZE_MAX ? TERM_RESULT_SIZE_MAX : resultSize;
     let aFrom = q.from ? q.from : 0;
 
-    // finalize the query
-    let query = this._addSortQuery({
-      "query": { "function_score": functionQuery },
-      "size": resultSize,
-      "from": aFrom,
-      "sort": {}
-    }, q);
-
-    //logger.info(query);
-    return query;
+    return this._addSortQuery({
+              "query": { "function_score": functionQuery },
+              "size": resultSize,
+              "from": aFrom,
+              "sort": {}
+            }, q);
   }
 
   _addSortQuery(query, q) {
@@ -1308,12 +1288,12 @@ class Searcher {
     return query;
   }
 
-  _setSortByField(q) {
+  static _setSortByField(q) {
     // use default unless specified and for 'score' use '_score'
     return q.sort === "score" ? "_score" : (q.sort || TERM_SORT_DEFAULT);
   }
 
-  _getFunctionQuery(q, body) {
+  static _getFunctionQuery(q, body) {
     // build the query and add custom fields (that bodyparser can't handle)
     let functionQuery = body.build("v2");
 
@@ -1387,14 +1367,14 @@ class Searcher {
     return body;
   }
 
-  _filterByParam (param, field, body) {
+  static _filterByParam (param, field, body) {
     if (param) {
       body.filter("term", field, param.toLowerCase());
     }
     return body;
   }
 
-  _validateGeoCoords(q) {
+  static _validateGeoCoords(q) {
     let err = this._validateGeoParams("org_coordinates", q.org_coordinates_lat, q.org_coordinates_lon);
     if (err !== "") {
       CT_API_ERROR = new Error(err);
@@ -1408,7 +1388,7 @@ class Searcher {
     return q;
   }
 
-  _getGeoCoordsFilter(q, body) {
+  static _getGeoCoordsFilter(q, body) {
     //add in filter.
     return body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, {
       lat: q.org_coordinates_lat,
@@ -1450,13 +1430,10 @@ class Searcher {
     });
   }
 
-  _searchTermByKey(key) {
+  static _searchTermByKey(key) {
     let body = new Bodybuilder();
     body.query("match", "term_key", key);
-
-    let query = body.build();
-
-    return query;
+    return body.build();
   }
 
   // queries on term key
