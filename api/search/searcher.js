@@ -1211,7 +1211,7 @@ class Searcher {
                                    TERMS
    ***********************************************************************/
 
-  static TERM_TYPE_DEFAULTS() {
+  get TERM_TYPE_DEFAULTS() {
     return Utils.searchTerms();
   }
 
