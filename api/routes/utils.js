@@ -90,7 +90,7 @@ class Utils {
     //    to handle the number requested and the sort order.
     //  - agg_term -- the optional text to be used to preface the term.
     let without = _.without(queryParams,
-      "agg_field", "agg_term", "size", "sort", "order", "_all", "_fulltext", "_trialids", "code", "category", "type", "type_not", "name_not", "parent_ids", "ancestor_ids");
+      "agg_field", "agg_term", "size", "sort", "order", "_all", "_fulltext", "_trialids", "code", "category", "type", "type_not", "parent_ids", "ancestor_ids");
     return without.filter((queryParam) => {
       if (_.includes(searchPropsByType["string"], queryParam)) {
         return false;
@@ -162,6 +162,19 @@ class Utils {
       return res.status(400).send(error);
     }
 
+    // special case to remove same maintype-name subtypes else return as regular
+    if (q["agg_field"] === "_aggregates.diseases" && q["ancestor_ids"]) {
+      let exclusions = [];
+      searcher.aggTrials({agg_field: q["agg_field"], code: q["ancestor_ids"]}, (err, aggRes) => {
+        q["name_not"] = aggRes.terms.map((item) => item.name);
+        return Utils.getAggResults(q, res);
+      });
+    } else {
+      return Utils.getAggResults(q, res);
+    }
+  }
+
+  static getAggResults (q, res) {
     searcher.aggTrials(q, (err, aggRes) => {
       if (aggRes.Error) {
         return res.status(400).send(aggRes);

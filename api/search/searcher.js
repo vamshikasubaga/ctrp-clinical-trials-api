@@ -33,7 +33,7 @@ class Searcher {
                                     TRIAL
    ***********************************************************************/
 
-  static _searchTrialById(id) {
+  _searchTrialById(id) {
     let body = new Bodybuilder();
 
     if(id.substr(0, 4) === "NCI-") {
@@ -78,7 +78,7 @@ class Searcher {
     }
   }
 
-  static _addFullTextQuery(body, q) {
+  _addFullTextQuery(body, q) {
     if (q._fulltext) {
       // need to nest `_fulltext` query as a "must"
       let ftBody = new Bodybuilder();
@@ -491,7 +491,7 @@ class Searcher {
     });
   }
 
-  static _validateGeoParams(field, latitude, longitude) {
+  _validateGeoParams(field, latitude, longitude) {
     let err = "";
     if (!(latitude) || isNaN(parseFloat(latitude))) {
       err +=  `Geo Distance filter for ${field} missing or invalid latitude.  Please supply valid ${field}_lat. `;
@@ -556,7 +556,7 @@ class Searcher {
     });
   }
 
-  static _addSizeFromParams(body, q) {
+  _addSizeFromParams(body, q) {
     q.size = q.size ? q.size : TRIAL_RESULT_SIZE_DEFAULT;
     let size = q.size > TRIAL_RESULT_SIZE_MAX ? TRIAL_RESULT_SIZE_MAX : q.size;
     let from = q.from ? q.from : 0;
@@ -564,7 +564,7 @@ class Searcher {
     body.from(from);
   }
 
-  static _addIncludeExclude(body, q) {
+  _addIncludeExclude(body, q) {
     let include = q.include;
     let exclude = q.exclude;
     if (include || exclude) {
@@ -572,7 +572,7 @@ class Searcher {
     }
   }
 
-  static _getSource(include, exclude) {
+  _getSource(include, exclude) {
     let _source = {};
     if (include) {
       _source.include = include;
@@ -607,7 +607,7 @@ class Searcher {
    * @param {any} body An instance of a Bodybuilder class
    * @param {any} q The query parameters a user is searching for
    */
-  static _addSortOrder(body, q) {
+  _addSortOrder(body, q) {
     // NOTE: most of these sort fields are dependent on the transform
     //       code - to see how we are sorting enums, please look at the
     //       import/transform logic
@@ -919,7 +919,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  static _getFilteredAggregate(q, size) {
+  _getFilteredAggregate(q, size) {
     //They are doing autocomplete, so we need handle multiple layers.
     //body.aggregations()
 
@@ -986,9 +986,6 @@ class Searcher {
    * @memberOf Searcher
    */
   _addAggregation(body, q, size) {
-
-    //TODO: NEED TO ADD SIZE to aggregate fields.  This will allow us to control the
-    //number of terms to be returned.
 
     //So, our version of BodyBuilder does not support complex aggregations,
     //and really needs to be updated.  So we are just going to build up the aggregation
@@ -1242,7 +1239,7 @@ class Searcher {
     // q is to get the actual values
     return this._sortAndGetQuery(q, functionQuery);
   }
-  static _addQueryTerms(q, body) {
+  _addQueryTerms(q, body) {
     // add query terms (boost when phrase is matched)
     if (q.term) {
       body.query("match", "term_suggest", q.term);
@@ -1288,12 +1285,12 @@ class Searcher {
     return query;
   }
 
-  static _setSortByField(q) {
+  _setSortByField(q) {
     // use default unless specified and for 'score' use '_score'
     return q.sort === "score" ? "_score" : (q.sort || TERM_SORT_DEFAULT);
   }
 
-  static _getFunctionQuery(q, body) {
+  _getFunctionQuery(q, body) {
     // build the query and add custom fields (that bodyparser can't handle)
     let functionQuery = body.build("v2");
 
@@ -1367,14 +1364,14 @@ class Searcher {
     return body;
   }
 
-  static _filterByParam (param, field, body) {
+  _filterByParam (param, field, body) {
     if (param) {
       body.filter("term", field, param.toLowerCase());
     }
     return body;
   }
 
-  static _validateGeoCoords(q) {
+  _validateGeoCoords(q) {
     let err = this._validateGeoParams("org_coordinates", q.org_coordinates_lat, q.org_coordinates_lon);
     if (err !== "") {
       CT_API_ERROR = new Error(err);
@@ -1388,7 +1385,7 @@ class Searcher {
     return q;
   }
 
-  static _getGeoCoordsFilter(q, body) {
+  _getGeoCoordsFilter(q, body) {
     //add in filter.
     return body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, {
       lat: q.org_coordinates_lat,
@@ -1430,7 +1427,7 @@ class Searcher {
     });
   }
 
-  static _searchTermByKey(key) {
+  _searchTermByKey(key) {
     let body = new Bodybuilder();
     body.query("match", "term_key", key);
     return body.build();
