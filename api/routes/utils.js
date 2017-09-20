@@ -166,7 +166,7 @@ class Utils {
     if (q["agg_field"] === "_aggregates.diseases" && q["ancestor_ids"]) {
       let exclusions = [];
       searcher.aggTrials({agg_field: q["agg_field"], code: q["ancestor_ids"]}, (err, aggRes) => {
-        q["name_not"] = aggRes.terms.map((item) => item.name);
+        q["subtype_exclude"] = aggRes.terms.map((item) => item.name);
         return Utils.getAggResults(q, res);
       });
     } else {

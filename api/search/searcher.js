@@ -867,7 +867,6 @@ class Searcher {
       this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["should"],                       q["parent_ids"],   "parent_id._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["must"][0]["bool"]["should"],    q["type"],         "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["must_not"],                                                           q["type_not"],     "type._fulltext");
-      this._filterAggByField(path, bool["must"][0]["bool"]["must"][0]["bool"]["must_not"],                                        q["name_not"],     "name._raw");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"],                                                             q["code"],         "code._fulltext");
     }
 
@@ -1080,7 +1079,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  _extractAggBucket(field, bucket) {
+  _extractAggBucket(field, bucket, q) {
     if (field === "_aggregates.interventions") {
       return bucket.map((item) => {
         let interventionCodes    = [];
@@ -1128,14 +1127,17 @@ class Searcher {
           diseaseTypes     = item[field + ".type"].buckets.map((typesBucket) => typesBucket.key);
         }
 
-        return {
-          name:         item.key,
-          codes:        diseaseCodes,
-          ancestor_ids: diseaseAncestors,
-          parent_ids:   diseaseParents,
-          type:         diseaseTypes
-        };
-      });
+        if (!q["subtype_exclude"] || !(q["subtype_exclude"] && diseaseTypes.includes("subtype") && q["subtype_exclude"].includes(item.key))) {
+          return {
+            name: item.key,
+            codes: diseaseCodes,
+            ancestor_ids: diseaseAncestors,
+            parent_ids: diseaseParents,
+            type: diseaseTypes
+          };
+        }
+      // filter Boolean to remove possible null values from ommission of subtypes
+      }).filter(Boolean);
     } else {
       return bucket.map((item) => {
         return {
@@ -1156,7 +1158,7 @@ class Searcher {
    *
    * @memberOf Searcher
    */
-  _extractAggregations(field, res) {
+  _extractAggregations(field, res, q) {
 
     let bucket = [];
 
@@ -1164,15 +1166,15 @@ class Searcher {
     //to the next aggregate level down.
     if (res.aggregations[field + "_nested"]) {
       if (res.aggregations[field + "_nested"][field + "_filtered"]) {
-        bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field + "_filtered"][field].buckets);
+        bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field + "_filtered"][field].buckets, q);
       } else {
-        bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field].buckets);
+        bucket = this._extractAggBucket(field, res.aggregations[field + "_nested"][field].buckets, q);
       }
     } else if (res.aggregations[field + "_filtered"]) {
 
-      bucket = this._extractAggBucket(field, res.aggregations[field + "_filtered"][field].buckets);
+      bucket = this._extractAggBucket(field, res.aggregations[field + "_filtered"][field].buckets, q);
     } else {        //untested.
-      bucket = this._extractAggBucket(field, res.aggregations[field].buckets);
+      bucket = this._extractAggBucket(field, res.aggregations[field].buckets, q);
     }
 
     return {
@@ -1200,7 +1202,7 @@ class Searcher {
         //Get the field name
         let field = q["agg_field"];
 
-        formattedRes = this._extractAggregations(field, res);
+        formattedRes = this._extractAggregations(field, res, q);
       }
 
       return callback(null, formattedRes);
