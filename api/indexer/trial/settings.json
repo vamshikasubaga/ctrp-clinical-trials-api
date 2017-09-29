@@ -73,7 +73,8 @@
         "filter": [
           "lowercase",
           "autocomplete_filter",
-          "asciifolding"
+          "asciifolding",
+          "word_delimiter"
         ]
       },
       "autocomplete_search": {
@@ -81,7 +82,8 @@
         "tokenizer": "standard",
         "filter": [
           "lowercase",
-          "asciifolding"
+          "asciifolding",
+          "word_delimiter"
         ]
       },
       "trialid_index": {
