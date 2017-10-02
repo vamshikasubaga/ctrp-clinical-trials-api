@@ -73,6 +73,7 @@
         "filter": [
           "lowercase",
           "asciifolding",
+          "autocomplete_filter",
           "word_delimiter"
         ]
       },
