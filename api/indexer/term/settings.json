@@ -17,17 +17,16 @@
     "analyzer": {
       "autocomplete_index": {
         "type": "custom",
-        "tokenizer": "standard",
+        "tokenizer": "whitespace",
         "filter": [
           "lowercase",
-          "autocomplete_filter",
           "asciifolding",
           "word_delimiter"
         ]
       },
       "autocomplete_search": {
         "type": "custom",
-        "tokenizer": "standard",
+        "tokenizer": "whitespace",
         "filter": [
           "lowercase",
           "asciifolding",
