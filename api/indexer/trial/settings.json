@@ -40,6 +40,28 @@
           "punctuation",
           "symbol"
         ]
+      },
+      "split_on_numerics" : {
+        "type" : "word_delimiter",
+        "split_on_numerics" : true,
+        "split_on_case_change" : true,
+        "generate_word_parts" : true,
+        "generate_number_parts" : false
+      },
+      "dot_delimiter": {
+        "type" : "pattern_capture",
+        "preserve_original" : 1,
+        "patterns" : [
+          "([\\p{Ll}\\p{Lu}]+\\d*|\\d+)"
+        ]
+      },
+      "words_delimiter": {
+        "type" : "pattern_capture",
+        "preserve_original" : 1,
+        "patterns" : [
+          "(\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+)",
+          "(\\d+)"
+        ]
       }
     },
     "analyzer": {
@@ -69,21 +91,23 @@
       },
       "autocomplete_index": {
         "type": "custom",
-        "tokenizer": "whitespace",
+        "tokenizer": "standard",
         "filter": [
           "lowercase",
           "asciifolding",
           "autocomplete_filter",
-          "word_delimiter"
+          "dot_delimiter",
+          "words_delimiter"
         ]
       },
       "autocomplete_search": {
         "type": "custom",
-        "tokenizer": "whitespace",
+        "tokenizer": "standard",
         "filter": [
           "lowercase",
           "asciifolding",
-          "word_delimiter"
+          "dot_delimiter",
+          "words_delimiter"
         ]
       },
       "trialid_index": {
