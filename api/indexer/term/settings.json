@@ -36,6 +36,14 @@
         ]
       }
     },
+    "char_filter": {
+      "symbol_pattern": {
+        "type": "pattern_replace",
+        "preserve_original" : 1,
+        "pattern": "(\\d+).(?=\\d)",
+        "replacement": "$1 "
+      }
+    },
     "analyzer": {
       "autocomplete_index": {
         "type": "custom",
@@ -44,8 +52,10 @@
           "lowercase",
           "asciifolding",
           "autocomplete_filter",
-          "dot_delimiter",
           "words_delimiter"
+        ],
+        "char_filter": [
+          "symbol_pattern"
         ]
       },
       "autocomplete_search": {
@@ -54,8 +64,10 @@
         "filter": [
           "lowercase",
           "asciifolding",
-          "dot_delimiter",
           "words_delimiter"
+        ],
+        "char_filter": [
+          "symbol_pattern"
         ]
       },
       "keyword_ci": {
