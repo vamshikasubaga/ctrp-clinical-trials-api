@@ -35,7 +35,8 @@
           "(\\d+)",
           "([^@]+)",
           "(\\p{L}+)",
-          "@(.+)"
+          "@(.+)",
+          "@(_+)"
         ]
       }
     },
@@ -61,9 +62,7 @@
           "lowercase",
           "autocomplete_filter",
           "asciifolding",
-          "dot_delimiter",
-          "words_delimiter",
-          "word_delimiter"
+          "words_delimiter"
         ]
       },
       "autocomplete_search": {
@@ -72,9 +71,7 @@
         "filter": [
           "lowercase",
           "asciifolding",
-          "dot_delimiter",
-          "words_delimiter",
-          "word_delimiter"
+          "words_delimiter"
         ]
       },
       "keyword_ci": {
