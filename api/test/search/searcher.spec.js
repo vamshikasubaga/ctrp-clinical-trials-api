@@ -124,7 +124,6 @@ describe('Searcher', _ => {
 
     });
 
-    // new unit tests
     // Unit testing for TERM_TYPE_DEFAULTS
     it('Should Be an Array', () => {
         let searcher = new Searcher(new SearcherMockAdapter());
