@@ -59,16 +59,24 @@
         "type" : "pattern_capture",
         "preserve_original" : 1,
         "patterns" : [
-          "(\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+)",
-          "(\\d+)"
+          "(\\d+)",
+          "([^@]+)",
+          "(\\p{L}+)",
+          "@(.+)"
         ]
       }
     },
     "char_filter": {
-      "symbol_pattern": {
+      "dot_pattern": {
         "type": "pattern_replace",
         "preserve_original" : 1,
         "pattern": "(\\d+).(?=\\d)",
+        "replacement": "$1 "
+      },
+      "under_score_pattern": {
+        "type": "pattern_replace",
+        "preserve_original" : 1,
+        "pattern": "(\\d+)_(?=\\d)",
         "replacement": "$1 "
       }
     },
@@ -102,12 +110,11 @@
         "tokenizer": "standard",
         "filter": [
           "lowercase",
-          "asciifolding",
           "autocomplete_filter",
-          "words_delimiter"
-        ],
-        "char_filter": [
-          "symbol_pattern"
+          "asciifolding",
+          "dot_delimiter",
+          "words_delimiter",
+          "word_delimiter"
         ]
       },
       "autocomplete_search": {
@@ -116,10 +123,9 @@
         "filter": [
           "lowercase",
           "asciifolding",
-          "words_delimiter"
-        ],
-        "char_filter": [
-          "symbol_pattern"
+          "dot_delimiter",
+          "words_delimiter",
+          "word_delimiter"
         ]
       },
       "trialid_index": {
