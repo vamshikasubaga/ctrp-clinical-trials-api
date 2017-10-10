@@ -13,56 +13,26 @@
           "symbol"
         ]
       },
-      "split_on_numerics" : {
-        "type" : "word_delimiter",
-        "split_on_numerics" : true,
-        "split_on_case_change" : true,
-        "generate_word_parts" : true,
-        "generate_number_parts" : false
-      },
       "dot_delimiter": {
-        "type" : "pattern_capture",
-        "preserve_original" : 1,
-        "patterns" : [
-          "([\\p{Ll}\\p{Lu}]+\\d*|\\d+)"
-        ]
-      },
-      "words_delimiter": {
         "type" : "pattern_capture",
         "preserve_original" : 1,
         "patterns" : [
           "(\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+)",
           "(\\d+)",
-          "([^@]+)",
-          "(\\p{L}+)",
-          "@(.+)",
-          "@(_+)"
+          "([\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+]+\\d*|\\d+)",
+          "([[\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+]+\\d*|\\d+]+(\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+))"
         ]
-      }
-    },
-    "char_filter": {
-      "dot_pattern": {
-        "type": "pattern_replace",
-        "preserve_original" : 1,
-        "pattern": "(\\d+).(?=\\d)",
-        "replacement": "$1 "
-      },
-      "under_score_pattern": {
-        "type": "pattern_replace",
-        "preserve_original" : 1,
-        "pattern": "(\\d+)_(?=\\d)",
-        "replacement": "$1 "
       }
     },
     "analyzer": {
       "autocomplete_index": {
-        "type": "custom",
+        "type": "string",
         "tokenizer": "standard",
         "filter": [
-          "lowercase",
+          "standard","lowercase",
           "autocomplete_filter",
           "asciifolding",
-          "words_delimiter"
+          "dot_delimiter"
         ]
       },
       "autocomplete_search": {
@@ -70,8 +40,7 @@
         "tokenizer": "standard",
         "filter": [
           "lowercase",
-          "asciifolding",
-          "words_delimiter"
+          "asciifolding"
         ]
       },
       "keyword_ci": {
