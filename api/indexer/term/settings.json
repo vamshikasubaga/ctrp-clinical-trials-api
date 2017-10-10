@@ -38,7 +38,7 @@
       },
       "autocomplete_search": {
         "type": "custom",
-        "tokenizer": "whitespace",
+        "tokenizer": "standard",
         "filter": [
           "lowercase",
           "asciifolding"
