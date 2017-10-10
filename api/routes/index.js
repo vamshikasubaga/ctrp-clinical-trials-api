@@ -66,6 +66,7 @@ router.post("/v1/clinical-trials", (req, res, next) => {
 /* get key terms that can be used to search through clinical trials */
 router.get("/v1/terms", (req, res, next) => {
   let q = _.pick(req.query, utilTermParams);
+  q["term"] = q["term"]? q["term"].trimLeft("_"): q["term"];
   if (q["org_postal_code"] && q["org_coordinates_dist"]) {
     RouteUtils.queryTermsAndSendResponse(RouteUtils.addCoordinatedGivenZip(q, "terms", usZipCodes), res);
   } else {
@@ -75,6 +76,7 @@ router.get("/v1/terms", (req, res, next) => {
 
 router.post("/v1/terms", (req, res, next) => {
   let q = _.pick(req.body, utilTermParams);
+  q["term"] = q["term"]? q["term"].trimLeft("_"): q["term"];
   if (q["org_postal_code"] && q["org_coordinates_dist"]) {
     RouteUtils.queryTermsAndSendResponse(RouteUtils.addCoordinatedGivenZip(q, "terms", usZipCodes), res);
   } else {
@@ -100,7 +102,7 @@ router.get("/v1/term/:key", (req, res, next) => {
 router.get("/v1/interventions", (req, res, next) => {
   let q = req.query;
   q["agg_field"]  = "_aggregates.interventions";
-  q["agg_term"]   = q["name"];
+  q["agg_term"]   = q["name"]? q["name"].trimLeft("_"): q["name"];
   delete q["name"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
@@ -108,7 +110,7 @@ router.get("/v1/interventions", (req, res, next) => {
 router.post("/v1/interventions", (req, res, next) => {
   let q = req.body;
   q["agg_field"]  = "_aggregates.interventions";
-  q["agg_term"]   = q["name"];
+  q["agg_term"]   = q["name"]? q["name"].trimLeft("_"): q["name"];
   delete q["name"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
@@ -116,7 +118,7 @@ router.post("/v1/interventions", (req, res, next) => {
 router.get("/v1/diseases", (req, res, next) => {
   let q = req.query;
   q["agg_field"]  = "_aggregates.diseases";
-  q["agg_term"]   = q["name"];
+  q["agg_term"]   = q["name"]? q["name"].trimLeft("_"): q["name"];
   delete q["name"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });
@@ -124,7 +126,7 @@ router.get("/v1/diseases", (req, res, next) => {
 router.post("/v1/diseases", (req, res, next) => {
   let q = req.body;
   q["agg_field"]  = "_aggregates.diseases";
-  q["agg_term"]   = q["name"];
+  q["agg_term"]   = q["name"]? q["name"].trimLeft("_"): q["name"];
   delete q["name"];
   RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
 });

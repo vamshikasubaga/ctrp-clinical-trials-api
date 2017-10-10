@@ -20,7 +20,8 @@
           "(\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+)",
           "(\\d+)",
           "([\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+]+\\d*|\\d+)",
-          "([[\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+]+\\d*|\\d+]+(\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+))"
+          "([[\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+]+\\d*|\\d+]+(\\p{Ll}+|\\p{Lt}+|\\p{Lu}+\\p{Ll}+|\\p{Lu}+))",
+          "([\\d]+(\\p{Ll}|\\p{Lt}|\\p{Lu}\\p{Ll}|\\p{Lu})+\\d+)"
         ]
       }
     },
@@ -37,7 +38,7 @@
       },
       "autocomplete_search": {
         "type": "custom",
-        "tokenizer": "standard",
+        "tokenizer": "whitespace",
         "filter": [
           "lowercase",
           "asciifolding"
