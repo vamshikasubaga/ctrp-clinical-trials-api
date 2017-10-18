@@ -348,6 +348,10 @@
             "type": "string",
             "analyzer": "keyword_ci"
           },
+          "eligibility_criterion": {
+            "type": "string",
+            "analyzer": "keyword_ci"
+          },
           "long_name": {
             "type": "string",
             "analyzer": "keyword_ci"

@@ -242,6 +242,31 @@ class Searcher {
         }
       });
 
+      ftBody.query("bool", "should", {
+        "bool": {
+          "must": [{
+            "nested": {
+              "path": "biomarkers",
+              "score_mode": "avg",
+              "query": {
+                "bool": {
+                  "should" : [
+                    { "term" : {"biomarkers.name": q._fulltext.toLowerCase()}},
+                    { "term" : {"biomarkers.long_name": q._fulltext.toLowerCase()}},
+                    { "term" : {"biomarkers.synonyms": q._fulltext.toLowerCase()}}
+                  ],
+                  "must": {
+                    "term" : {"biomarkers.eligibility_criterion": "inclusion"}
+                  },
+                  "minimum_number_should_match": 1
+                }
+              }
+            }
+          }
+          ]
+        }
+      });
+
       body.query("bool", "must", ftBody.build());
     }
   }
