@@ -48,6 +48,9 @@ class Utils {
     let queryParams = Object.keys(q);
     // validate query params...
     let invalidParams = Utils.getInvalidTrialQueryParams(queryParams);
+    if (Array.isArray(q["_fulltext"])) {
+      invalidParams = "_fulltext should not be an array";
+    }
     if (invalidParams.length > 0) {
       let error = {
         "Error": "Invalid query params.",
