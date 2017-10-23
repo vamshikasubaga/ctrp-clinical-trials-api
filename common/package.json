@@ -1,6 +1,6 @@
 {
   "name": "ctsearch-common",
-  "version": "0.0.1",
+  "version": "0.1.4",
   "private": true,
   "dependencies": {
     "elasticsearch": "12.1.3",
