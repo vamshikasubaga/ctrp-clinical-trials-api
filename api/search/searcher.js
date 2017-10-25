@@ -749,52 +749,46 @@ class Searcher {
     groupAgg[path]["aggs"][path + ".synonyms"] = {
       "terms": {
         "field": path + ".synonyms._raw",
-        "size": 0
+        "size": 10000
       }
     };
 
     //This will handle matching both the name and synonyms
     innerAgg[path + "_filtered"] = {
       "filter": {
-        "query": {
-          "bool": {
-            "must":[{
-                "bool" : {
-                  "must": [{
-                    "bool" : {
-                      "must": [{
-                        "bool" : {
-                          "must": [{
-                            "bool" : {
-                              "must": [],
-                              "must_not": [],
-                              "should": [],
-                              "minimum_number_should_match": 1
-                            }
-                          }],
-                          "must_not": [],
-                          "should": [],
-                          "minimum_number_should_match": 1
-                        }
-                      }],
-                      "must_not": [],
-                      "should": [],
-                      "minimum_number_should_match": 1
-                    }
-                  }],
-                  "must_not": [],
-                  "should": [],
-                  "minimum_number_should_match": 1
-                }
-              }],
-            "must_not":[],
-            "should"  :[]
-          }
+        "bool": {
+          "must":[{
+              "bool" : {
+                "must": [{
+                  "bool" : {
+                    "must": [{
+                      "bool" : {
+                        "must": [{
+                          "bool" : {
+                            "must": [],
+                            "must_not": [],
+                            "should": []
+                          }
+                        }],
+                        "must_not": [],
+                        "should": []
+                      }
+                    }],
+                    "must_not": [],
+                    "should": []
+                  }
+                }],
+                "must_not": [],
+                "should": []
+              }
+            }],
+          "must_not":[],
+          "should"  :[]
         }
       }
     };
 
-    let bool = innerAgg[path + "_filtered"]["filter"]["query"]["bool"];
+    let bool = innerAgg[path + "_filtered"]["filter"]["bool"];
     let inInterventionsOrDiseases = q["agg_field"] === "_aggregates.interventions" || q["agg_field"] === "_aggregates.diseases";
     if (q["sort"] || q["order"]) {
         let validSort   = q["sort"] === "count" || q["sort"] === "name";
@@ -821,19 +815,19 @@ class Searcher {
       groupAgg[path]["aggs"][path + ".type"] = {
         "terms": {
           "field": path + ".type",
-          "size": 0
+          "size": 10000
         }
       };
       groupAgg[path]["aggs"][path + ".category"] = {
         "terms": {
           "field": path + ".category",
-          "size": 0
+          "size": 10000
         }
       };
       groupAgg[path]["aggs"][path + ".code"] = {
         "terms": {
           "field": path + ".code",
-          "size": 0
+          "size": 10000
         }
       };
       if (q["sort"] === "cancergov"){
@@ -860,25 +854,25 @@ class Searcher {
       groupAgg[path]["aggs"][path + ".ancestor_ids"] = {
         "terms": {
           "field": path + ".ancestor_ids",
-          "size": 0
+          "size": 10000
         }
       };
       groupAgg[path]["aggs"][path + ".type"] = {
         "terms": {
           "field": path + ".type",
-          "size": 0
+          "size": 10000
         }
       };
       groupAgg[path]["aggs"][path + ".code"] = {
         "terms": {
           "field": path + ".code",
-          "size": 0
+          "size": 10000
         }
       };
       groupAgg[path]["aggs"][path + ".parent_id"] = {
         "terms": {
           "field": path + ".parent_id",
-          "size": 0
+          "size": 10000
         }
       };
 

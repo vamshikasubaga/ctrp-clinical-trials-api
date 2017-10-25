@@ -53,6 +53,7 @@
             "properties": {
               "code": {
                 "type": "string",
+                "fielddata": true,
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
                 "fields": {
@@ -84,6 +85,7 @@
               },
               "ancestor_ids": {
                 "type": "string",
+                "fielddata": true,
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
                 "fields": {
@@ -95,6 +97,7 @@
               },
               "parent_id": {
                 "type": "string",
+                "fielddata": true,
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
                 "fields": {
@@ -106,6 +109,7 @@
               },
               "type": {
                 "type": "string",
+                "fielddata": true,
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
                 "fields": {
@@ -123,6 +127,7 @@
             "properties": {
               "code": {
                 "type": "string",
+                "fielddata": true,
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
                 "fields": {
@@ -134,6 +139,7 @@
               },
               "type": {
                 "type": "string",
+                "fielddata": true,
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
                 "fields": {
@@ -145,6 +151,7 @@
               },
               "category": {
                 "type": "string",
+                "fielddata": true,
                 "analyzer": "keyword_ci",
                 "include_in_all": false,
                 "fields": {
@@ -703,6 +710,7 @@
       },
       "nct_id": {
         "type": "string",
+        "fielddata": true,
         "analyzer": "keyword_ci",
         "include_in_all": true,
         "fields": {
