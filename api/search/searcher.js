@@ -802,8 +802,9 @@ class Searcher {
     }
 
     if (q["size"]) {
-      if (!isNaN(parseFloat(q["size"])) && parseFloat(q["size"]) < (TERM_RESULT_SIZE_MAX + 1)) {
-        groupAgg[path]["terms"]["size"] = parseFloat(q["size"]);
+      let paramSize = parseFloat(q["size"]);
+      if (!isNaN(paramSize) && paramSize < (TERM_RESULT_SIZE_MAX + 1)) {
+        groupAgg[path]["terms"]["size"] = paramSize === 0? 10000 :paramSize;
       } else {
         CT_API_ERROR = new Error("Size must be a number not greater than " + TERM_RESULT_SIZE_MAX + ".");
       }
