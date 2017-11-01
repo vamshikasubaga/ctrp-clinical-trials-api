@@ -1,6 +1,4 @@
 const AbstractSearchAdapter  = require("./abstract_search_adapter");
-const Utils                  = require("../../common/utils");
-const CONFIG                 = Utils.config();
 
 /**
  * Represents a base adapter for ES connections that can handle the config. 
@@ -21,12 +19,12 @@ class BaseElasticsearchAdapter extends AbstractSearchAdapter {
     getHostsFromConfig() {
         let hosts = [];
 
-        if (Array.isArray(CONFIG.ES_HOST)) {
-            CONFIG.ES_HOST.forEach((host) => {
-              hosts.push(`${host}`);
-            });
+        if (Array.isArray(process.env.ES_HOST)) {
+          process.env.ES_HOST.forEach((host) => {
+            hosts.push(`${host}`);
+          });
         } else {
-            hosts.push(`${CONFIG.ES_HOST}`);
+          hosts.push(`${process.env.ES_HOST}`);
         } 
 
         return hosts;

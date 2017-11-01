@@ -1,5 +1,5 @@
 const _                   = require("lodash");
-const Bodybuilder         = require("bodybuilder");
+const bodybuilder         = require("bodybuilder");
 const moment              = require("moment");
 
 const Logger              = require("../../common/logger");
@@ -20,7 +20,7 @@ const searchPropsByType = Utils.getFlattenedMappingPropertiesByType(trialMapping
 const NESTED_SEARCH_PROPS_FILTER = ["sites"];
 
 let CT_API_ERROR          = null;
-let logger = new Logger({name: "from " + CONFIG.ES_HOST + " searcher"});
+let logger = new Logger({name: "from " + process.env.ES_HOST + " searcher"});
 logger.level(CONFIG.LOG_LEVEL);
   
 class Searcher {
@@ -34,7 +34,7 @@ class Searcher {
    ***********************************************************************/
 
   _searchTrialById(id) {
-    let body = new Bodybuilder();
+    let body = bodybuilder();
 
     if(id.substr(0, 4) === "NCI-") {
       body.query("match", "nci_id", id);
@@ -81,15 +81,15 @@ class Searcher {
   _addFullTextQuery(body, q) {
     if (q._fulltext) {
       // need to nest `_fulltext` query as a "must"
-      let ftBody = new Bodybuilder();
+      let ftBody = bodybuilder();
 
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "multi_match": {
           "query": q._fulltext,
           "fields": ["*_id", "other_ids.value"]
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match_phrase": {
           "_diseases.term._fulltext": {
             "query": q._fulltext,
@@ -97,7 +97,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match_phrase": {
           "brief_title": {
             "query": q._fulltext,
@@ -105,14 +105,14 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match_phrase": {
           "brief_summary": {
             "query": q._fulltext
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match_phrase": {
           "official_title": {
             "query": q._fulltext,
@@ -120,7 +120,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match_phrase": {
           "detail_description": {
             "query": q._fulltext,
@@ -128,7 +128,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "common": {
           "official_title": {
             "query": q._fulltext,
@@ -138,7 +138,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "common": {
           "brief_title": {
             "query": q._fulltext,
@@ -147,7 +147,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "common": {
           "brief_summary": {
             "query": q._fulltext,
@@ -156,7 +156,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "common": {
           "_diseases.term._fulltext": {
             "query": q._fulltext,
@@ -165,7 +165,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "common": {
           "detail_description": {
             "query": q._fulltext,
@@ -174,7 +174,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "common": {
           "sites.org_name._fulltext": {
             "query": q._fulltext,
@@ -184,7 +184,7 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "common": {
           "collaborators.name._fulltext": {
             "query": q._fulltext,
@@ -194,29 +194,29 @@ class Searcher {
           }
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match": {
           "principal_investigator._fulltext": q._fulltext
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match": {
           "sites.contact_name._fulltext": q._fulltext
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match": {
           "sites.org_city._fulltext": q._fulltext
         }
       });
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "match": {
           "sites.org_state_or_province._fulltext": q._fulltext
         }
       });
 
       // TODO: break this up using another bodybuilder
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "bool": {
           "must": [{
               "nested": {
@@ -242,7 +242,7 @@ class Searcher {
         }
       });
 
-      ftBody.query("bool", "should", {
+      ftBody.orFilter("bool", "should", {
         "bool": {
           "must": [{
             "nested": {
@@ -267,7 +267,7 @@ class Searcher {
         }
       });
 
-      body.query("bool", "must", ftBody.build());
+      body.filter("bool", "must", ftBody.build().query);
     }
   }
 
@@ -281,13 +281,17 @@ class Searcher {
    * @memberOf Searcher
    */
   _diseaseTypesFilter(body, q ) {
+    let dtBody = bodybuilder().query('match_all');
     ["_maintypes", "_subtypes", "_stages", "_grades", "_findings"].forEach((types) => {
-      let query = new Bodybuilder();
       Utils.enforceArray(q[types]).forEach((type) => {
-        query.orQuery("match", "diseases.nci_thesaurus_concept_id", type, { type: "phrase" });
+        dtBody.orFilter("bool", "should", {
+          "match": {
+            "diseases.nci_thesaurus_concept_id": type.toLowerCase()
+          }
+        });
       });
-      body.andQuery("bool", "and", query.build("v2"));
     });
+    body.filter("bool", "must", dtBody.build().query);
   }
 
   _addNestedFilters(body, q) {
@@ -316,7 +320,7 @@ class Searcher {
         //A nested query needs a query, so we will create a
         // boolean "must", which holds its own query.
 
-        let nestedBodyQuery = new Bodybuilder();
+        let nestedBodyQuery = bodybuilder();
 
         this._addFieldFilters(nestedBodyQuery, paramsForNesting);
         body.query("nested", nestedfield, "avg", nestedBodyQuery.build());
@@ -334,7 +338,7 @@ class Searcher {
 
   _addStringFilter(body, field, filter) {
     if(filter instanceof Array) {
-      let orBody = new Bodybuilder();
+      let orBody = bodybuilder();
       filter.forEach((filterElement) => {
         //logger.info(filterElement);
         orBody.orFilter("term", field, filterElement.toLowerCase());
@@ -361,20 +365,20 @@ class Searcher {
    */
   _addFullTextFieldFilters(body, q) {
     const _addFulltextFieldFilter = (body, field, filter) => {
-      let query = new Bodybuilder();
+      let query = bodybuilder();
 
       if (filter instanceof Array) {
         filter.forEach((filterElement) => {
           //logger.info(filterElement);
           //Note for the actual query the field name must contain a . before _fulltext
-          query.orQuery("match", field + "._fulltext", filterElement, { type: "phrase" });
+          query.orFilter("term", field + "._fulltext", filterElement, { type: "phrase" });
         });
       } else {
         //Note for the actual query the field name must contain a . before _fulltext
-        query.query("match", field + "._fulltext", filter, { type: "phrase" });
+        query.filter("term", field + "._fulltext", filter, { type: "phrase" });
       }
 
-      body.filter("bool", "and", query.build("v2"));
+      body.filter("bool", "and", query.build());
     };
 
     let possibleFulltextProps = searchPropsByType["fulltext"];
@@ -397,15 +401,14 @@ class Searcher {
   _addTrialIDsFilter(body, q) {
 
     const _addTrialIDFilter = (body, searchstr) => {
-      let query = new Bodybuilder();
-
+      let query = bodybuilder();
       //Add an or for each of the ID fields, querying the _trialid sub-field that is setup as an edge ngram for
       //supporting "begins with" (on word boundary) type queries.
       ["ccr_id", "ctep_id", "dcp_id", "nci_id", "nct_id", "other_ids.value", "protocol_id"].forEach((idField) => {
         query.orQuery("match", idField + "._trialid", searchstr, { type: "phrase" });
       });
 
-      body.orQuery("bool", "or", query.build("v2"));
+      body.orQuery("bool", "should", query.build("v2"));
     };
 
 
@@ -414,13 +417,13 @@ class Searcher {
     }
 
     let searchStrings = (q["_trialids"] instanceof Array) ? q["_trialids"] : [ q["_trialids"] ];
-    let trialIdFilterBody = new Bodybuilder();
+    let trialIdFilterBody = bodybuilder();
 
     searchStrings.forEach((filterElement) => {
       _addTrialIDFilter(trialIdFilterBody, filterElement);
     });
 
-    body.filter("bool", "and", trialIdFilterBody.build("v2"));
+    body.filter("bool", "must", trialIdFilterBody.build().query);
   }
 
   _addDateRangeFilters(body, q) {
@@ -531,8 +534,17 @@ class Searcher {
     //We need to put lat/long/distance into a single filter
     const _addGeoDistanceFilter = (field, latitude, longitude, distance) => {
 
+      let match = {};
+      match[field] = {
+        lat: latitude,
+        lon: longitude
+      };
+      match["distance"] = distance;
       //add in filter.
-      body.filter("geodistance", field, distance, { lat: latitude, lon: longitude});
+      //body.filter("geodistance", field, distance, { lat: latitude, lon: longitude});
+
+
+      body.filter("geo_distance", match);
     };
 
     //iterate over geo_point fields.
@@ -564,7 +576,7 @@ class Searcher {
         return string === "true" || string === "1";
       };
       if(filter instanceof Array) {
-        let orBody = new Bodybuilder();
+        let orBody = bodybuilder();
         filter.forEach((filterEl) => {
           orBody.orFilter("term", field, _stringToBool(filterEl));
         });
@@ -669,7 +681,7 @@ class Searcher {
   }
 
   _searchTrialsQuery(q) {
-    let body = new Bodybuilder();
+    let body = bodybuilder();
 
     // TODO: remove _all filter...
     this._addAllFilter(body, q);
@@ -1058,7 +1070,7 @@ class Searcher {
   }
 
   _aggTrialsQuery(q) {
-    let body = new Bodybuilder();
+    let body = bodybuilder();
 
     //Set the ES size parameter to 0 so that we get back no trial results and
     //only the aggregations.  This is not related to our "size" parameter
@@ -1239,7 +1251,7 @@ class Searcher {
 
   _searchTermsQuery(q) {
     // TODO: use BodyBuilder more
-    let body = new Bodybuilder();
+    let body = bodybuilder();
 
     body = this._addQueryTerms            (q, body);
     body = this._filterByCodes            (q, body);
@@ -1251,7 +1263,6 @@ class Searcher {
     body = this._filterByParam            (q.org_name,                    "org_name", body);
     body = this._filterByParam            (q.org_family,                  "org_family", body);
     body = this._filterByParam            (q.org_to_family_relationship,  "org_to_family_relationship", body);
-    body = this._filterByParam            (q.org_country,                 "org_country", body);
     body = this._filterByGeoCoords        (q, body);
     body = this._setTermType              (q, body);
 
@@ -1265,7 +1276,7 @@ class Searcher {
     // add query terms (boost when phrase is matched)
     if (q.term) {
       body.query("match", "term_suggest", q.term);
-      body.query("match", "term_suggest", q.term, {type: "phrase"});
+      body.query("match_phrase_prefix", "term_suggest", q.term);
     }
     return body;
   }
@@ -1314,14 +1325,14 @@ class Searcher {
 
   _getFunctionQuery(q, body) {
     // build the query and add custom fields (that bodyparser can't handle)
-    let functionQuery = body.build("v2");
+    let functionQuery = body.build();
 
     // boost exact match
     if (q.term) {
       functionQuery.query.bool.should = {
         "match": {
           "term": q.term
-        }
+        },
       };
     }
 
@@ -1358,7 +1369,7 @@ class Searcher {
     //are indexed as C12234 and not c12234
     if (q.codes) {
       if(q.codes instanceof Array) {
-        let orBody = new Bodybuilder();
+        let orBody = bodybuilder();
         q.codes.forEach((code) => {
           //logger.info(code);
           orBody.orFilter("term", "codes", code.toUpperCase());
@@ -1374,7 +1385,7 @@ class Searcher {
   _filterByCurrentStatuses(q, body) {
     if (q.current_trial_statuses) {
       if(q.current_trial_statuses instanceof Array) {
-        let orBody = new Bodybuilder();
+        let orBody = bodybuilder();
         q.current_trial_statuses.forEach((currentTrialStatus) => {
           orBody.orFilter("term", "current_trial_statuses", currentTrialStatus.toUpperCase());
         });
@@ -1408,10 +1419,12 @@ class Searcher {
   }
 
   _getGeoCoordsFilter(q, body) {
-    //add in filter.
-    return body.filter("geodistance", "org_coordinates", q.org_coordinates_dist, {
-      lat: q.org_coordinates_lat,
-      lon: q.org_coordinates_lon
+    return body.filter("geo_distance", {
+      "org_coordinates": {
+        lat: q.org_coordinates_lat,
+        lon: q.org_coordinates_lon
+      },
+      distance: q.org_coordinates_dist
     });
   }
 
@@ -1450,7 +1463,7 @@ class Searcher {
   }
 
   _searchTermByKey(key) {
-    let body = new Bodybuilder();
+    let body = bodybuilder();
     body.query("match", "term_key", key);
     return body.build();
   }
