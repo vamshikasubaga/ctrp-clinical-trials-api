@@ -1,0 +1,5 @@
+{
+  "LOG_LEVEL": "INFO",
+  "REGION": "us-east-1",
+  "NUM_DAYS": 10
+}
