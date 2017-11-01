@@ -34,7 +34,7 @@ class ElasticsearchAdapter extends BaseElasticsearchAdapter {
         super();
 
         let hosts = this.getHostsFromConfig();
-        let inLocal = process.env.ES_HOST.indexOf("localhost") > -1;
+        let inLocal = CONFIG.ES_HOST || process.env.ES_HOST.indexOf("localhost") > -1;
         let dbConfig = {
           host: hosts,
           log: SearchLogger
