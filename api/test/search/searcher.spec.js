@@ -96,10 +96,9 @@ describe('Searcher', _ => {
                 bool: {
                     filter: {
                         bool: {
-                            "must": [
-                                {
+                            "and": {
                                 "query": {
-                                    "filtered": {
+                                    "bool": {
                                         "filter": {
                                             "bool": {
                                                 "should": [
@@ -114,8 +113,7 @@ describe('Searcher', _ => {
                                         }
                                     }
                                 }
-                                }
-                            ]                                                        
+                            }
                         }
                     }
                 }
@@ -212,11 +210,8 @@ describe('Searcher', _ => {
                         }
                     },
                     {
-                        match: {
-                            "term_suggest": {
-                                "query": "dal",
-                                "type": "phrase"
-                            }
+                      match_phrase_prefix: {
+                            "term_suggest": "dal"
                         }
                     }
                 ],
@@ -299,13 +294,11 @@ describe('Searcher', _ => {
       bool: {
         "filter": {
           "bool": {
-            "must": [
-              {
-                "term": {
-                  "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
-                }
+            "must": {
+              "term": {
+                "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
               }
-            ],
+            },
             "should": [
               {
                 "term": {
@@ -328,30 +321,32 @@ describe('Searcher', _ => {
       bool: {
         "filter": {
           "bool": {
-            "must": [
-              {
-                "query": {
-                  "filtered": {
-                    "filter": {
-                      "bool": {
-                        "should": [
-                          {
-                            "term": {
-                              "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
+            "must": {
+              "bool": {
+                "and": {
+                  "query": {
+                    "bool": {
+                      "filter": {
+                        "bool": {
+                          "should": [
+                            {
+                              "term": {
+                                "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
+                              }
+                            },
+                            {
+                              "term": {
+                                "current_trial_statuses": "ADMINISTRATIVELY COMPLETE"
+                              }
                             }
-                          },
-                          {
-                            "term": {
-                              "current_trial_statuses": "ADMINISTRATIVELY COMPLETE"
-                            }
-                          }
-                        ]
+                          ]
+                        }
                       }
                     }
                   }
                 }
               }
-            ],
+            },
             "should": [
               {
                 "term": {
