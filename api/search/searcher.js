@@ -343,7 +343,7 @@ class Searcher {
         //logger.info(filterElement);
         orBody.orFilter("term", field, filterElement.toLowerCase());
       });
-      body.filter("bool", "and", orBody.build());
+      body.filter("bool", "must", orBody.build().query);
     } else {
       body.filter("term", field, filter.toLowerCase());
     }
