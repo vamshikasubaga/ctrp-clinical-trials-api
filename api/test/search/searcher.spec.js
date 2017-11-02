@@ -96,20 +96,18 @@ describe('Searcher', _ => {
                 bool: {
                     filter: {
                         bool: {
-                            "and": {
-                                "query": {
-                                    "bool": {
-                                        "filter": {
-                                            "bool": {
-                                                "should": [
-                                                    {
-                                                        "term": { "current_trial_status": "active" }
-                                                    },
-                                                    {
-                                                        "term": { "current_trial_status": "temporarily closed to accrual" }
-                                                    }
-                                                ]
-                                            }
+                            "must": {
+                                "bool": {
+                                    "filter": {
+                                        "bool": {
+                                            "should": [
+                                                {
+                                                    "term": { "current_trial_status": "active" }
+                                                },
+                                                {
+                                                    "term": { "current_trial_status": "temporarily closed to accrual" }
+                                                }
+                                            ]
                                         }
                                     }
                                 }
