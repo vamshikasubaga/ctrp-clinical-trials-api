@@ -1374,7 +1374,7 @@ class Searcher {
           //logger.info(code);
           orBody.orFilter("term", "codes", code.toUpperCase());
         });
-        body.filter("bool", "and", orBody.build());
+        body.filter("bool", "must", orBody.build().query);
       } else {
         body.filter("term", "codes", q.codes.toUpperCase());
       }
@@ -1389,7 +1389,7 @@ class Searcher {
         q.current_trial_statuses.forEach((currentTrialStatus) => {
           orBody.orFilter("term", "current_trial_statuses", currentTrialStatus.toUpperCase());
         });
-        body.filter("bool", "and", orBody.build());
+        body.filter("bool", "must", orBody.build().query);
       } else {
         body.filter("term", "current_trial_statuses", q.current_trial_statuses.toUpperCase());
       }
