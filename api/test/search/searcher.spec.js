@@ -321,24 +321,22 @@ describe('Searcher', _ => {
           "bool": {
             "must": {
               "bool": {
-                "and": {
-                  "query": {
-                    "bool": {
-                      "filter": {
-                        "bool": {
-                          "should": [
-                            {
-                              "term": {
-                                "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
-                              }
-                            },
-                            {
-                              "term": {
-                                "current_trial_statuses": "ADMINISTRATIVELY COMPLETE"
-                              }
+                "must": {
+                  "bool": {
+                    "filter": {
+                      "bool": {
+                        "should": [
+                          {
+                            "term": {
+                              "current_trial_statuses": "TEMPORARILY CLOSED TO ACCRUAL"
                             }
-                          ]
-                        }
+                          },
+                          {
+                            "term": {
+                              "current_trial_statuses": "ADMINISTRATIVELY COMPLETE"
+                            }
+                          }
+                        ]
                       }
                     }
                   }
