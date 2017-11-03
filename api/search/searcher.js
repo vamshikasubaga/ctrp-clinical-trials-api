@@ -310,6 +310,12 @@ class Searcher {
         return key.startsWith(nestedfield);
       });
 
+      _.keys(paramsForNesting).forEach((paramToRemove) => {
+        if (paramToRemove.includes("sites.org_coordinates")) {
+          delete paramsForNesting[paramToRemove];
+        }
+      });
+
       if (paramsForNesting && _.keys(paramsForNesting).length > 1) {
         //We need to use a nested filter since we have more than one parameter.
 
@@ -539,10 +545,6 @@ class Searcher {
         lon: longitude
       };
       match["distance"] = distance;
-      //add in filter.
-      //body.filter("geodistance", field, distance, { lat: latitude, lon: longitude});
-
-
       body.filter("geo_distance", match);
     };
 
@@ -658,11 +660,8 @@ class Searcher {
     // 4.) sort by location distance (if one is entered)
     if (q["sites.org_coordinates_lat"] && q["sites.org_coordinates_lon"]) {
       body.sort([{
-        "sites.org_coordinates": {
-          "location": {
-            "lat": q["sites.org_coordinates_lat"],
-            "lon": q["sites.org_coordinates_lon"]
-          },
+        "_geo_distance": {
+          "sites.org_coordinates": q["sites.org_coordinates_lat"]+","+q["sites.org_coordinates_lon"],
           "order": "asc",
           "unit": "mi",
           "distance_type": "plane"
