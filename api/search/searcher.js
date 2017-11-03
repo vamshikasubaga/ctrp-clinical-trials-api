@@ -371,14 +371,14 @@ class Searcher {
         filter.forEach((filterElement) => {
           //logger.info(filterElement);
           //Note for the actual query the field name must contain a . before _fulltext
-          query.orFilter("term", field + "._fulltext", filterElement, { type: "phrase" });
+          query.orFilter("match_phrase_prefix", field + "._fulltext", filterElement);
         });
       } else {
         //Note for the actual query the field name must contain a . before _fulltext
-        query.filter("term", field + "._fulltext", filter, { type: "phrase" });
+        query.filter("match_phrase_prefix", field + "._fulltext", filter);
       }
 
-      body.filter("bool", "and", query.build());
+      body.filter("bool", "must", query.build().query);
     };
 
     let possibleFulltextProps = searchPropsByType["fulltext"];
@@ -400,21 +400,20 @@ class Searcher {
    */
   _addTrialIDsFilter(body, q) {
 
-    const _addTrialIDFilter = (body, searchstr) => {
+    if (!q["_trialids"]) {
+      return;
+    }
+
+    const _addTrialIDFilter = (bodyTrialId, searchstr) => {
       let query = bodybuilder();
       //Add an or for each of the ID fields, querying the _trialid sub-field that is setup as an edge ngram for
       //supporting "begins with" (on word boundary) type queries.
       ["ccr_id", "ctep_id", "dcp_id", "nci_id", "nct_id", "other_ids.value", "protocol_id"].forEach((idField) => {
-        query.orQuery("match", idField + "._trialid", searchstr, { type: "phrase" });
+        query.orFilter("match_phrase_prefix", idField, searchstr);
       });
 
-      body.orQuery("bool", "should", query.build("v2"));
+      bodyTrialId.orFilter("bool", "should", query.build().query);
     };
-
-
-    if (!q["_trialids"]) {
-      return;
-    }
 
     let searchStrings = (q["_trialids"] instanceof Array) ? q["_trialids"] : [ q["_trialids"] ];
     let trialIdFilterBody = bodybuilder();
@@ -580,7 +579,7 @@ class Searcher {
         filter.forEach((filterEl) => {
           orBody.orFilter("term", field, _stringToBool(filterEl));
         });
-        body.filter("bool", "and", orBody.build());
+        body.filter("bool", "must", orBody.build().query);
       } else {
         body.filter("term", field, _stringToBool(filter));
       }
