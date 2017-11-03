@@ -290,8 +290,8 @@ class Searcher {
           }
         });
       });
+      body.filter("bool", "must", dtBody.build().query);
     });
-    body.filter("bool", "must", dtBody.build().query);
   }
 
   _addNestedFilters(body, q) {
