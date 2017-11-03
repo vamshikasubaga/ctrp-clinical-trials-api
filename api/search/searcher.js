@@ -449,7 +449,7 @@ class Searcher {
       _addRangeForRangeType("lte", lteRange);
       _addRangeForRangeType("gte", gteRange);
 
-      body.filter("range", field, ranges.build().query);
+      body.filter("range", field, ranges);
     };
 
     let possibleRangeProps = searchPropsByType["date"];
@@ -479,7 +479,7 @@ class Searcher {
       _addRangeForRangeType("lte", lteRange);
       _addRangeForRangeType("gte", gteRange);
 
-      body.filter("range", field, ranges.build().query);
+      body.filter("range", field, ranges);
     };
 
     let possibleRangeProps = searchPropsByType["long"];
@@ -509,7 +509,7 @@ class Searcher {
       _addRangeForRangeType("lte", lteRange);
       _addRangeForRangeType("gte", gteRange);
 
-      body.filter("range", field, ranges.build().query);
+      body.filter("range", field, ranges);
     };
 
     let possibleRangeProps = searchPropsByType["float"];
