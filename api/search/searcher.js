@@ -281,17 +281,15 @@ class Searcher {
    * @memberOf Searcher
    */
   _diseaseTypesFilter(body, q ) {
-    let dtBody = bodybuilder().query('match_all');
     ["_maintypes", "_subtypes", "_stages", "_grades", "_findings"].forEach((types) => {
       Utils.enforceArray(q[types]).forEach((type) => {
-        dtBody.orFilter("bool", "should", {
+        body.filter("bool", "must", {
           "match": {
             "diseases.nci_thesaurus_concept_id": type.toLowerCase()
           }
         });
       });
     });
-    body.filter("bool", "must", dtBody.build().query);
   }
 
   _addNestedFilters(body, q) {
@@ -451,7 +449,7 @@ class Searcher {
       _addRangeForRangeType("lte", lteRange);
       _addRangeForRangeType("gte", gteRange);
 
-      body.filter("range", field, ranges);
+      body.filter("range", field, ranges.build().query);
     };
 
     let possibleRangeProps = searchPropsByType["date"];
@@ -481,7 +479,7 @@ class Searcher {
       _addRangeForRangeType("lte", lteRange);
       _addRangeForRangeType("gte", gteRange);
 
-      body.filter("range", field, ranges);
+      body.filter("range", field, ranges.build().query);
     };
 
     let possibleRangeProps = searchPropsByType["long"];
@@ -511,7 +509,7 @@ class Searcher {
       _addRangeForRangeType("lte", lteRange);
       _addRangeForRangeType("gte", gteRange);
 
-      body.filter("range", field, ranges);
+      body.filter("range", field, ranges.build().query);
     };
 
     let possibleRangeProps = searchPropsByType["float"];
