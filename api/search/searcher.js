@@ -281,11 +281,11 @@ class Searcher {
    * @memberOf Searcher
    */
   _diseaseTypesFilter(body, q ) {
-    let dtBody = bodybuilder();
-    ["_subtypes", "_stages", "_grades", "_findings","_maintypes"].forEach((types) => {
+    ["_maintypes", "_subtypes", "_stages", "_grades", "_findings"].forEach((types) => {
+      let dtBody = bodybuilder();
       if (q[types]) {
         Utils.enforceArray(q[types]).forEach((type) => {
-          dtBody.query("match", "diseases.nci_thesaurus_concept_id", type.toLowerCase());
+          dtBody = dtBody.orFilter("term", "diseases.nci_thesaurus_concept_id", type.toLowerCase());
         });
         body.filter("bool", "must", dtBody.build().query);
       }
