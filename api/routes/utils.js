@@ -155,8 +155,17 @@ class Utils {
     if (q["agg_term"]) {
       //TODO: check to see if the agg_field has a _auto sub-field.
     }
-
     let invalidParams = Utils.getInvalidAggQueryParams(queryParams);
+
+    function noArrayInArray(element, index, array) {
+      return !Array.isArray(element);
+    }
+    queryParams.forEach((param) => {
+      if (Array.isArray(q[param]) && !q[param].every(noArrayInArray)) {
+        invalidParams.push(param);
+      }
+    });
+
     if (invalidParams.length > 0) {
       let error = {
         "Error": "Invalid query params.",
