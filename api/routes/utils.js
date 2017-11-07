@@ -162,7 +162,7 @@ class Utils {
     }
     queryParams.forEach((param) => {
       if (Array.isArray(q[param]) && !q[param].every(noArrayInArray)) {
-        invalidParams.push(param);
+        invalidParams.push(param + " should not be multi-dimensional.");
       }
     });
 
