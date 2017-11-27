@@ -234,7 +234,22 @@
       "anatomic_sites": {
         "type": "string",
         "analyzer": "keyword_ci",
-        "include_in_all": true
+        "include_in_all": true,
+        "fields": {
+          "_fulltext": {
+            "type": "string",
+            "analyzer": "englishfulltext"
+          },
+          "_raw": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "_auto": {
+            "type": "string",
+            "analyzer": "autocomplete_index",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
       },
       "arms": {
         "type": "nested",
@@ -272,12 +287,42 @@
               "intervention_code": {
                 "type": "string",
                 "analyzer": "keyword_ci",
-                "include_in_all": true
+                "include_in_all": true,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "englishfulltext"
+                  },
+                  "_raw": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                  },
+                  "_auto": {
+                    "type": "string",
+                    "analyzer": "autocomplete_index",
+                    "search_analyzer": "autocomplete_search"
+                  }
+                }
               },
               "intervention_type": {
                 "type": "string",
                 "analyzer": "keyword_ci",
-                "include_in_all": false
+                "include_in_all": true,
+                "fields": {
+                  "_fulltext": {
+                    "type": "string",
+                    "analyzer": "englishfulltext"
+                  },
+                  "_raw": {
+                    "type": "string",
+                    "index": "not_analyzed"
+                  },
+                  "_auto": {
+                    "type": "string",
+                    "analyzer": "autocomplete_index",
+                    "search_analyzer": "autocomplete_search"
+                  }
+                }
               },
               "intervention_category": {
                 "type": "string",
@@ -384,12 +429,42 @@
       "brief_summary": {
         "type": "string",
         "analyzer": "englishhtml",
-        "include_in_all": false
+        "include_in_all": true,
+        "fields": {
+          "_fulltext": {
+            "type": "string",
+            "analyzer": "englishfulltext"
+          },
+          "_raw": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "_auto": {
+            "type": "string",
+            "analyzer": "autocomplete_index",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
       },
       "brief_title": {
         "type": "string",
         "analyzer": "englishfulltext",
-        "include_in_all": false
+        "include_in_all": true,
+        "fields": {
+          "_fulltext": {
+            "type": "string",
+            "analyzer": "englishfulltext"
+          },
+          "_raw": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "_auto": {
+            "type": "string",
+            "analyzer": "autocomplete_index",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
       },
       "ccr_id": {
         "type": "string",
@@ -482,7 +557,22 @@
       "current_trial_status": {
         "type": "string",
         "analyzer": "keyword_ci",
-        "include_in_all": false
+        "include_in_all": true,
+        "fields": {
+          "_fulltext": {
+            "type": "string",
+            "analyzer": "englishfulltext"
+          },
+          "_raw": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "_auto": {
+            "type": "string",
+            "analyzer": "autocomplete_index",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
       },
       "_current_trial_status_sort_order": {
         "type": "short",
@@ -728,7 +818,22 @@
       "official_title": {
         "type": "string",
         "analyzer": "standard",
-        "include_in_all": false
+        "include_in_all": true,
+        "fields": {
+          "_fulltext": {
+            "type": "string",
+            "analyzer": "englishfulltext"
+          },
+          "_raw": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "_auto": {
+            "type": "string",
+            "analyzer": "autocomplete_index",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
       },
       "other_ids": {
         "type": "nested",
@@ -796,11 +901,20 @@
           "primary_purpose_code": {
             "type": "string",
             "analyzer": "keyword_ci",
-            "include_in_all": false,
-            "fields" : {
+            "include_in_all": true,
+            "fields": {
+              "_fulltext": {
+                "type": "string",
+                "analyzer": "englishfulltext"
+              },
               "_raw": {
                 "type": "string",
                 "index": "not_analyzed"
+              },
+              "_auto": {
+                "type": "string",
+                "analyzer": "autocomplete_index",
+                "search_analyzer": "autocomplete_search"
               }
             }
           },
@@ -818,7 +932,7 @@
       "principal_investigator": {
         "type": "string",
         "analyzer": "keyword_ci",
-        "include_in_all": false,
+        "include_in_all": true,
         "fields": {
           "_fulltext": {
             "type": "string"
@@ -954,7 +1068,22 @@
           "org_family": {
             "type": "string",
             "analyzer": "keyword_ci",
-            "include_in_all": true
+            "include_in_all": true,
+            "fields": {
+              "_fulltext": {
+                "type": "string",
+                "analyzer": "englishfulltext"
+              },
+              "_raw": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "_auto": {
+                "type": "string",
+                "analyzer": "autocomplete_index",
+                "search_analyzer": "autocomplete_search"
+              }
+            }
           },
           "org_fax": {
             "type": "string",
@@ -984,7 +1113,22 @@
           "org_to_family_relationship": {
             "type": "string",
             "analyzer": "keyword_ci",
-            "include_in_all": false
+            "include_in_all": true,
+            "fields": {
+              "_fulltext": {
+                "type": "string",
+                "analyzer": "englishfulltext"
+              },
+              "_raw": {
+                "type": "string",
+                "index": "not_analyzed"
+              },
+              "_auto": {
+                "type": "string",
+                "analyzer": "autocomplete_index",
+                "search_analyzer": "autocomplete_search"
+              }
+            }
           },
           "org_phone": {
             "type": "string",
@@ -1056,7 +1200,22 @@
       "study_protocol_type": {
         "type": "string",
         "analyzer": "keyword_ci",
-        "include_in_all": false
+        "include_in_all": true,
+        "fields": {
+          "_fulltext": {
+            "type": "string",
+            "analyzer": "englishfulltext"
+          },
+          "_raw": {
+            "type": "string",
+            "index": "not_analyzed"
+          },
+          "_auto": {
+            "type": "string",
+            "analyzer": "autocomplete_index",
+            "search_analyzer": "autocomplete_search"
+          }
+        }
       },
       "_study_protocol_type_sort_order": {
         "type": "short",

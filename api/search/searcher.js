@@ -327,7 +327,8 @@ class Searcher {
         let nestedBodyQuery = bodybuilder();
 
         this._addFieldFilters(nestedBodyQuery, paramsForNesting);
-        body.query("nested", nestedfield, "avg", nestedBodyQuery.build());
+        //body.query("nested", nestedfield, "avg", nestedBodyQuery.build().query);
+        body.filter("bool", "must", nestedBodyQuery.build().query);
 
         //Now that we have added the keys, we need to remove the params
         //from the original request params so we don't add duplicate
@@ -840,16 +841,8 @@ class Searcher {
         }
       };
       if (q["sort"] === "cancergov"){
-          if(q["category"] === undefined){
-              //Would love to just throw an error here....-jv
-              CT_API_ERROR = new Error("Category must be defined when using sort cancergov");
-          }
           let sortKey = "_" + "count";
-          if (q["category"] === "agent") {
-              groupAgg[path]["terms"]["order"][sortKey] = "desc";
-          } else {
-              groupAgg[path]["terms"]["order"][sortKey] = "asc";
-          }
+        groupAgg[path]["terms"]["order"][sortKey] = "desc";
       }
 
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],     "type._fulltext");
@@ -1052,6 +1045,15 @@ class Searcher {
           "size": size
         }};
 
+        tmpAgg[q["agg_field"]]["aggs"] = {
+          "current_trial_status" : {
+            "terms" : {
+              "field" : "current_trial_status._raw",
+              "size" : 1000
+            }
+          }
+        };
+
         aggregation = tmpAgg;
 
         //TODO: there is a way to get the number of trials this item appears in,
@@ -1168,8 +1170,14 @@ class Searcher {
       }).filter(Boolean);
     } else {
       return bucket.map((item) => {
+        let current_trial_statuses = []
+        if (item["current_trial_status"] && item["current_trial_status"].buckets.length > 0) {
+          current_trial_statuses     = item["current_trial_status"].buckets.map((statusBucket) => statusBucket.key.toUpperCase());
+        }
         return {
-          key: item.key,
+          term: item.key,
+          ccurrent_trial_statuses: current_trial_statuses,
+          term_type: field.toLowerCase(),
           count: item.doc_count //This number is != number of trials that have this field.
         };
       });

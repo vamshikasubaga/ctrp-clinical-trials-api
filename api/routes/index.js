@@ -64,6 +64,16 @@ router.post("/v1/clinical-trials", (req, res, next) => {
 });
 
 /* get key terms that can be used to search through clinical trials */
+router.get("/v1/terms_new", (req, res, next) => {
+  let q = req.query;
+  q["agg_field"]  = q["term_type"];
+  q["agg_term"]   = q["term"];
+  delete q["term_type"];
+  delete q["term"];
+  RouteUtils.aggClinicalTrialsAndSendResponse(q, res);
+});
+
+/* get key terms that can be used to search through clinical trials */
 router.get("/v1/terms", (req, res, next) => {
   let q = _.pick(req.query, utilTermParams);
   q["term"] = q["term"]? q["term"].trimLeft("_"): q["term"];
