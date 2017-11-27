@@ -79,7 +79,7 @@
         ]
       },
       "autocomplete_index": {
-        "type": "string",
+        "type": "custom",
         "tokenizer": "standard",
         "filter": [
           "standard","lowercase",
