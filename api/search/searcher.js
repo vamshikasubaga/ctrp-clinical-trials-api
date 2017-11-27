@@ -1170,13 +1170,13 @@ class Searcher {
       }).filter(Boolean);
     } else {
       return bucket.map((item) => {
-        let current_trial_statuses = []
+        let currentTrialStatuses = [];
         if (item["current_trial_status"] && item["current_trial_status"].buckets.length > 0) {
-          current_trial_statuses     = item["current_trial_status"].buckets.map((statusBucket) => statusBucket.key.toUpperCase());
+          currentTrialStatuses     = item["current_trial_status"].buckets.map((statusBucket) => statusBucket.key.toUpperCase());
         }
         return {
           term: item.key,
-          ccurrent_trial_statuses: current_trial_statuses,
+          current_trial_statuses: currentTrialStatuses,
           term_type: field.toLowerCase(),
           count: item.doc_count //This number is != number of trials that have this field.
         };
@@ -1216,7 +1216,7 @@ class Searcher {
     return {
       //total: 0, //TODO: Get count from agg bucket
       terms: bucket
-    }
+    };
   }
 
   aggTrials(q, callback) {

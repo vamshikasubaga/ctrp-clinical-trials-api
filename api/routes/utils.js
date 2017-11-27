@@ -141,20 +141,8 @@ class Utils {
       };
       //logger.error(error);
       return res.status(400).send(error);
-    } else {
-      //TODO: check to see if the field is a special know field,
-      //or if it has a _raw sub-field.
-
-      //TODO: ensure that only one field has been selected.  OR, make
-      // sure that if agg_term is used then there are not multiple
-      // aggregation fields
     }
 
-    // Now see if it is a valid aggregate field for autosuggest
-    // filtering.
-    if (q["agg_term"]) {
-      //TODO: check to see if the agg_field has a _auto sub-field.
-    }
     let invalidParams = Utils.getInvalidAggQueryParams(queryParams);
 
     function noArrayInArray(element, index, array) {
