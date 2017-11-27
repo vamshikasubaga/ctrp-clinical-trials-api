@@ -702,7 +702,7 @@ class Searcher {
     }, (err, res) => {
       let formattedRes = {};
       if(err || CT_API_ERROR) {
-        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
+        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request."+err)};
         CT_API_ERROR = null;
       } else {
         // return callback(null, res);
@@ -1232,7 +1232,7 @@ class Searcher {
 
       let formattedRes = {};
       if(err || CT_API_ERROR) {
-        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
+        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request."+err)};
         CT_API_ERROR = null;
       } else {
         //Get the field name
@@ -1449,7 +1449,7 @@ class Searcher {
     }, (err, res) => {
       let formattedRes = {};
       if(err || CT_API_ERROR) {
-        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request.")};
+        formattedRes = {"Error": (CT_API_ERROR ? CT_API_ERROR.message: "Bad Request."+err)};
         CT_API_ERROR = null;
       } else {
         // return callback(null, res);
