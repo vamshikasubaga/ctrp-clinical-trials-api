@@ -82,7 +82,7 @@
         "type": "custom",
         "tokenizer": "standard",
         "filter": [
-          "standard","lowercase",
+          "lowercase",
           "autocomplete_filter",
           "asciifolding",
           "dot_delimiter"

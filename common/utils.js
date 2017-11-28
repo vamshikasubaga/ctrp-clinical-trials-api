@@ -2,6 +2,13 @@ const _                   = require("lodash");
 const latinize            = require("latinize");
 const CONFIG              = require("../config" + (process.env.NODE_ENV ? "." + process.env.NODE_ENV : "") + ".json");
 
+String.prototype.trimLeft = function(charlist) {
+  if (charlist === undefined)
+    charlist = "\s";
+
+  return this.replace(new RegExp("^[" + charlist + "]+"), "");
+};
+
 class Utils {
 
   static config() {
