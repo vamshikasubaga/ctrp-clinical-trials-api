@@ -819,8 +819,92 @@ class Searcher {
       }
     }
 
-    // Interventions specific
-    if (q["agg_field"] === "_aggregates.interventions") {
+    // specific aggregations
+    if (q["agg_field"] === "sites") {
+
+      groupAgg[path] = {
+        "terms": {
+          "field" : path + ".org_name._raw",
+          "order": {
+            "_term" : "asc"
+          },
+          "size": TERM_RESULT_SIZE_DEFAULT
+        }
+      };
+
+
+      groupAgg[path] = {
+        "terms": {
+          "field": path + ".org_country._raw"
+        }
+      };
+
+      groupAgg[path]["aggs"] = {};
+      groupAgg[path]["aggs"]["org_state_or_province"] = {
+        "terms": {
+          "field": "sites.org_state_or_province._raw",
+          "size": 10000
+        }
+      };
+
+      groupAgg[path]["aggs"]["org_state_or_province"]["aggs"] = {};
+      groupAgg[path]["aggs"]["org_state_or_province"]["aggs"]["org_city"] = {
+        "terms": {
+          "field": "sites.org_city._raw",
+          "size": 10000
+        }
+      };
+
+      groupAgg[path]["aggs"]["org_state_or_province"]["aggs"]["org_city"]["aggs"] = {};
+      groupAgg[path]["aggs"]["org_state_or_province"]["aggs"]["org_city"]["aggs"]["org_name"] = {
+        "terms": {
+          "field": "sites.org_name._raw",
+          "size": 10000
+        }
+      };
+
+      /*
+      groupAgg[path]["aggs"]["org_state_or_province"] = {
+        "terms": {
+          "field": "sites.org_state_or_province._raw",
+          "size": 10000
+        }
+      };
+      groupAgg[path]["aggs"]["org_city"] = {
+        "terms": {
+          "field": "sites.org_city._raw",
+          "size": 10000
+        }
+      };
+
+      groupAgg[path]["aggs"]["org_postal_code"] = {
+        "terms": {
+          "field": "sites.org_postal_code._raw",
+          "size": 10000
+        }
+      };
+      groupAgg[path]["aggs"]["org_family"] = {
+        "terms": {
+          "field": "sites.org_family._raw",
+          "size": 10000
+        }
+      };
+      groupAgg[path]["aggs"]["org_to_family_relationship"] = {
+        "terms": {
+          "field": "sites.org_to_family_relationship._raw",
+          "size": 10000
+        }
+      };
+
+      groupAgg[path]["aggs"]["org_coordinates"] = {
+        "geo_bounds": {
+          "field":     "sites.org_coordinates"
+        }
+      };
+       */
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["org_country"],           "org_country._fulltext");
+      this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["org_state_or_province"], "org_state_or_province._fulltext");
+    } else if (q["agg_field"] === "_aggregates.interventions") {
 
       groupAgg[path]["aggs"][path + ".type"] = {
         "terms": {
@@ -848,10 +932,8 @@ class Searcher {
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["type"],     "type._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["category"], "category._fulltext");
       this._filterAggByField(path, bool["must"][0]["bool"]["should"], q["code"],     "code._fulltext");
-    }
 
-    // Diseases specific
-    if (q["agg_field"] === "_aggregates.diseases") {
+    } else if (q["agg_field"] === "_aggregates.diseases") {
 
       groupAgg[path]["aggs"][path + ".ancestor_ids"] = {
         "terms": {
@@ -1015,9 +1097,7 @@ class Searcher {
     //Intervions are special.  Actually, any coded field is special,
     //but this is the only implementation so far, but this can easily
     //be extended to _diseases.
-    if (q["agg_field"] === "_aggregates.interventions") {
-      aggregation = this._getCodedAggregation(q);
-    } else if (q["agg_field"] === "_aggregates.diseases") {
+    if (["_aggregates.interventions", "_aggregates.diseases", "sites"].includes(q["agg_field"])) {
       aggregation = this._getCodedAggregation(q);
     } else {
 
@@ -1105,12 +1185,65 @@ class Searcher {
    *
    * @param {any} field The field aggregated on
    * @param {any} bucket A bucket from the ES results.
+   * @param {any} q search params
    * @returns
    *
    * @memberOf Searcher
    */
   _extractAggBucket(field, bucket, q) {
-    if (field === "_aggregates.interventions") {
+    if (field === "sites") {
+      return bucket.map((item) => {
+        let countries               = null;
+        let state_or_provinces      = null;
+        let cities                  = null;
+        let postal_codes            = null;
+        let families                = null;
+        let family_relationships    = null;
+        let coordinates             = null;
+
+        if (item["org_country"] && item["org_country"].buckets.length > 0) {
+          countries = item["org_country"].buckets[0].key;
+        }
+
+        if (item["org_state_or_province"] && item["org_state_or_province"].buckets.length > 0) {
+          state_or_provinces = item["org_state_or_province"].buckets[0].key;
+        }
+
+        if (item["org_city"] && item["org_city"].buckets.length > 0) {
+          cities = item["org_city"].buckets[0].key;
+        }
+
+        if (item["org_postal_code"] && item["org_postal_code"].buckets.length > 0) {
+          postal_codes = item["org_postal_code"].buckets[0].key;
+        }
+
+        if (item["org_family"] && item["org_family"].buckets.length > 0) {
+          families = item["org_family"].buckets[0].key;
+        }
+
+        if (item["org_to_family_relationship"] && item["org_to_family_relationship"].buckets.length > 0) {
+          family_relationships = item["org_to_family_relationship"].buckets[0].key;
+        } else {
+          family_relationships = null;
+        }
+
+        if (item["org_coordinates"] && item["org_coordinates"]["bounds"] && item["org_coordinates"]["bounds"]["top_left"]) {
+          coordinates = item["org_coordinates"]["bounds"]["top_left"];
+        }
+
+        return {
+          name:                       item.key,
+          country:                    countries,
+          city:                       cities,
+          state_or_province:          state_or_provinces,
+          org_postal_code:            postal_codes,
+          org_family:                 families,
+          org_to_family_relationship: family_relationships,
+          org_coordinates:            coordinates,
+          count:                      item.doc_count
+        };
+      });
+    } else if (field === "_aggregates.interventions") {
       return bucket.map((item) => {
         let interventionCodes    = [];
         let interventionSynonyms = [];
@@ -1190,6 +1323,7 @@ class Searcher {
    *
    * @param {any} field The field to pull out
    * @param {any} res The results
+   * @param {any} q search params
    * @returns
    *
    * @memberOf Searcher
