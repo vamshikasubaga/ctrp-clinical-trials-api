@@ -1153,6 +1153,9 @@
               }
             }
           },
+          "org_va": {
+            "type": "boolean"
+          },
           "org_phone": {
             "type": "string",
             "analyzer": "keyword_ci",

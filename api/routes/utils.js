@@ -12,7 +12,7 @@ class Utils {
     let without = _.without(queryParams,
       "from", "size", "sort", "_all", "_fulltext", "include", "exclude", "_trialids", "_findings", "_grades", "_maintypes", "_subtypes", "_stages");
     return without.filter((queryParam) => {
-      if (_.includes(searchPropsByType["string"], queryParam)) {
+      if (_.includes(searchPropsByType["string"], queryParam) || _.includes(searchPropsByType["boolean"], queryParam)) {
         return false;
       } else if (queryParam.endsWith("_fulltext")) {
         //This allows to handle _fulltext querying against specific fields.
