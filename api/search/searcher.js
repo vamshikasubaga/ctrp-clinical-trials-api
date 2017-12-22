@@ -573,7 +573,14 @@ class Searcher {
   _addBooleanFilters(body, q) {
     const _addBooleanFilter = (field, filter) => {
       const _stringToBool = (string) => {
-        return string === "true" || string === "1";
+        if (!_.includes(["1", "0", "true", "false"], q[field].toLowerCase())) {
+          CT_API_ERROR = new Error(
+            `${field} ` +
+            `can only be 'true' or 'false', OR '1' or '0'`);
+          return false
+        } else {
+          return string.toLowerCase() === "true" || string === "1";
+        }
       };
       if(filter instanceof Array) {
         let orBody = bodybuilder();
