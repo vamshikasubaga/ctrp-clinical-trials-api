@@ -1,7 +1,7 @@
 
 [![Build Status](https://travis-ci.org/CBIIT/ctrp-clinical-trials-api.svg?branch=master)](https://travis-ci.org/BIAD/ctrp-clinical-trials-api)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8b9f855009784107bcdbbd48f7566aab)](https://www.codacy.com/app/FNLCR/ctrp-clinical-trials-api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BIAD/ctrp-clinical-trials-api&amp;utm_campaign=Badge_Grade)
-
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/8b9f855009784107bcdbbd48f7566aab)](https://www.codacy.com/app/FNLCR/ctrp-clinical-trials-api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=BIAD/ctrp-clinical-trials-api&amp;utm_campaign=Badge_Coverage)
 
 # ctrp-clinical-trials-api
 Contains the Clinical Trial API (https://clinicaltrialsapi.cancer.gov/) . This is a version extracted initially from NCIP/clinical-trials-search to support micro-services and migrate to AWS.
