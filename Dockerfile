@@ -1,5 +1,5 @@
 FROM node:boron
-
+MAINTAINER radu.robotin@nih.gov
 # Create app directory
 RUN mkdir -p /usr/src/clinical-trials-api
 WORKDIR /usr/src/clinical-trials-api
