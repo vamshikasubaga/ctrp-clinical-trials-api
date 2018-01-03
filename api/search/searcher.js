@@ -315,27 +315,52 @@ class Searcher {
       });
 
       if (paramsForNesting && _.keys(paramsForNesting).length > 1) {
-        //We need to use a nested filter since we have more than one parameter.
+        let nestedQuery = {
+          "nested": {
+            "path": nestedfield,
+            "score_mode": "avg",
+            "query": {
+              "bool": {
+                "must": [{
+                  "bool": {
+                    "must": []
+                  }
+                }]
+              }
+            }
+          }
+        };
+        let orPointer = nestedQuery.nested.query.bool.must[0].bool;
 
-        // ES 2.x removed the nested filter in lieu of nested queries
-        // you can add filters to queries in 2.x
-
-        //We will need to add a nested query to our main body.
-        //A nested query needs a query, so we will create a
-        // boolean "must", which holds its own query.
-
-        let nestedBodyQuery = bodybuilder();
-
-        this._addFieldFilters(nestedBodyQuery, paramsForNesting);
-        //body.query("nested", nestedfield, "avg", nestedBodyQuery.build().query);
-        body.filter("bool", "must", nestedBodyQuery.build().query);
-
-        //Now that we have added the keys, we need to remove the params
-        //from the original request params so we don't add duplicate
-        //filters.
+        // As we delete params from main parameters, we add them to the nested query.
+        // Each parameter is treated with "AND CONDITION"
+        // Arrray values for each parameter are treated with "OR CONDITION"
         _.keys(paramsForNesting).forEach((paramToRemove) => {
+          let addCondition = {};
+
+          if ((q[paramToRemove] instanceof Array)) {
+
+            // for every OR Condition, move 'must' pointer for correct OR query
+            orPointer.must.push({
+              "bool": {
+                "must": [],
+                "should": []
+              }
+            });
+            orPointer = orPointer.must[0].bool;
+
+            q[paramToRemove].forEach((arrItemVal) => {
+              let orCondition = {};
+              orCondition[paramToRemove] = arrItemVal;
+              orPointer.should.push({"match": orCondition});
+            });
+          } else {
+            addCondition[paramToRemove] = q[paramToRemove];
+            nestedQuery.nested.query.bool.must.push({"match": addCondition});
+          }
           delete q[paramToRemove];
         });
+        body.filter("bool", "must", nestedQuery);
       }
 
     });
