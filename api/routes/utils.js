@@ -205,6 +205,7 @@ class Utils {
       if (!q["sites.org_coordinates_lon"]) {
         q["sites.org_coordinates_lon"] = coordinates.lon;
       }
+      delete q["sites.org_postal_code"];
     }
     return q;
   }
