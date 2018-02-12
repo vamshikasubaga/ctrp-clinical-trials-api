@@ -18,7 +18,7 @@ class Utils {
         return false;
       } else if (queryParam.endsWith("_auto") || queryParam.endsWith("_fulltext") || queryParam.endsWith("_raw")) {
         //This allows to handle _fulltext querying against specific fields.
-        let paramWithoutOp = queryParam.substring(0, queryParam.lastIndexOf("_")).replace(/(.$)/g, "");
+        let paramWithoutOp = queryParam.substring(0, queryParam.lastIndexOf("_")).replace(/\.$/, "");
 
         if (_.includes(searchPropsByType["auto"], paramWithoutOp)
             || _.includes(searchPropsByType["fulltext"], paramWithoutOp)
