@@ -293,6 +293,10 @@ class Searcher {
   }
 
   _addNestedFilters(body, q) {
+
+    this._addGeoDistanceFilters(body, q);
+    let geoFilter = body.build().query ? body.build().query.bool.filter.geo_distance: null;
+
     //Get the list of property paths to treat as a Nested Filter.
     let possibleNestedFilterProps =
       _.chain(searchPropsByType["nested"]) //Get nested properties
@@ -314,7 +318,7 @@ class Searcher {
         }
       });
 
-      if (paramsForNesting && _.keys(paramsForNesting).length > 1) {
+      if (paramsForNesting) {
         let nestedQuery = {
           "nested": {
             "path": nestedfield,
@@ -351,15 +355,32 @@ class Searcher {
 
             q[paramToRemove].forEach((arrItemVal) => {
               let orCondition = {};
-              orCondition[paramToRemove] = arrItemVal;
-              orPointer.should.push({"match": orCondition});
+
+              if (paramToRemove.includes("_fulltext")) {
+                orCondition[paramToRemove.replace("_fulltext", "._fulltext").replace("..", ".")] = arrItemVal;
+                orPointer.should.push({"match_phrase_prefix": orCondition});
+              } else {
+                orCondition[paramToRemove] = arrItemVal;
+                orPointer.should.push({"match": orCondition});
+              }
             });
           } else {
-            addCondition[paramToRemove] = q[paramToRemove];
-            nestedQuery.nested.query.bool.must.push({"match": addCondition});
+            if (paramToRemove.includes("_fulltext")) {
+              addCondition[paramToRemove.replace("_fulltext", "._fulltext").replace("..", ".")] = q[paramToRemove];
+              nestedQuery.nested.query.bool.must.push({"match_phrase_prefix": addCondition});
+            } else {
+              addCondition[paramToRemove] = q[paramToRemove];
+              nestedQuery.nested.query.bool.must.push({"match": addCondition});
+            }
           }
           delete q[paramToRemove];
         });
+
+        if (geoFilter) {
+          nestedQuery.nested.query.bool.must.push({
+            "geo_distance": geoFilter
+          });
+        }
         body.filter("bool", "must", nestedQuery);
       }
 
@@ -663,7 +684,6 @@ class Searcher {
     this._addDateRangeFilters(body, q);
     this._addLongRangeFilters(body, q);
     this._addFloatRangeFilters(body, q);
-    this._addGeoDistanceFilters(body, q);
     this._addBooleanFilters(body, q);
     this._addFullTextFieldFilters(body, q);
     this._addTrialIDsFilter(body, q);
@@ -722,6 +742,8 @@ class Searcher {
     this._addFullTextQuery(body, q);
     this._addSortOrder(body, q);
 
+    //logger.info("******* query *****")
+    //logger.info(body.build());
     return body.build();
   }
 

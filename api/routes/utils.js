@@ -10,14 +10,20 @@ const searchPropsByType   = CommonUtils.getFlattenedMappingPropertiesByType(tria
 class Utils {
   static getInvalidTrialQueryParams (queryParams) {
     let without = _.without(queryParams,
-      "from", "size", "sort", "_all", "_fulltext", "include", "exclude", "_trialids", "_findings", "_grades", "_maintypes", "_subtypes", "_stages");
+      "from", "size", "sort", "_all", "_fulltext", "include", "exclude", "_trialids",
+      "_findings", "_grades", "_maintypes", "_subtypes", "_stages"
+    );
     return without.filter((queryParam) => {
       if (_.includes(searchPropsByType["string"], queryParam) || _.includes(searchPropsByType["boolean"], queryParam)) {
         return false;
-      } else if (queryParam.endsWith("_fulltext")) {
+      } else if (queryParam.endsWith("_auto") || queryParam.endsWith("_fulltext") || queryParam.endsWith("_raw")) {
         //This allows to handle _fulltext querying against specific fields.
-        let paramWithoutOp = queryParam.substring(0, queryParam.lastIndexOf("_"));
-        if (_.includes(searchPropsByType["fulltext"], paramWithoutOp)) {
+        let paramWithoutOp = queryParam.substring(0, queryParam.lastIndexOf("_")).replace(/(.$)/g, "");
+
+        if (_.includes(searchPropsByType["auto"], paramWithoutOp)
+            || _.includes(searchPropsByType["fulltext"], paramWithoutOp)
+            || _.includes(searchPropsByType["raw"], paramWithoutOp)
+        ) {
           return false;
         }
       } else if (queryParam.endsWith("_gte") || queryParam.endsWith("_lte")) {
@@ -193,9 +199,12 @@ class Utils {
       delete q["org_postal_code"];
     } else {
       let coordinates = usZipCodes[q["sites.org_postal_code"]];
-      q["sites.org_coordinates_lat"] = coordinates.lat;
-      q["sites.org_coordinates_lon"] = coordinates.lon;
-      delete q["sites.org_postal_code"];
+      if (!q["sites.org_coordinates_lat"]) {
+        q["sites.org_coordinates_lat"] = coordinates.lat;
+      }
+      if (!q["sites.org_coordinates_lon"]) {
+        q["sites.org_coordinates_lon"] = coordinates.lon;
+      }
     }
     return q;
   }

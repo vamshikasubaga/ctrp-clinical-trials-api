@@ -136,6 +136,20 @@ class Utils {
           }
           props["fulltext"].push(pathArr.join("."));
         }
+        //Add special "raw" variant to support fulltext field querying
+        if (mappingTree["fields"] && mappingTree["fields"]["_raw"]) {
+          if (!props["raw"]) {
+            props["raw"] = [];
+          }
+          props["raw"].push(pathArr.join("."));
+        }
+        //Add special "auto" variant to support fulltext field querying
+        if (mappingTree["fields"] && mappingTree["fields"]["_auto"]) {
+          if (!props["auto"]) {
+            props["auto"] = [];
+          }
+          props["auto"].push(pathArr.join("."));
+        }
       } else {
         Object.keys(mappingTree).forEach((key) => {
           _recurseMappingTree(mappingTree[key], pathArr.concat(key));

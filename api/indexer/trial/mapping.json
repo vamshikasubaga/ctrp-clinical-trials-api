@@ -936,7 +936,8 @@
         "include_in_all": true,
         "fields": {
           "_fulltext": {
-            "type": "string"
+            "type": "string",
+            "analyzer": "englishfulltext"
           },
           "_raw": {
             "type": "string",
@@ -982,11 +983,12 @@
           },
           "contact_name": {
             "type": "string",
-            "index": "not_analyzed",
+            "analyzer": "keyword_ci",
             "include_in_all": false,
             "fields": {
               "_fulltext": {
-                "type": "string"
+                "type": "string",
+                "analyzer": "englishfulltext"
               },
               "_raw": {
                 "type": "string",
