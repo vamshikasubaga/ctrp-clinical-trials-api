@@ -293,9 +293,17 @@ class Searcher {
   }
 
   _addNestedFilters(body, q) {
+    const _stringToBool = (string) => {
+      if (!_.includes(["1", "0", "true", "false"], string.toLowerCase())) {
+        return string;
+      } else {
+        return string.toLowerCase() === "true" || string === "1";
+      }
+    };
 
-    this._addGeoDistanceFilters(body, q);
-    let geoFilter = body.build().query ? body.build().query.bool.filter.geo_distance: null;
+    let geoBody = bodybuilder();
+    this._addGeoDistanceFilters(geoBody, q);
+    let geoFilter = geoBody.build().query ? geoBody.build().query.bool.filter.geo_distance: null;
 
     //Get the list of property paths to treat as a Nested Filter.
     let possibleNestedFilterProps =
@@ -341,36 +349,37 @@ class Searcher {
         // Arrray values for each parameter are treated with "OR CONDITION"
         _.keys(paramsForNesting).forEach((paramToRemove) => {
           let addCondition = {};
+          if (!paramToRemove.includes("sites.org_coordinates")) {
+            if ((q[paramToRemove] instanceof Array)) {
 
-          if ((q[paramToRemove] instanceof Array)) {
+              // for every OR Condition, move 'must' pointer for correct OR query
+              orPointer.must.push({
+                "bool": {
+                  "must": [],
+                  "should": []
+                }
+              });
+              orPointer = orPointer.must[0].bool;
 
-            // for every OR Condition, move 'must' pointer for correct OR query
-            orPointer.must.push({
-              "bool": {
-                "must": [],
-                "should": []
-              }
-            });
-            orPointer = orPointer.must[0].bool;
+              q[paramToRemove].forEach((arrItemVal) => {
+                let orCondition = {};
 
-            q[paramToRemove].forEach((arrItemVal) => {
-              let orCondition = {};
-
-              if (paramToRemove.includes("_fulltext")) {
-                orCondition[paramToRemove.replace("_fulltext", "._fulltext").replace("..", ".")] = arrItemVal;
-                orPointer.should.push({"match_phrase_prefix": orCondition});
-              } else {
-                orCondition[paramToRemove] = arrItemVal;
-                orPointer.should.push({"match": orCondition});
-              }
-            });
-          } else {
-            if (paramToRemove.includes("_fulltext")) {
-              addCondition[paramToRemove.replace("_fulltext", "._fulltext").replace("..", ".")] = q[paramToRemove];
-              nestedQuery.nested.query.bool.must.push({"match_phrase_prefix": addCondition});
+                if (paramToRemove.includes("_fulltext")) {
+                  orCondition[paramToRemove.replace("_fulltext", "._fulltext").replace("..", ".")] = arrItemVal;
+                  orPointer.should.push({"match_phrase_prefix": orCondition});
+                } else {
+                  orCondition[paramToRemove] = _stringToBool(arrItemVal);
+                  orPointer.should.push({"match": orCondition});
+                }
+              });
             } else {
-              addCondition[paramToRemove] = q[paramToRemove];
-              nestedQuery.nested.query.bool.must.push({"match": addCondition});
+              if (paramToRemove.includes("_fulltext")) {
+                addCondition[paramToRemove.replace("_fulltext", "._fulltext").replace("..", ".")] = q[paramToRemove];
+                nestedQuery.nested.query.bool.must.push({"match_phrase_prefix": addCondition});
+              } else {
+                addCondition[paramToRemove] = _stringToBool(q[paramToRemove]);
+                nestedQuery.nested.query.bool.must.push({"match": addCondition});
+              }
             }
           }
           delete q[paramToRemove];
