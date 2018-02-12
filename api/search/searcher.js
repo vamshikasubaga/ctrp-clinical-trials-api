@@ -294,7 +294,7 @@ class Searcher {
 
   _addNestedFilters(body, q) {
     const _stringToBool = (string) => {
-      if (!_.includes(["1", "0", "true", "false"], string.toLowerCase())) {
+      if (!(typeof string) || !_.includes(["1", "0", "true", "false"], string.toLowerCase())) {
         return string;
       } else {
         return string.toLowerCase() === "true" || string === "1";
